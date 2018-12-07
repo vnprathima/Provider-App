@@ -5,6 +5,12 @@ import Toggle from '../components/Toggle';
 import DisplayBox from '../components/DisplayBox';
 import DropdownInput from '../components/DropdownInput';
 import DropdownState from '../components/DropdownState';
+import DropdownPractitioner from '../components/DropdownPractitioner';
+import DropdownPractitionerRole from '../components/DropdownPractitionerRole';
+import DropdownCoverage from '../components/DropdownCoverage';
+import DropdownResourceType from '../components/DropdownResourceType';
+
+import DropdownPatient from '../components/DropdownPatient';
 import CheckBox from '../components/CheckBox';
 import ConsoleBox from '../components/ConsoleBox';
 import '../index.css';
@@ -22,22 +28,31 @@ const types = {
 export default class RequestBuilder extends Component{
     constructor(props){
         super(props);
-        this.state = { 
+        this.state = {
             age: null,
             gender: null,
             code: null,
             patientState: null,
             practitionerState: null,
+            patient:null,
+            practitioner:null,
             response:null,
             token: null,
             oauth:false,
             loading:false,
             logs:[],
-            keypair:KEYUTIL.generateKeypair('RSA',2048)
+            keypair:KEYUTIL.generateKeypair('RSA',2048),
+            resourceType:null,
+            coverage:null,
+            status:null,
+            encounterId:null
+
         };
         this.validateMap={
             age:(foo=>{return isNaN(foo)}),
+            encounterId:(foo=>{return isNaN(foo)}),
             gender:(foo=>{return foo!=="male" && foo!=="female"}),
+            status:(foo=>{return foo!=="draft" && foo!=="open"}),
             code:(foo=>{return !foo.match(/^[a-z0-9]+$/i)})
         };
         console.log(this.state.keypair);
@@ -45,27 +60,27 @@ export default class RequestBuilder extends Component{
 
 
 
-        
+
     this.updateStateElement = this.updateStateElement.bind(this);
     this.startLoading = this.startLoading.bind(this);
     this.submit_info = this.submit_info.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
 
     }
-  
+
     makeid() {
       var text = [];
       var possible = "---ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    
+
       for (var i = 0; i < 25; i++)
         text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
-    
+
       return text.join('');
     }
 
     async createJwt(){
       var pubKey = this.state.keypair.pubKeyObj;
-    
+
       const jwkPrv2 = KEYUTIL.getJWKFromKey(this.state.keypair.prvKeyObj);
       const jwkPub2 = KEYUTIL.getJWKFromKey(this.state.keypair.pubKeyObj);
       console.log(pubKey);
@@ -105,9 +120,9 @@ export default class RequestBuilder extends Component{
         "exp": endTime,
         "jti": this.makeid()
       }
-      
+
       var sJWT = KJUR.jws.JWS.sign("RS256",JSON.stringify(header),JSON.stringify(body),jwkPrv2)
-      
+
       return sJWT;
     }
 
@@ -124,6 +139,7 @@ export default class RequestBuilder extends Component{
     updateStateElement = (elementName, text) => {
         this.setState({ [elementName]: text});
     }
+
 
     onInputChange(event){
         this.setState({ [event.target.name]: event.target.value });
@@ -186,7 +202,7 @@ export default class RequestBuilder extends Component{
       this.setState({loading:true}, ()=>{
         this.submit_info();
       });
-      
+
     }
     async submit_info(){
       this.consoleLog("Initiating form submission",types.info);
@@ -217,8 +233,8 @@ export default class RequestBuilder extends Component{
 
             if(fhirResponse && fhirResponse.status){
               console.log(fhirResponse);
-              this.consoleLog("Server returned status " 
-                              + fhirResponse.status + ": " 
+              this.consoleLog("Server returned status "
+                              + fhirResponse.status + ": "
                               + fhirResponse.error,types.error);
               this.consoleLog(fhirResponse.message,types.error);
             }else{
@@ -269,6 +285,17 @@ export default class RequestBuilder extends Component{
           value:"female"
         }
       }
+
+      const status_opts = {
+        option1:{
+          text:"Draft",
+          value:"draft"
+        },
+        option2:{
+          text:"Open",
+          value:"open"
+        }
+      }
         const validationResult = this.validateState();
         const total = Object.keys(validationResult).reduce((previous,current) =>{
             return validationResult[current]*previous
@@ -277,6 +304,57 @@ export default class RequestBuilder extends Component{
         return (
             <div>
             <div className="form-group container left-form">
+              <div>
+                <div className="leftStateInput">
+                <div className="header">
+                        Patient
+                </div>
+                <DropdownPatient
+                  elementName="patient"
+                  updateCB={this.updateStateElement}
+                />
+                </div>
+                <div className="rightStateInput">
+                <div className="header">
+                        Practitioner
+                      </div>
+                <DropdownPractitioner
+                  elementName="practitioner"
+                  updateCB={this.updateStateElement}
+                />
+                </div>
+              </div>
+              <div>
+                <div className="leftStateInput">
+                <div className="header">
+                        PractitionerRole
+                </div>
+                <DropdownPractitionerRole
+                  elementName="practitionerRole"
+                  updateCB={this.updateStateElement}
+                />
+                </div>
+                <div className="rightStateInput">
+                <div className="header">
+                        Coverage
+                      </div>
+                <DropdownCoverage
+                  elementName="coverage"
+                  updateCB={this.updateStateElement}
+                />
+                </div>
+              </div>
+              <div>
+                <div className="header">
+                        ResourceType
+                </div>
+                <DropdownResourceType
+                  elementName="resourceType"
+                  updateCB={this.updateStateElement}
+                />
+
+              </div>
+
                 {Object.keys(this.validateMap)
                 .map((key) => {
 
@@ -299,6 +377,20 @@ export default class RequestBuilder extends Component{
                         <br />
                         </div>
 
+                      }else if(key==="status"){
+                        return <div key={key}>
+                        <div className="header">
+                          Status
+                        </div>
+                        <Toggle
+                        elementName={key}
+                        updateCB={this.updateStateElement}
+                        options={status_opts}
+                        extraClass={!validationResult[key] ? "error-border" : "regular-border"}
+                        ></Toggle>
+                        <br />
+                        </div>
+
                       }else if(key==="code"){
                         return <div key={key}>
                         <div className="header">
@@ -311,7 +403,19 @@ export default class RequestBuilder extends Component{
 
                           <br />
                           </div>
-                      }else{
+                      }else if(key==="encounterId"){
+                        return <div key={key}>
+                        <div className="header">
+                          Encounter #
+                        </div>
+                        <InputBox
+                            elementName={key}
+                            updateCB={this.updateStateElement}
+                            extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
+                          <br />
+                          </div>
+                      }
+                      else if(key==="age"){
                         return <div key={key}>
                         <div className="header">
                           Age
@@ -329,7 +433,7 @@ export default class RequestBuilder extends Component{
                   <div className="header">
                           Patient State
                   </div>
-                  <DropdownState 
+                  <DropdownState
                     elementName="patientState"
                     updateCB={this.updateStateElement}
                   />
@@ -338,7 +442,7 @@ export default class RequestBuilder extends Component{
                   <div className="header">
                           Practitioner State
                         </div>
-                  <DropdownState 
+                  <DropdownState
                     elementName="practitionerState"
                     updateCB={this.updateStateElement}
                   />
@@ -377,31 +481,41 @@ export default class RequestBuilder extends Component{
 
     getJson(){
       const birthYear = 2018-parseInt(this.state.age,10);
+      var patientId =  null;
+      var practitionerId = null;
+      var coverageId = null ;
+      
+      if(this.state.patient != null){
+         patientId = this.state.patient.replace("Patient/","");
+      }
+      else{
+        this.consoleLog("No© client id provided in properties.json",this.warning);
+      }
+
       let request = {
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
         // fhirServer: "http://localhost:8080/ehr-server/r4/",
-        fhirServer: "http://localhost:8181/hapi01/baseDstu3/",
+        fhirServer: "http://localhost:8080/hapi01/baseDstu3/",
         hook: "order-review",
         fhirAuthorization : {
           "access_token" : this.state.token,
-          "token_type" : "Bearer",
-          "expires_in" : 300,
+          "token_type" : config.token_type, // json
+          "expires_in" : config.expires_in, // json
           "scope" : "patient/Patient.read patient/Observation.read",
           "subject" : "cds-service4"
         },
-        user: "Practitioner/2",
+        user: this.state.practitioner, // select
         context: {
-          patientId: "1",
-          encounterId: "4",
+          patientId: patientId ,  // select
+          encounterId: this.state.encounterId, // select
           orders: {
             resourceType: "Bundle",
             entry: [
               {
                 resource: {
-                  id: "a24439",
-                  resourceType: "DeviceRequest",
+                  resourceType: this.state.resourceType,  // select
                   id: "4952",
-                  status: "draft",
+                  status: this.state.status, // variable
                   codeCodeableConcept: {
                     coding: [
                       {
@@ -411,14 +525,14 @@ export default class RequestBuilder extends Component{
                     ]
                   },
                   subject: {
-                    reference: "Patient/1"
+                    reference: this.state.patient // variable
                   },
-                  authoredOn: "2018-08-08",
+                  authoredOn: new Date(), // new date
                   insurance: [{
-                    reference: "Coverage/5"
+                    reference:this.state.coverage // variable
                   }],
                   performer: {
-                    reference: "PractitionerRole/10"
+                    reference: this.state.practitionerRole //variable
                   }
                 }
               }
@@ -446,21 +560,21 @@ export default class RequestBuilder extends Component{
                     ]
                   },
                   subject: {
-                    reference: "Patient/1"
+                    reference: this.state.patient
                   },
-                  authoredOn: "2018-08-08",
+                  authoredOn: new Date(),
                   insurance: [{
-                    reference: "Coverage/5"
+                    reference: this.state.coverage
                   }],
                   performer: {
-                    reference: "PractitionerRole/10"
+                    reference: this.state.practitionerRole
                   }
                 }
               },
               {
                 resource: {
                   resourceType: "Patient",
-                  id: "1",
+                  id: patientId,
                   gender: this.state.gender,
                   birthDate: birthYear + "-01-23",
                   address: [
@@ -511,7 +625,7 @@ export default class RequestBuilder extends Component{
                   resourceType: "PractitionerRole",
                   id: "10",
                   practitioner: {
-                    reference: "Practitioner/2"
+                    reference: this.state.practitioner
                   },
                   location: [
                     {
@@ -738,8 +852,5 @@ export default class RequestBuilder extends Component{
     //   }
     //   return request;
     // }
-    
+
 }
-
-
-
