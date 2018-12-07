@@ -1,4 +1,6 @@
 {
   "realm": "ClientFhirServer",
-  "client": "app-login"
+  "client": "app-login",
+  "token_type" : "Bearer",
+  "expires_in" : 300
 }
