@@ -147,12 +147,12 @@ export default class RequestBuilder extends Component{
 
     async login(){
 
-      const tokenUrl = "https://in.affosoft.com:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token"
+      const tokenUrl = "https://54.227.173.76:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token"
       this.consoleLog("Retrieving OAuth token from "+tokenUrl,types.info);
       let params = {
           grant_type:"password",
-          username:"admin",
-          password:"password",
+          username:"john",
+          password:"john123",
           client_id:config.client
       }
       if(config.client){
@@ -484,7 +484,7 @@ export default class RequestBuilder extends Component{
       var patientId =  null;
       var practitionerId = null;
       var coverageId = null ;
-      
+
       if(this.state.patient != null){
          patientId = this.state.patient.replace("Patient/","");
       }
