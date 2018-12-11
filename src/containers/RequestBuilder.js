@@ -147,12 +147,12 @@ export default class RequestBuilder extends Component{
 
     async login(){
 
-      const tokenUrl = "https://in.affosoft.com:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token"
+      const tokenUrl = "https://54.227.173.76:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token"
       this.consoleLog("Retrieving OAuth token from "+tokenUrl,types.info);
       let params = {
           grant_type:"password",
-          username:"admin",
-          password:"password",
+          username:"john",
+          password:"john123",
           client_id:config.client
       }
       if(config.client){
@@ -220,9 +220,9 @@ export default class RequestBuilder extends Component{
         "Content-Type": "application/json",
         "authorization": jwt
       });
-            this.consoleLog("Fetching response from http://localhost:8090/r4/cds-services/order-review-crd/",types.info)
+            this.consoleLog("Fetching response from http://54.227.173.76:8090/r4/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://localhost:8090/r4/cds-services/order-review-crd",{
+            const fhirResponse= await fetch("http://54.227.173.76:8090/r4/cds-services/order-review-crd",{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)
@@ -484,7 +484,7 @@ export default class RequestBuilder extends Component{
       var patientId =  null;
       var practitionerId = null;
       var coverageId = null ;
-      
+
       if(this.state.patient != null){
          patientId = this.state.patient.replace("Patient/","");
       }
@@ -495,7 +495,7 @@ export default class RequestBuilder extends Component{
       let request = {
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
         // fhirServer: "http://localhost:8080/ehr-server/r4/",
-        fhirServer: "http://localhost:8080/hapi01/baseDstu3/",
+        fhirServer: "http://54.227.173.76:8181/fhir/baseDstu3/",
         hook: "order-review",
         fhirAuthorization : {
           "access_token" : this.state.token,
