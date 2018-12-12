@@ -3,7 +3,7 @@ import {Dropdown} from 'semantic-ui-react';
 
 export const options = [
   { key: 'DeviceRequest', value: 'DeviceRequest', text: 'Device Request' },
-  { key: 'ResourceType/2', value: 'ResourceType/2', text: 'ResourceType b' },
+  { key: 'condition', value: 'condition', text: 'Condition' },
   { key: 'ResourceType/3', value: 'ResourceType/3', text: 'ResourceType c' },
 
 ]
@@ -41,7 +41,6 @@ export default class DropdownResourceType extends Component {
     //           text: name,
     //         })
     //       }
-    //       console.log('yooo',patientOptions);
 
     //   })  
   };
@@ -67,6 +66,7 @@ export default class DropdownResourceType extends Component {
         search
         selection
         fluid
+        require
         onChange={this.handleChange}
       />
     )

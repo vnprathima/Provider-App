@@ -222,7 +222,7 @@ export default class RequestBuilder extends Component{
       });
             this.consoleLog("Fetching response from http://54.227.173.76:8090/r4/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://54.227.173.76:8090/r4/cds-services/order-review-crd",{
+            const fhirResponse= await fetch("http://54.227.173.76:8443/r4/cds-services/order-review-crd",{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)

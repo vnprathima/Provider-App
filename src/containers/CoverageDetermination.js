@@ -6,6 +6,7 @@ import DropdownPatient from '../components/DropdownPatient';
 import DropdownCDSHook from '../components/DropdownCDSHook';
 import DropdownEncounter from '../components/DropdownEncounter';
 import DropdownInput from '../components/DropdownInput';
+import DropdownCodeInput from '../components/DropdownCodeInput';
 import DropdownResourceType from '../components/DropdownResourceType';
 import '../index.css';
 import '../components/consoleBox.css';
@@ -26,7 +27,7 @@ export default class CoverageDetermination extends Component {
     this.state = {
         patient:null,
         resourceType:null,
-        encounterId:null,
+        // encounterId:null,
         encounter:null,
         response:null,
         token: null,
@@ -39,7 +40,7 @@ export default class CoverageDetermination extends Component {
     }
     this.validateMap={
       // age:(foo=>{return isNaN(foo)}),
-      encounterId:(foo=>{return isNaN(foo)}),
+      // encounterId:(foo=>{return isNaN(foo)}),
       // gender:(foo=>{return foo!=="male" && foo!=="female"}),
       status:(foo=>{return foo!=="draft" && foo!=="open"}),
       code:(foo=>{return !foo.match(/^[a-z0-9]+$/i)})
@@ -48,63 +49,6 @@ export default class CoverageDetermination extends Component {
   this.startLoading = this.startLoading.bind(this);
   this.submit_info = this.submit_info.bind(this);
   this.consoleLog = this.consoleLog.bind(this);
-  }
-  makeid() {
-    var text = [];
-    var possible = "---ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (var i = 0; i < 25; i++)
-      text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
-
-    return text.join('');
-  }
-
-  async createJwt(){
-    var pubKey = this.state.keypair.pubKeyObj;
-
-    const jwkPrv2 = KEYUTIL.getJWKFromKey(this.state.keypair.prvKeyObj);
-    const jwkPub2 = KEYUTIL.getJWKFromKey(this.state.keypair.pubKeyObj);
-    console.log(pubKey);
-    const currentTime = KJUR.jws.IntDate.get('now');
-    const endTime = KJUR.jws.IntDate.get('now + 1day');
-    const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
-    // const pubPem = {"pem":KEYUTIL.getPEM(pubKey),"id":kid};
-    const pubPem = {"pem":jwkPub2,"id":kid};
-
-    // Check if the public key is already in the dbs
-    const checkForPublic = await fetch("http://localhost:3001/public_keys?id="+kid,{
-      "headers":{
-        "Content-Type":"application/json"
-      },
-      "method":"GET"
-    }).then(response => {return response.json()});
-    if(!checkForPublic.length){
-      // POST key to db if it's not already there
-      const alag = await fetch("http://localhost:3001/public_keys",{
-        "body": JSON.stringify(pubPem),
-        "headers":{
-          "Content-Type":"application/json"
-        },
-        "method":"POST"
-      });
-    }
-    const header = {
-      "alg":"RS256",
-      "typ":"JWT",
-      "kid":kid,
-      "jku":"http://localhost:3001/public_keys"
-    };
-    const body = {
-      "iss":"localhost:3000",
-      "aud":"r4/order-review-services",
-      "iat": currentTime,
-      "exp": endTime,
-      "jti": this.makeid()
-    }
-
-    var sJWT = KJUR.jws.JWS.sign("RS256",JSON.stringify(header),JSON.stringify(body),jwkPrv2)
-
-    return sJWT;
   }
   consoleLog(content, type){
     let jsonContent = {
@@ -117,6 +61,7 @@ export default class CoverageDetermination extends Component {
   }
   
 updateStateElement = (elementName, text) => {
+  console.log('wht element name',elementName,)
   this.setState({ [elementName]: text});
 }
 
@@ -150,26 +95,29 @@ validateState(){
 async submit_info(){
   this.consoleLog("Initiating form submission",types.info);
   let json_request = this.getJson();
-  console.log("Req: ",json_request);
-  
+  console.log(JSON.stringify(json_request))
+  console.log("Req: ",json_request);  
   var auth = 'Basic ' + new Buffer('john' + ':' + 'john123').toString('base64');
   var myHeaders = new Headers({
     "Content-Type": "application/json",
     "authorization": auth,
   });
-        this.consoleLog("Fetching response from http://54.227.173.76:8090/r4/cds-services/order-review-crd/",types.info)
+      this.consoleLog("Fetching response from http://54.227.173.76:8090/coverage_determination/",types.info)
       try{
-        const fhirResponse= await fetch("http://54.227.173.76:8090/r4/cds-services/order-review-crd",{
+        const fhirResponse= await fetch("http://54.227.173.76:8090/coverage_determination",{
             method: "POST",
             headers: myHeaders,
             body: JSON.stringify(json_request)
         }).then(response => {
+        console.log("Fetching response from http://54.227.173.76:8446/coverage_determination/",types.info,fhirResponse,fhirResponse.status);
+
           this.consoleLog("Recieved response",types.info);
             return response.json();
         }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
 
         if(fhirResponse && fhirResponse.status){
           console.log(fhirResponse);
+
           this.consoleLog("Server returned status "
                           + fhirResponse.status + ": "
                           + fhirResponse.error,types.error);
@@ -260,6 +208,30 @@ async submit_info(){
                 </div>
               </div>
             }
+            {this.state.hook === 'liver-transplant' &&
+              <div>
+                <div>
+                  <div className="header">
+                          Resource Type
+                  </div>
+                  <DropdownResourceType
+                    elementName="resourceType"
+                    updateCB={this.updateStateElement}
+                  />
+                </div>
+                <div>
+                  <div className="header">
+                      Code
+                  </div>
+                  <DropdownCodeInput
+                      elementName='code'
+                      updateCB={this.updateStateElement}
+                      />
+                  <br />
+                  </div>
+              </div>
+            }
+
             
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
               </button>
@@ -273,18 +245,20 @@ async submit_info(){
       var patientId =  null;
       var practitionerId = null;
       var coverageId = null ;
-      
-      if(this.state.patient != null){
-         patientId = this.state.patient.replace("Patient/","");
-         console.log(patientId,'sdfghhhhhj')
-      }
-      else{
-        this.consoleLog("No© client id provided in properties.json",this.warning);
-      }
-
+      var encounterId='';
+      var gender=null;
+      console.log(this.state.patient,'sdfghhhhhj')
+      // if(this.state.patient != null){
+      //    patientId = this.state.patient.replace("Patient/","");
+         
+      // }
+      // else{
+      //   this.consoleLog("No© client id provided in properties.json",this.warning);
+      // }
+      patientId=this.state.patient;
       let request = {
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-        fhirServer: "http://54.227.173.76:8090/",        
+        // fhirServer: "http://54.227.173.76:8090/fhir/basedstu3",        
         hook: this.state.hook,
         // fhirAuthorization : {
         //   "access_token" : this.state.token,
@@ -296,14 +270,19 @@ async submit_info(){
         // user: this.state.practitioner, // select
         context: {
           patientId: patientId ,  // select
-          encounterId: this.state.encounter, // select
           orders: {
             resourceType: "Bundle",
             entry: [
               {
+                resource:{
+                  resourceType:"Patient",
+                  id:patientId
+                }
+              },
+              {
                 resource: {
                   resourceType: this.state.resourceType,  // select
-                  id: "4952",
+                  id: "6-1",
                   codeCodeableConcept: {
                     coding: [
                       {
@@ -318,6 +297,11 @@ async submit_info(){
           }
         }
       };
+      if(this.state.hook==='order-review')
+      {
+       request.context.encounterId = this.state.encounter
+      }
+      console.log(request)
       return request;
     }
   render() {

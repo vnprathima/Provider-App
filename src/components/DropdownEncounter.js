@@ -29,7 +29,6 @@ export default class DropdownEncounter extends Component {
               text: bundle.entry[i].resource.reason[0].text,
             })
           }
-          console.log('yooo',encounterOptions);
 
       })  
     };
