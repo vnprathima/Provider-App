@@ -1,12 +1,8 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
 
-export const patienOptions = [
-  { key: 'Patient/1', value: 'Patient/1', text: 'Patient a' },
-  { key: 'Patient/2', value: 'Patient/2', text: 'Patient b' },
-  { key: 'Patient/3', value: 'Patient/3', text: 'Patient c' },
-
-]
+// this.myclient = new FhirClient(this.URL);
+export const patientOptions = [];
 
 let blackBorder = "blackBorder";
 
@@ -15,7 +11,34 @@ export default class DropdownPatient extends Component {
     super(props);
     this.state = { currentValue: ""}
     this.handleChange = this.handleChange.bind(this);
-  };
+    var mkFhir = require('fhir.js');
+    var client = mkFhir({
+      baseUrl: 'http://localhost:8080/hapi-fhir-jpaserver-example/baseDstu3'
+    });
+    client
+      .search( {type: 'Patient', query: {  }})
+      .then(function(res){
+          var bundle = res.data;
+          var count = (bundle.entry && bundle.entry.length) || 0;
+          console.log("# Patients born in 1974: ", count,bundle.entry);
+          for(var i=0;i<bundle.entry.length;i++){
+            console.log(bundle.entry[i].resource.name[0].given[0])
+            if(bundle.entry[i].resource.name[0].given[1]!= undefined){
+              var name = bundle.entry[i].resource.name[0].given[0]+" "+bundle.entry[i].resource.name[0].given[1]
+            }
+            else{
+              var name = bundle.entry[i].resource.name[0].given[0]+" "+bundle.entry[i].resource.name[0].family
+            }
+            patientOptions.push({
+              key: bundle.entry[i].resource.id,
+              value: bundle.entry[i].resource.id,
+              text: name,
+            })
+          }
+          console.log('yooo',patientOptions);
+
+      })  
+    };
 
   handleChange = (e, { value }) => {
     console.log(this.props);
@@ -33,7 +56,7 @@ export default class DropdownPatient extends Component {
     return (
       <Dropdown
       className={blackBorder}
-        options={patienOptions}
+        options={patientOptions}
         placeholder='Choose Patient'
         search
         selection
