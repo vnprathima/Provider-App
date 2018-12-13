@@ -147,15 +147,15 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
         Accept: 'application/json',
         Authorization: `Bearer ${accessToken.access_token}`,
       };
-  
+
       const launchParameters = {
         patient: patientId,
       };
-  
+
       if (link.appContext) {
         launchParameters.appContext = link.appContext;
       }
-  
+
       // May change when the launch context creation endpoint becomes a standard endpoint for all EHR providers
       axios({
         method: 'post',
@@ -226,7 +226,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
             'hard-stop': 2,
             error: 3,
           };
-      
+
           const summaryColors = {
             info: '#0079be',
             warning: '#ffae42',
@@ -235,66 +235,84 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           };
           const renderedCards = [];
           // Iterate over each card in the cards array
-          if(this.props.response!=null){
-            this.props.response.cards
-            .sort((b, a) => indicators[a.indicator] - indicators[b.indicator])
-            .forEach((c, cardInd) => {
-              const card = JSON.parse(JSON.stringify(c));
-      
-              // -- Summary --
-              const summarySection = <Text fontSize={18} weight={700} color={summaryColors[card.indicator]}>{card.summary}</Text>;
-      
-              // -- Source --
-              const sourceSection = card.source && Object.keys(card.source).length ? this.renderSource(card.source) : '';
-      
-              // -- Detail (ReactMarkdown supports Github-flavored markdown) --
-              const detailSection = '';
-      
-              // -- Suggestions --
-              let suggestionsSection;
-              if (card.suggestions) {
-                suggestionsSection = card.suggestions.map((item, ind) => (
-                  <Button
-                    key={ind}
-                    onClick={() => this.takeSuggestion(item, card.serviceUrl)}
-                    text={item.label}
-                    variant={Button.Opts.Variants.EMPHASIS}
-                  />
-                ));
+          if(this.props.response!=null ){
+            if(this.props.req_type != "coverage_determination"){
+                this.props.response.cards
+                .sort((b, a) => indicators[a.indicator] - indicators[b.indicator])
+                .forEach((c, cardInd) => {
+                  const card = JSON.parse(JSON.stringify(c));
+
+                  // -- Summary --
+                  const summarySection = <Text fontSize={18} weight={700} color={summaryColors[card.indicator]}>{card.summary}</Text>;
+
+                  // -- Source --
+                  const sourceSection = card.source && Object.keys(card.source).length ? this.renderSource(card.source) : '';
+
+                  // -- Detail (ReactMarkdown supports Github-flavored markdown) --
+                  const detailSection = '';
+
+                  // -- Suggestions --
+                  let suggestionsSection;
+                  if (card.suggestions) {
+                    suggestionsSection = card.suggestions.map((item, ind) => (
+                      <Button
+                        key={ind}
+                        onClick={() => this.takeSuggestion(item, card.serviceUrl)}
+                        text={item.label}
+                        variant={Button.Opts.Variants.EMPHASIS}
+                      />
+                    ));
+                  }
+
+                  // -- Links --
+                  let linksSection;
+                  if (card.links) {
+                    card.links = this.modifySmartLaunchUrls(card) || card.links;
+                    linksSection = card.links.map((link, ind) => (
+                      <Button
+                        key={ind}
+                        onClick={e => this.launchLink(e, link)}
+                        text={link.label}
+                        variant={Button.Opts.Variants['DE-EMPHASIS']}
+                      />
+                    ));
+                  }
+
+                  const builtCard = (
+                    <TerraCard key={cardInd} className='decision-card alert-info'>
+                      {summarySection}
+                      {sourceSection}
+                      {detailSection}
+                      <div className={styles['suggestions-section']}>
+                        {suggestionsSection}
+                      </div>
+                      <div className={styles['links-section']}>
+                        {linksSection}
+                      </div>
+                    </TerraCard>);
+
+                  renderedCards.push(builtCard);
+                });
               }
-      
-              // -- Links --
-              let linksSection;
-              if (card.links) {
-                card.links = this.modifySmartLaunchUrls(card) || card.links;
-                linksSection = card.links.map((link, ind) => (
-                  <Button
-                    key={ind}
-                    onClick={e => this.launchLink(e, link)}
-                    text={link.label}
-                    variant={Button.Opts.Variants['DE-EMPHASIS']}
-                  />
-                ));
-              }
-    
-              const builtCard = (
-                <TerraCard key={cardInd} className='decision-card alert-info'>
-                  {summarySection}
-                  {sourceSection}
-                  {detailSection}
-                  <div className={styles['suggestions-section']}>
-                    {suggestionsSection}
-                  </div>
-                  <div className={styles['links-section']}>
-                    {linksSection}
-                  </div>
-                </TerraCard>);
-      
-              renderedCards.push(builtCard);
-            });
           }
 
-          if (renderedCards.length === 0) { return <div><div className='decision-card alert-warning'>No Cards</div></div>; }
-          return <div>{renderedCards}</div>;
+          // console.log('............')
+          // console.log(this.props.response ,this.props.req_type)
+          // console.log(this.props.respons.opo.ssse)
+          if(this.props.req_type == "coverage_determination" && this.props.response != null && this.props.response.hasOwnProperty("Coverage")){
+            if(this.props.response.Coverage){
+                return <div className='decision-card alert-info'><strong>Coverage : </strong> Eligible</div>
+            }
+            else{
+              return <div className='decision-card alert-warning'><strong> Coverage : </strong> Not Eligible</div>
+            }
+
+
+          }
+          else if (renderedCards.length === 0) { return <div><div className='decision-card alert-warning'>No Cards</div></div>; }
+          else{
+            return <div>{renderedCards}</div>;
+          }
+
         }
       }

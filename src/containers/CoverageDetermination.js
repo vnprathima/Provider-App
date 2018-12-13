@@ -38,7 +38,7 @@ export default class CoverageDetermination extends Component {
         logs:[],
         cards:[],
         hook:null,
-        
+
         keypair:KEYUTIL.generateKeypair('RSA',2048),
       errors: {},
     }
@@ -63,7 +63,7 @@ export default class CoverageDetermination extends Component {
       logs: [...prevState.logs, jsonContent]
     }))
   }
-  
+
 updateStateElement = (elementName, text) => {
   console.log('wht element name',elementName,)
   this.setState({ [elementName]: text});
@@ -100,7 +100,7 @@ async submit_info(){
   this.consoleLog("Initiating form submission",types.info);
   let json_request = this.getJson();
   console.log(JSON.stringify(json_request))
-  console.log("Req: ",json_request);  
+  console.log("Req: ",json_request);
   var auth = 'Basic ' + new Buffer('john' + ':' + 'john123').toString('base64');
   var myHeaders = new Headers({
     "Content-Type": "application/json",
@@ -110,27 +110,32 @@ async submit_info(){
       this.consoleLog("Fetching response from http://54.227.173.76:8090/coverage_determination/",types.info)
       try{
 
-        const fhirResponse=  fetch("http://54.227.173.76:8090/coverage_determination",{
+        const fhirResponse= await fetch("http://54.227.173.76:8090/coverage_determination",{
             method: "POST",
             headers: myHeaders,
             body: JSON.stringify(json_request)
-        }).then(response => {
-        console.log("Fetching response from http://54.227.173.76:8446/coverage_determination/",types.info,fhirResponse,fhirResponse.status);
-          console.log("Recieved response",response.json())
-          this.consoleLog("Recieved response",types.info);
-            // return response.json();
-            let res = {cards:[{
-              summary:fhirResponse
-            }]}
-            // Object.assign({}, this.state.response);
-            // res.cards[0]['summary'] = fhirResponse
-            // this.state.response.cards[0].summary=fhirResponse
-            // console.log(this.state.response.cards[0].summary,'oooooo');
-            console.log(response.json(),'lllllllll')
-          this.setState({response: JSON.stringify(res)});
-
-        }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
-        
+        })
+        // .then(response => {
+        // console.log("Fetching response from http://54.227.173.76:8446/coverage_determination/",types.info,fhirResponse,fhirResponse.status);
+        //   console.log("Recieved response",response)
+        //   this.consoleLog("Recieved response",types.info);
+        //     // return response.json();
+        //     // let res = {cards:[{
+        //     //   summary:fhirResponse
+        //     // }]}
+        //     // // Object.assign({}, this.state.response);
+        //     // // res.cards[0]['summary'] = fhirResponse
+        //     // // this.state.response.cards[0].summary=fhirResponse
+        //     // // console.log(this.state.response.cards[0].summary,'oooooo');
+        //     console.log(response.json(),'lllllllll')
+        //   return response.json();
+        //   // this.setState({response: JSON.stringify(fhirResponse)});
+        //
+        // }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
+        const res_json = await fhirResponse.json();
+        this.setState({response: res_json});
+        console.log("res_json");
+        console.log(res_json);
         if(fhirResponse && fhirResponse.status){
           console.log(fhirResponse);
 
@@ -141,7 +146,8 @@ async submit_info(){
         }else{
           console.log(fhirResponse);
 
-          this.setState({response: fhirResponse});
+          // this.setState({response: fhirResponse});
+          this.setState({response: res_json});
         }
       this.setState({loading:false});
       }catch(error){
@@ -250,16 +256,16 @@ async submit_info(){
               </div>
             }
 
-            
+
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
               </button>
           </div>
           <div className="right-form">
                 <DisplayBox
-                response = {this.state.response}/>
+                response = {this.state.response} req_type="coverage_determination" />
             </div>
 
-          
+
         </div>
       </React.Fragment>);
     };
@@ -273,7 +279,7 @@ async submit_info(){
       console.log(this.state.patient,'sdfghhhhhj')
       // if(this.state.patient != null){
       //    patientId = this.state.patient.replace("Patient/","");
-         
+
       // }
       // else{
       //   this.consoleLog("No© client id provided in properties.json",this.warning);
@@ -281,7 +287,7 @@ async submit_info(){
       patientId=this.state.patient;
       let request = {
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-        // fhirServer: "http://54.227.173.76:8090/fhir/basedstu3",        
+        // fhirServer: "http://54.227.173.76:8090/fhir/basedstu3",
         hook: this.state.hook,
         // fhirAuthorization : {
         //   "access_token" : this.state.token,
