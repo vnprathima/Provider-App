@@ -484,13 +484,13 @@ export default class RequestBuilder extends Component{
       var patientId =  null;
       var practitionerId = null;
       var coverageId = null ;
-
-      if(this.state.patient != null){
-         patientId = this.state.patient.replace("Patient/","");
-      }
-      else{
-        this.consoleLog("No© client id provided in properties.json",this.warning);
-      }
+      patientId=this.state.patient;
+      // if(this.state.patient != null){
+      //    patientId = this.state.patient.replace("Patient/","");
+      // }
+      // else{
+      //   this.consoleLog("No© client id provided in properties.json",this.warning);
+      // }
 
       let request = {
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",

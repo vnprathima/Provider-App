@@ -8,6 +8,8 @@ import DropdownEncounter from '../components/DropdownEncounter';
 import DropdownInput from '../components/DropdownInput';
 import DropdownCodeInput from '../components/DropdownCodeInput';
 import DropdownResourceType from '../components/DropdownResourceType';
+import DisplayBox from '../components/DisplayBox';
+
 import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
@@ -34,7 +36,9 @@ export default class CoverageDetermination extends Component {
         oauth:false,
         loading:false,
         logs:[],
+        cards:[],
         hook:null,
+        
         keypair:KEYUTIL.generateKeypair('RSA',2048),
       errors: {},
     }
@@ -102,19 +106,31 @@ async submit_info(){
     "Content-Type": "application/json",
     "authorization": auth,
   });
+
       this.consoleLog("Fetching response from http://54.227.173.76:8090/coverage_determination/",types.info)
       try{
-        const fhirResponse= await fetch("http://54.227.173.76:8090/coverage_determination",{
+
+        const fhirResponse=  fetch("http://54.227.173.76:8090/coverage_determination",{
             method: "POST",
             headers: myHeaders,
             body: JSON.stringify(json_request)
         }).then(response => {
         console.log("Fetching response from http://54.227.173.76:8446/coverage_determination/",types.info,fhirResponse,fhirResponse.status);
-
+          console.log("Recieved response",response.json())
           this.consoleLog("Recieved response",types.info);
-            return response.json();
-        }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
+            // return response.json();
+            let res = {cards:[{
+              summary:fhirResponse
+            }]}
+            // Object.assign({}, this.state.response);
+            // res.cards[0]['summary'] = fhirResponse
+            // this.state.response.cards[0].summary=fhirResponse
+            // console.log(this.state.response.cards[0].summary,'oooooo');
+            console.log(response.json(),'lllllllll')
+          this.setState({response: JSON.stringify(res)});
 
+        }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
+        
         if(fhirResponse && fhirResponse.status){
           console.log(fhirResponse);
 
@@ -123,6 +139,8 @@ async submit_info(){
                           + fhirResponse.error,types.error);
           this.consoleLog(fhirResponse.message,types.error);
         }else{
+          console.log(fhirResponse);
+
           this.setState({response: fhirResponse});
         }
       this.setState({loading:false});
@@ -236,6 +254,11 @@ async submit_info(){
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
               </button>
           </div>
+          <div className="right-form">
+                <DisplayBox
+                response = {this.state.response}/>
+            </div>
+
           
         </div>
       </React.Fragment>);
