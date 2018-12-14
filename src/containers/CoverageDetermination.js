@@ -8,7 +8,9 @@ import DropdownEncounter from '../components/DropdownEncounter';
 import DropdownInput from '../components/DropdownInput';
 import DropdownCodeInput from '../components/DropdownCodeInput';
 import DropdownResourceType from '../components/DropdownResourceType';
+import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DisplayBox from '../components/DisplayBox';
+import CheckBox from '../components/CheckBox';
 
 import '../index.css';
 import '../components/consoleBox.css';
@@ -29,6 +31,7 @@ export default class CoverageDetermination extends Component {
     this.state = {
         patient:null,
         resourceType:null,
+        resourceTypeLT:null,
         // encounterId:null,
         encounter:null,
         response:null,
@@ -132,19 +135,20 @@ async submit_info(){
         //   // this.setState({response: JSON.stringify(fhirResponse)});
         //
         // }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
-        const res_json = await fhirResponse.json();
-        this.setState({response: res_json});
+        const res_json = await  fhirResponse.json();
         console.log("res_json");
         console.log(res_json);
+        this.setState({response: res_json});
+   
         if(fhirResponse && fhirResponse.status){
-          console.log(fhirResponse);
+          console.log(fhirResponse,'oooooooooo');
 
           this.consoleLog("Server returned status "
                           + fhirResponse.status + ": "
                           + fhirResponse.error,types.error);
           this.consoleLog(fhirResponse.message,types.error);
         }else{
-          console.log(fhirResponse);
+          console.log(fhirResponse,'pppppppppppp');
 
           // this.setState({response: fhirResponse});
           this.setState({response: res_json});
@@ -206,8 +210,8 @@ async submit_info(){
                   <div className="header">
                           Resource Type
                   </div>
-                  <DropdownResourceType
-                    elementName="resourceType"
+                  <DropdownResourceTypeLT
+                    elementName="resourceTypeLT"
                     updateCB={this.updateStateElement}
                   />
               </div>
@@ -259,6 +263,18 @@ async submit_info(){
 
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
               </button>
+            
+              <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit Claim
+              </button>
+              {/* <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/> */}
+                <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
+                <Loader
+                  type="Oval"
+                  color="#222222"
+                  height="16"
+                  width="16"
+                />
+                </div>
           </div>
           <div className="right-form">
                 <DisplayBox

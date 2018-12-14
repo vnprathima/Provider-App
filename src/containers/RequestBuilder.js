@@ -175,7 +175,7 @@ export default class RequestBuilder extends Component{
         body: searchParams
       }).then((response) =>{
           return response.json();
-      }).then(response=>{
+      }).then((response)=>{
         console.log(response);
           const token = response?response.access_token:null;
           if(token){

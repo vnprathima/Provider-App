@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
+import {login} from './Authentication';
 // import { createJwt } from './jwt'
 
 
@@ -15,6 +16,7 @@ export const patientOptions = [
   {key:8,value: 8,text: "Barbara Faith"},
   {key:9,value: 9,text: "Gabrielle Daisy"},
 ];
+// export const patientOptions = [];
 
 let blackBorder = "blackBorder";
 
@@ -23,17 +25,27 @@ export default class DropdownPatient extends Component {
     super(props);
     this.state = { currentValue: ""}
     this.handleChange = this.handleChange.bind(this);
-    // var mkFhir = require('fhir.js');
-    // var client = mkFhir({
+    };
+    // var k = status();
+    componentDidMount() {
+      this.getPatientDetails();
+    }
+   async getPatientDetails(){
+     let token = await login();
+    //  console.log(token,'please')
+    //  var mkFhir = require('fhir.js');
+    //  var client = mkFhir({
+    //   // baseUrl: 'http://54.227.173.76:8181/fhir/baseDstu3',
     //   baseUrl: 'http://localhost:8080/hapi-fhir-jpaserver-example/baseDstu3',
-    // });
 
+    //   // auth: {
+    //   //   bearer: token,
+    //   // }
+    // });
     // client
     //   .search( {type: 'Patient', query: {  }})
     //   .then(function(res){
     //       var bundle = res.data;
-    //       var count = (bundle.entry && bundle.entry.length) || 0;
-    //       console.log("# Patients born in 1974: ", count,bundle.entry);
     //       for(var i=0;i<bundle.entry.length;i++){
     //         console.log(bundle.entry[i].resource.name[0].given[0])
     //         if(bundle.entry[i].resource.name[0].given[1]!= undefined){
@@ -50,7 +62,9 @@ export default class DropdownPatient extends Component {
     //       }
 
     //   })  
-    };
+   }
+
+
 
   handleChange = (e, { value }) => {
     this.props.updateCB(this.props.elementName, value)
