@@ -17,6 +17,8 @@ import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, {KEYUTIL} from 'jsrsasign';
+import {login} from '../components/Authentication';
+
 
 
 const types = {
@@ -41,7 +43,7 @@ export default class CoverageDetermination extends Component {
         logs:[],
         cards:[],
         hook:null,
-
+        resource_records:{},
         keypair:KEYUTIL.generateKeypair('RSA',2048),
       errors: {},
     }
@@ -56,6 +58,16 @@ export default class CoverageDetermination extends Component {
   this.startLoading = this.startLoading.bind(this);
   this.submit_info = this.submit_info.bind(this);
   this.consoleLog = this.consoleLog.bind(this);
+  this.getResourceRecords = this.getResourceRecords.bind(this);
+  if(window.location.href.indexOf("appContext") > -1){
+    this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
+    this.getResourceRecords(this.appContext);
+  }
+  else{
+    this.appContext = null ;
+  }
+  // console.log("this.appContext");
+  // console.log(this.appContext);
   }
   consoleLog(content, type){
     let jsonContent = {
@@ -76,8 +88,42 @@ startLoading(){
   this.setState({loading:true}, ()=>{
     this.submit_info();
   });
-
 }
+
+async getResourceRecords(appContext){
+  let tokenResponse = await login();
+  appContext.requirements.map((obj) => {
+    // console.log("obj")
+    // console.log(obj)
+    Object.keys(obj).map((valueset)=>{
+      // console.log("valueset")
+      this.getValusets(obj,valueset,tokenResponse.access_token);
+      
+
+
+    })
+  });
+}
+
+async getValusets(obj,valueset,token){
+  const url = "http://54.227.173.76:8181/fhir/baseDstu3/"+valueset
+  const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type":"application/x-www-form-urlencoded",
+            "authorization":"Bearer "+token,
+            "Access-Control-Allow-Origin":"*"
+        },
+        
+      }).then((response) =>{
+          return response.json();
+      }).then((response)=>{
+        console.log("Respspspsps");
+        console.log(response);
+
+      })
+}
+
 validateState(){
   const validationResult = {};
   Object.keys(this.validateMap).forEach(key => {

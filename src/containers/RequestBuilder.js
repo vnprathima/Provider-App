@@ -36,7 +36,57 @@ export default class RequestBuilder extends Component{
             practitionerState: null,
             patient:null,
             practitioner:null,
-            response:null,
+            response:{
+                            "cards": [
+            {
+                                    "summary": "List of Requirements",
+                                    "indicator": "info",
+                                    "detail": "The requested procedure needs more documentation to process further",
+                                    "suggestions": [
+                                        {
+                                            "label": "Upload encounter receipt.",
+                                            "actions": [{
+                                                "type": "update",
+                                                "description": "Upload receipt ti communication channel.",
+                                                "resource": {
+                                                    "resourceType": "Communication",
+                                                    "id": "",
+                                                    "extension": [
+                                                        {
+                                                            "url": "http://hl7.org/fhir/us/qicore/StructureDefinition/procedurerequest-appropriatenessScore",
+                                                            "valueDecimal": "9"
+                                                        }
+                                                    ],
+                                                    "status": "draft",
+                                                    "intent": "proposal",
+                                                    "priority": "routine",
+                                                    "subject": {
+                                                        "reference": "Patient/1"
+                                                    },
+                                                    "requester": {
+                                                        "agent": {
+                                                            "reference": "Practitioner/3"
+                                                        }
+                                                    }
+                                                }
+                                            }]
+                                        }
+                                    ],
+            						"links": [
+            							{
+            							"label": "SMART App",
+            							"url": "http://localhost:3000/cd",
+            							"type": "smart",
+            							"appContext": {"requirements":[
+                                  		{"Condition":"End Stage Liver Disease"},
+                                  		{"Procedure":"Transplantation of liver (procedure)"}
+            		                          ]}
+                	          }
+            						]
+                                }
+            ]
+            }
+,
             token: null,
             oauth:false,
             loading:false,
@@ -77,6 +127,8 @@ export default class RequestBuilder extends Component{
 
       return text.join('');
     }
+
+
 
     async createJwt(){
       var pubKey = this.state.keypair.pubKeyObj;
@@ -222,7 +274,7 @@ export default class RequestBuilder extends Component{
       });
             this.consoleLog("Fetching response from http://54.227.173.76:8090/r4/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://54.227.173.76:8443/r4/cds-services/order-review-crd",{
+            const fhirResponse= await fetch("http://localhost:8090/r4/cds-services/order-review-crd",{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)

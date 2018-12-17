@@ -66,6 +66,9 @@ export default class DisplayBox extends Component{
             data: {},
           });
         }
+        console.log("Take suggestion");
+      console.log(suggestion);
+      console.log(this.props);
         this.props.takeSuggestion(suggestion);
       } else {
         console.error('There was no label on this suggestion', suggestion);
@@ -105,9 +108,11 @@ export default class DisplayBox extends Component{
    * @param {*} card - Card object to process the links for
    */
   modifySmartLaunchUrls(card) {
+
     if (!this.props.isDemoCard) {
       return card.links.map((link) => {
         let linkCopy = Object.assign({}, link);
+        console.log("LInkkk obj",link)
         if (link.type === 'smart' && this.props.fhirAccessToken) {
           this.retrieveLaunchContext(
             linkCopy, this.props.fhirAccessToken,
@@ -122,9 +127,12 @@ export default class DisplayBox extends Component{
           } else {
             linkCopy.url += '&';
           }
-          linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
-          linkCopy.url += `&patientId=${this.props.patientId}`;
+          // linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
+          // linkCopy.url += `&patientId=${this.props.patientId}`;
+          linkCopy.url += encodeURIComponent("appContext="+JSON.stringify(link.appContext));
+          // console.log(decodeURIComponent(linkCopy.url));
         }
+        console.log("Enododod",linkCopy)
         return linkCopy;
       });
     }
@@ -235,8 +243,9 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           };
           const renderedCards = [];
           // Iterate over each card in the cards array
-          if(this.props.response!=null ){
-            if(this.props.req_type != "coverage_determination"){
+          if(this.props.response!=null){
+            console.log("Resspsp",this.props.response);
+            if(this.props.req_type != "coverage_determination" && this.props.response.hasOwnProperty('cards') && this.props.response.cards !=null){
                 this.props.response.cards
                 .sort((b, a) => indicators[a.indicator] - indicators[b.indicator])
                 .forEach((c, cardInd) => {
