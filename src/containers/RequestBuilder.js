@@ -36,57 +36,7 @@ export default class RequestBuilder extends Component{
             practitionerState: null,
             patient:null,
             practitioner:null,
-            response:{
-                            "cards": [
-            {
-                                    "summary": "List of Requirements",
-                                    "indicator": "info",
-                                    "detail": "The requested procedure needs more documentation to process further",
-                                    "suggestions": [
-                                        {
-                                            "label": "Upload encounter receipt.",
-                                            "actions": [{
-                                                "type": "update",
-                                                "description": "Upload receipt ti communication channel.",
-                                                "resource": {
-                                                    "resourceType": "Communication",
-                                                    "id": "",
-                                                    "extension": [
-                                                        {
-                                                            "url": "http://hl7.org/fhir/us/qicore/StructureDefinition/procedurerequest-appropriatenessScore",
-                                                            "valueDecimal": "9"
-                                                        }
-                                                    ],
-                                                    "status": "draft",
-                                                    "intent": "proposal",
-                                                    "priority": "routine",
-                                                    "subject": {
-                                                        "reference": "Patient/1"
-                                                    },
-                                                    "requester": {
-                                                        "agent": {
-                                                            "reference": "Practitioner/3"
-                                                        }
-                                                    }
-                                                }
-                                            }]
-                                        }
-                                    ],
-            						"links": [
-            							{
-            							"label": "SMART App",
-            							"url": "http://localhost:3000/cd",
-            							"type": "smart",
-            							"appContext": {"requirements":[
-                                  		{"Condition":"End Stage Liver Disease"},
-                                  		{"Procedure":"Transplantation of liver (procedure)"}
-            		                          ]}
-                	          }
-            						]
-                                }
-            ]
-            }
-,
+            response:null,
             token: null,
             oauth:false,
             loading:false,
