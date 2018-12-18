@@ -176,7 +176,7 @@ async submit_info(){
       this.consoleLog("Fetching response from "+url+",types.info")
       try{
 
-        const fhirResponse= await fetch(config.provider_cd_url,{
+        const fhirResponse= await fetch(url,{
             method: config.provider_response_method_post,
             headers: myHeaders,
             body: JSON.stringify(json_request)
@@ -328,6 +328,7 @@ async submit_info(){
                 />
                 </div>
           </div>
+          
           <div className="right-form">
                 <DisplayBox
                 response = {this.state.response} req_type="coverage_determination" />

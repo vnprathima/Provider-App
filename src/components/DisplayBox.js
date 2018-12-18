@@ -244,8 +244,8 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           const renderedCards = [];
           // Iterate over each card in the cards array
           if(this.props.response!=null){
-            console.log("Resspsp",this.props.response);
-            if(this.props.req_type != "coverage_determination" && this.props.response.hasOwnProperty('cards') && this.props.response.cards !=null){
+            console.log("Resspsp",this.props.response.hasOwnProperty('requirements'),this.props.response);
+            if(this.props.req_type != "coverage_determination" && (this.props.response.hasOwnProperty('cards')) && this.props.response.cards !=null){
                 this.props.response.cards
                 .sort((b, a) => indicators[a.indicator] - indicators[b.indicator])
                 .forEach((c, cardInd) => {
