@@ -70,8 +70,7 @@ export default class RequestBuilder extends Component{
 
     makeid() {
       var text = [];
-      var possible = "---ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
+      var possible = config.make_id_possible;
       for (var i = 0; i < 25; i++)
         text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
 
@@ -110,10 +109,10 @@ export default class RequestBuilder extends Component{
         });
       }
       const header = {
-        "alg":"RS256",
-        "typ":"JWT",
+        "alg":config.jwt_header_alg,
+        "typ":config.jwt_header_type,
         "kid":kid,
-        "jku":"http://localhost:3001/public_keys"
+        "jku":config.jwt_header_jku,
       };
       const body = {
         "iss":"localhost:3000",
@@ -149,14 +148,9 @@ export default class RequestBuilder extends Component{
 
     async login(){
 
-      const tokenUrl = "https://54.227.173.76:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token"
+      const tokenUrl = config.provider_token_url;
       this.consoleLog("Retrieving OAuth token from "+tokenUrl,types.info);
-      let params = {
-          grant_type:"password",
-          username:"john",
-          password:"john123",
-          client_id:config.client
-      }
+      let params = config.provider_login_params
       if(config.client){
         this.consoleLog("Using client {" + config.client + "}",types.info)
       }else{
@@ -222,9 +216,9 @@ export default class RequestBuilder extends Component{
         "Content-Type": "application/json",
         "authorization": jwt
       });
-            this.consoleLog("Fetching response from http://54.227.173.76:8090/r4/cds-services/order-review-crd/",types.info)
+            this.consoleLog("Fetching response from"+config.provider_order_review_url+",types.info")
           try{
-            const fhirResponse= await fetch("http://54.227.173.76:8090/r4/cds-services/order-review-crd",{
+            const fhirResponse= await fetch(config.provider_order_review_url,{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)
@@ -277,160 +271,141 @@ export default class RequestBuilder extends Component{
     }
 
     render() {
-      const options = {
-        option1:{
-          text:"Male",
-          value:"male"
-        },
-        option2:{
-          text:"Female",
-          value:"female"
-        }
-      }
+      const options =config.gender_options;
+      const status_opts = config.status_options;
+      const validationResult = this.validateState();
+      const total = Object.keys(validationResult).reduce((previous,current) =>{
+          return validationResult[current]*previous
+      },1);
 
-      const status_opts = {
-        option1:{
-          text:"Draft",
-          value:"draft"
-        },
-        option2:{
-          text:"Open",
-          value:"open"
-        }
-      }
-        const validationResult = this.validateState();
-        const total = Object.keys(validationResult).reduce((previous,current) =>{
-            return validationResult[current]*previous
-        },1);
-
-        return (
+      return (
+          <div>
+          <div className="form-group container left-form">
             <div>
-            <div className="form-group container left-form">
-              <div>
-                <div className="leftStateInput">
-                <div className="header">
-                        Patient
-                </div>
-                <DropdownPatient
-                  elementName="patient"
-                  updateCB={this.updateStateElement}
-                />
-                </div>
-                <div className="rightStateInput">
-                <div className="header">
-                        Practitioner
+              <div className="leftStateInput">
+              <div className="header">
+                      Patient
+              </div>
+              <DropdownPatient
+                elementName="patient"
+                updateCB={this.updateStateElement}
+              />
+              </div>
+              <div className="rightStateInput">
+              <div className="header">
+                      Practitioner
+                    </div>
+              <DropdownPractitioner
+                elementName="practitioner"
+                updateCB={this.updateStateElement}
+              />
+              </div>
+            </div>
+            <div>
+              <div className="leftStateInput">
+              <div className="header">
+                      PractitionerRole
+              </div>
+              <DropdownPractitionerRole
+                elementName="practitionerRole"
+                updateCB={this.updateStateElement}
+              />
+              </div>
+              <div className="rightStateInput">
+              <div className="header">
+                      Coverage
+                    </div>
+              <DropdownCoverage
+                elementName="coverage"
+                updateCB={this.updateStateElement}
+              />
+              </div>
+            </div>
+            <div>
+              <div className="header">
+                      ResourceType
+              </div>
+              <DropdownResourceType
+                elementName="resourceType"
+                updateCB={this.updateStateElement}
+              />
+
+            </div>
+
+              {Object.keys(this.validateMap)
+              .map((key) => {
+
+                // Make type of input and the associated options available in some
+                // top level json instead of hard-coding the if-else per key
+                // e.g., gender should have a "toggle" attribute and the options
+                // it wants should be written in the JSON.  This way if we want more
+                // options later they're easy to add.
+                    if(key==="gender"){
+                      return <div key={key}>
+                      <div className="header">
+                        Gender
                       </div>
-                <DropdownPractitioner
-                  elementName="practitioner"
-                  updateCB={this.updateStateElement}
-                />
-                </div>
-              </div>
-              <div>
-                <div className="leftStateInput">
-                <div className="header">
-                        PractitionerRole
-                </div>
-                <DropdownPractitionerRole
-                  elementName="practitionerRole"
-                  updateCB={this.updateStateElement}
-                />
-                </div>
-                <div className="rightStateInput">
-                <div className="header">
-                        Coverage
+                      <Toggle
+                      elementName={key}
+                      updateCB={this.updateStateElement}
+                      options={options}
+                      extraClass={!validationResult[key] ? "error-border" : "regular-border"}
+                      ></Toggle>
+                      <br />
                       </div>
-                <DropdownCoverage
-                  elementName="coverage"
-                  updateCB={this.updateStateElement}
-                />
-                </div>
-              </div>
-              <div>
-                <div className="header">
-                        ResourceType
-                </div>
-                <DropdownResourceType
-                  elementName="resourceType"
-                  updateCB={this.updateStateElement}
-                />
 
-              </div>
+                    }else if(key==="status"){
+                      return <div key={key}>
+                      <div className="header">
+                        Status
+                      </div>
+                      <Toggle
+                      elementName={key}
+                      updateCB={this.updateStateElement}
+                      options={status_opts}
+                      extraClass={!validationResult[key] ? "error-border" : "regular-border"}
+                      ></Toggle>
+                      <br />
+                      </div>
 
-                {Object.keys(this.validateMap)
-                .map((key) => {
+                    }else if(key==="code"){
+                      return <div key={key}>
+                      <div className="header">
+                        Code
+                      </div>
+                      <DropdownInput
+                          elementName={key}
+                          updateCB={this.updateStateElement}
+                          />
 
-                  // Make type of input and the associated options available in some
-                  // top level json instead of hard-coding the if-else per key
-                  // e.g., gender should have a "toggle" attribute and the options
-                  // it wants should be written in the JSON.  This way if we want more
-                  // options later they're easy to add.
-                      if(key==="gender"){
-                        return <div key={key}>
-                        <div className="header">
-                          Gender
-                        </div>
-                        <Toggle
-                        elementName={key}
-                        updateCB={this.updateStateElement}
-                        options={options}
-                        extraClass={!validationResult[key] ? "error-border" : "regular-border"}
-                        ></Toggle>
                         <br />
                         </div>
-
-                      }else if(key==="status"){
-                        return <div key={key}>
-                        <div className="header">
-                          Status
-                        </div>
-                        <Toggle
-                        elementName={key}
-                        updateCB={this.updateStateElement}
-                        options={status_opts}
-                        extraClass={!validationResult[key] ? "error-border" : "regular-border"}
-                        ></Toggle>
+                    }else if(key==="encounterId"){
+                      return <div key={key}>
+                      <div className="header">
+                        Encounter #
+                      </div>
+                      <InputBox
+                          elementName={key}
+                          updateCB={this.updateStateElement}
+                          extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
                         <br />
                         </div>
-
-                      }else if(key==="code"){
-                        return <div key={key}>
-                        <div className="header">
-                          Code
+                    }
+                    else if(key==="age"){
+                      return <div key={key}>
+                      <div className="header">
+                        Age
+                      </div>
+                      <InputBox
+                          elementName={key}
+                          updateCB={this.updateStateElement}
+                          extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
+                        <br />
                         </div>
-                        <DropdownInput
-                            elementName={key}
-                            updateCB={this.updateStateElement}
-                            />
-
-                          <br />
-                          </div>
-                      }else if(key==="encounterId"){
-                        return <div key={key}>
-                        <div className="header">
-                          Encounter #
-                        </div>
-                        <InputBox
-                            elementName={key}
-                            updateCB={this.updateStateElement}
-                            extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
-                          <br />
-                          </div>
-                      }
-                      else if(key==="age"){
-                        return <div key={key}>
-                        <div className="header">
-                          Age
-                        </div>
-                        <InputBox
-                            elementName={key}
-                            updateCB={this.updateStateElement}
-                            extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
-                          <br />
-                          </div>
-                      }
-                })}
-                <div>
+                    }
+              })}
+              <div>
                   <div className="leftStateInput">
                   <div className="header">
                           Patient State
@@ -495,16 +470,16 @@ export default class RequestBuilder extends Component{
       // }
 
       let request = {
-        hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+        hookInstance: config.provider_hook_instance,
         // fhirServer: "http://localhost:8080/ehr-server/r4/",
-        fhirServer: "http://54.227.173.76:8181/fhir/baseDstu3/",
+        fhirServer: config.fhir_url,
         hook: "order-review",
         fhirAuthorization : {
           "access_token" : this.state.token,
           "token_type" : config.token_type, // json
           "expires_in" : config.expires_in, // json
-          "scope" : "patient/Patient.read patient/Observation.read",
-          "subject" : "cds-service4"
+          "scope" : config.fhir_auth_scope, // json
+          "subject" : config.fhir_auth_subject // json
         },
         user: this.state.practitioner, // select
         context: {

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
 import {login} from './Authentication';
+import config from '../properties.json';
 // import { createJwt } from './jwt'
 
 
@@ -32,7 +33,7 @@ export default class DropdownPatient extends Component {
     }
    async getPatientDetails(){
      let token = await login();
-    //  console.log(token,'please')
+     console.log(token,'pleaseee')
     //  var mkFhir = require('fhir.js');
     //  var client = mkFhir({
     //   // baseUrl: 'http://54.227.173.76:8181/fhir/baseDstu3',

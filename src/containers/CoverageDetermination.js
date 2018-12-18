@@ -45,6 +45,7 @@ export default class CoverageDetermination extends Component {
         hook:null,
         resource_records:{},
         keypair:KEYUTIL.generateKeypair('RSA',2048),
+        prior_auth:false,
       errors: {},
     }
     this.validateMap={
@@ -57,6 +58,7 @@ export default class CoverageDetermination extends Component {
   // this.updateStateElement = this.updateStateElement.bind(this);
   this.startLoading = this.startLoading.bind(this);
   this.submit_info = this.submit_info.bind(this);
+  this.submit_prior_auth = this.submit_prior_auth.bind(this);
   this.consoleLog = this.consoleLog.bind(this);
   this.getResourceRecords = this.getResourceRecords.bind(this);
   if(window.location.href.indexOf("appContext") > -1){
@@ -90,6 +92,17 @@ startLoading(){
   });
 }
 
+submit_prior_auth(){
+  // this.setState({prior_auth:true};
+  // this.state.prior_auth = true;
+  this.state.prior_auth = true;
+  this.setState({prior_auth:true});
+  console.log(this.state.prior_auth,'--------------');
+  this.setState({loading:true }, ()=>{
+    this.submit_info();
+  });
+}
+
 async getResourceRecords(appContext){
   let tokenResponse = await login();
   appContext.requirements.map((obj) => {
@@ -98,15 +111,12 @@ async getResourceRecords(appContext){
     Object.keys(obj).map((valueset)=>{
       // console.log("valueset")
       this.getValusets(obj,valueset,tokenResponse.access_token);
-      
-
-
     })
   });
 }
 
 async getValusets(obj,valueset,token){
-  const url = "http://54.227.173.76:8181/fhir/baseDstu3/"+valueset
+  const url = config.fhir_url+valueset;
   const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -150,17 +160,24 @@ async submit_info(){
   let json_request = this.getJson();
   console.log(JSON.stringify(json_request))
   console.log("Req: ",json_request);
-  var auth = 'Basic ' + new Buffer('john' + ':' + 'john123').toString('base64');
+  var auth = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
   var myHeaders = new Headers({
     "Content-Type": "application/json",
     "authorization": auth,
   });
-
-      this.consoleLog("Fetching response from http://54.227.173.76:8090/coverage_determination/",types.info)
+  let url='';
+    if(this.state.prior_auth){
+      url = config.provider_pa_url;
+    }
+    else{
+      url = config.provider_cd_url;
+    }
+      console.log("Fetching response from "+url+",types.info")
+      this.consoleLog("Fetching response from "+url+",types.info")
       try{
 
-        const fhirResponse= await fetch("http://54.227.173.76:8090/coverage_determination",{
-            method: "POST",
+        const fhirResponse= await fetch(config.provider_cd_url,{
+            method: config.provider_response_method_post,
             headers: myHeaders,
             body: JSON.stringify(json_request)
         })
@@ -187,14 +204,12 @@ async submit_info(){
         this.setState({response: res_json});
    
         if(fhirResponse && fhirResponse.status){
-          console.log(fhirResponse,'oooooooooo');
-
           this.consoleLog("Server returned status "
                           + fhirResponse.status + ": "
                           + fhirResponse.error,types.error);
           this.consoleLog(fhirResponse.message,types.error);
         }else{
-          console.log(fhirResponse,'pppppppppppp');
+          // console.log(fhirResponse,'pppppppppppp');
 
           // this.setState({response: fhirResponse});
           this.setState({response: res_json});
@@ -212,16 +227,7 @@ async submit_info(){
 }
 
   renderClaimSubmit() {
-    const status_opts = {
-      option1:{
-        text:"Draft",
-        value:"draft"
-      },
-      option2:{
-        text:"Open",
-        value:"open"
-      }
-    }
+    const status_opts = config.status_options;
     // const validationResult = this.validateState();
     const validationResult = this.validateState();
     const total = Object.keys(validationResult).reduce((previous,current) =>{
@@ -310,7 +316,7 @@ async submit_info(){
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
               </button>
             
-              <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit Claim
+              <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_prior_auth}>Submit Prior Authorization
               </button>
               {/* <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/> */}
                 <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
@@ -341,22 +347,21 @@ async submit_info(){
       console.log(this.state.patient,'sdfghhhhhj')
       // if(this.state.patient != null){
       //    patientId = this.state.patient.replace("Patient/","");
-
       // }
       // else{
       //   this.consoleLog("No© client id provided in properties.json",this.warning);
       // }
       patientId=this.state.patient;
       let request = {
-        hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-        // fhirServer: "http://54.227.173.76:8090/fhir/basedstu3",
+        hookInstance: config.provider_hook_instance,
+        // fhirServer: config.fhir_url,
         hook: this.state.hook,
         // fhirAuthorization : {
         //   "access_token" : this.state.token,
         //   "token_type" : config.token_type, // json
         //   "expires_in" : config.expires_in, // json
-        //   "scope" : "patient/Patient.read patient/Observation.read",
-        //   "subject" : "cds-service4"
+        //   "scope" : config.fhir_auth_scope,
+        //   "subject" : config.fhir_auth_subject,
         // },
         // user: this.state.practitioner, // select
         context: {

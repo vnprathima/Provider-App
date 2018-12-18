@@ -2,5 +2,60 @@
   "realm": "ClientFhirServer",
   "client": "app-login",
   "token_type" : "Bearer",
-  "expires_in" : 300
+  "expires_in" : 300,
+  "provider_token_url": "https://54.227.173.76:8443/auth/realms/ClientFhirServer/protocol/openid-connect/token",
+  "provider_logs":{
+    "error": "errorClass",
+    "info": "infoClass",
+    "debug": "debugClass",
+    "warning": "warningClass"
+  },
+  "provider_login_params": {
+    "grant_type":"password",
+    "username":"john",
+    "password":"john123",
+    "client_id":"app-login"
+  },
+  "provider_response_method_post":"POST",
+  "provider_response_header":{
+    "Content-Type":"application/x-www-form-urlencoded"
+  },
+  "fhir_url":"http://54.227.173.76:8181/fhir/baseDstu3/",
+  "username":"john",
+  "password":"john123",
+  "status_options":{
+    "option1":{
+      "text":"Draft",
+      "value":"draft"
+    },
+    "option2":{
+      "text":"Open",
+      "value":"open"
+    }
+  },
+  "provider_hook_instance":"d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+  "fhir_auth_scope":"patient/Patient.read patient/Observation.read",
+  "fhir_auth_subject":"cds-service4",
+  "provider_cd_url":"http://54.227.173.76:8090/coverage_determination",
+  "provider_pa_url":"http://54.227.173.76:8090/prior_authorization",
+  "jwt_header_alg":"RS256",
+  "jwt_header_type":"JWT",
+  "jwt_header_jku":"http://localhost:3001/public_keys",
+  "jwt_body_iss":"localhost:3000",
+  "jwt_body_aud":"r4/order-review-services",
+  "make_id_possible":"---ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+  "provider_order_review_url":"http://54.227.173.76:8090/r4/cds-services/order-review-crd",
+  "gender_options":{
+    "option1":{
+      "text":"Male",
+      "value":"male"
+    },
+    "option2":{
+      "text":"Female",
+      "value":"female"
+    }
+  }
+
+
+
 }

@@ -4,19 +4,19 @@ import config from '../properties.json';
 
 export async function login(){
     const types = {
-        error: "errorClass",
-        info: "infoClass",
-        debug: "debugClass",
-        warning: "warningClass"
-      }
-    const tokenUrl = "https://54.227.173.76:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token"
-   console.log("Retrieving OAuth token from "+tokenUrl,types.info);
+    error: "errorClass",
+    info: "infoClass",
+    debug: "debugClass",
+    warning: "warningClass"
+  };
+    const tokenUrl = "https://54.227.173.76:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token";
+    console.log("Retrieving OAuth token from "+tokenUrl,types.info);
     let params = {
         grant_type:"password",
         username:"john",
         password:"john123",
-        client_id:config.client
-    }
+        client_id:"app-login"
+      };
     if(config.client){
     console.log("Using client {" + config.client + "}",types.info)
     }else{
@@ -33,7 +33,7 @@ export async function login(){
         method: "POST",
         headers: {
             "Content-Type":"application/x-www-form-urlencoded"
-        },
+          },
         body: searchParams
     })
     .then((response) =>{
@@ -49,8 +49,6 @@ export async function login(){
             console.log(response.error_description,types.error);
         }
         }
-        // console.log("tokenen",token)
-        // this.setState({token})
         return token;
 
     })
@@ -58,8 +56,8 @@ export async function login(){
     console.log("Failed to get token", types.error);
     console.log("Bad request");
     });
-    // console.log(tokenResponse,'--==--==--=-=')
-
+    let t = await tokenResponse
+    console.log("tokenResponse:",t)
     return tokenResponse;
 
 }
