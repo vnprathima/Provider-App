@@ -105,24 +105,26 @@ submit_prior_auth(){
 
 async getResourceRecords(appContext){
   let tokenResponse = await login();
-  appContext.requirements.map((obj) => {
+  console.log(tokenResponse);
+  // appContext[0].map((obj) => {
     // console.log("obj")
-    // console.log(obj)
-    Object.keys(obj).map((valueset)=>{
-      // console.log("valueset")
-      this.getValusets(obj,valueset,tokenResponse.access_token);
+    Object.keys(appContext[0]).map((valueset)=>{
+      console.log("valueset",valueset);
+      this.getValusets(valueset,tokenResponse.access_token);
     })
-  });
+  // });
 }
 
-async getValusets(obj,valueset,token){
+async getValusets(valueset,token){
   const url = config.fhir_url+valueset;
+  // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
   const response = await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type":"application/x-www-form-urlencoded",
             "authorization":"Bearer "+token,
-            "Access-Control-Allow-Origin":"*"
+            "Allow-Control-Allow-Origin":"*",
+            "cache-control": "no-cache"
         },
         
       }).then((response) =>{
