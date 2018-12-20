@@ -2,7 +2,7 @@ import KJUR, {KEYUTIL} from 'jsrsasign';
 import config from '../properties.json';
 
 
-export async function login(){
+export async function createToken(){
     const types = {
     error: "errorClass",
     info: "infoClass",

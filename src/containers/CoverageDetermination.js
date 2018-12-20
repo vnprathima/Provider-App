@@ -19,7 +19,7 @@ import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, {KEYUTIL} from 'jsrsasign';
-import {login} from '../components/Authentication';
+import {createToken} from '../components/Authentication';
  
 const types = {
   error: "errorClass",
@@ -118,7 +118,7 @@ export default class CoverageDetermination extends Component {
   }
 
   async getResourceRecords(appContext){
-    let tokenResponse = await login();
+    let tokenResponse = await createToken();
     console.log(tokenResponse);
     // appContext[0].map((obj) => {
       // console.log("obj")
