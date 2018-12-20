@@ -11,6 +11,8 @@ import DropdownResourceType from '../components/DropdownResourceType';
 import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DisplayBox from '../components/DisplayBox';
 import CheckBox from '../components/CheckBox';
+import {createJwt} from '../components/AuthenticationJwt';
+
 
 import '../index.css';
 import '../components/consoleBox.css';
@@ -18,15 +20,15 @@ import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, {KEYUTIL} from 'jsrsasign';
 import {login} from '../components/Authentication';
-
-
-
+ 
 const types = {
   error: "errorClass",
   info: "infoClass",
   debug: "debugClass",
   warning: "warningClass"
 }
+
+
 export default class CoverageDetermination extends Component {
   constructor(props){
     super(props);
@@ -40,6 +42,7 @@ export default class CoverageDetermination extends Component {
         token: null,
         oauth:false,
         loading:false,
+        upload:null,
         logs:[],
         cards:[],
         hook:null,
@@ -60,6 +63,8 @@ export default class CoverageDetermination extends Component {
   this.submit_info = this.submit_info.bind(this);
   this.submit_prior_auth = this.submit_prior_auth.bind(this);
   this.consoleLog = this.consoleLog.bind(this);
+  this.uploadFile = this.uploadFile.bind(this);
+
   this.getResourceRecords = this.getResourceRecords.bind(this);
   if(window.location.href.indexOf("appContext") > -1){
     this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
@@ -81,152 +86,219 @@ export default class CoverageDetermination extends Component {
     }))
   }
 
-updateStateElement = (elementName, text) => {
-  console.log('wht element name',elementName,)
-  this.setState({ [elementName]: text});
-}
+  //file upload
 
-startLoading(){
-  this.setState({loading:true}, ()=>{
-    this.submit_info();
-  });
-}
+ 
+ 
 
-submit_prior_auth(){
-  // this.setState({prior_auth:true};
-  // this.state.prior_auth = true;
-  this.state.prior_auth = true;
-  this.setState({prior_auth:true});
-  console.log(this.state.prior_auth,'--------------');
-  this.setState({loading:true }, ()=>{
-    this.submit_info();
-  });
-}
 
-async getResourceRecords(appContext){
-  let tokenResponse = await login();
-  console.log(tokenResponse);
-  // appContext[0].map((obj) => {
-    // console.log("obj")
-    Object.keys(appContext[0]).map((valueset)=>{
-      console.log("valueset",valueset);
-      this.getValusets(valueset,tokenResponse.access_token);
-    })
-  // });
-}
+  updateStateElement = (elementName, text) => {
+    console.log('wht element name',elementName,)
+    this.setState({ [elementName]: text});
+  }
 
-async getValusets(valueset,token){
-  const url = config.fhir_url+valueset;
-  // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
-  const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Content-Type":"application/x-www-form-urlencoded",
-            "authorization":"Bearer "+token,
-            "Allow-Control-Allow-Origin":"*",
-            "cache-control": "no-cache"
-        },
-        
-      }).then((response) =>{
-          return response.json();
-      }).then((response)=>{
-        console.log("Respspspsps");
-        console.log(response);
+  startLoading(){
+    this.setState({loading:true}, ()=>{
+      this.submit_info();
+    });
+  }
+   handleUploadChange=(event)=>{
+    console.log('Selected file:', event.target.files);    
+  }
 
+  submit_prior_auth(){
+    // this.setState({prior_auth:true};
+    // this.state.prior_auth = true;
+    this.state.prior_auth = true;
+    this.setState({prior_auth:true});
+    console.log(this.state.prior_auth,'--------------');
+    this.setState({loading:true }, ()=>{
+      this.submit_info();
+    });
+  }
+
+  async getResourceRecords(appContext){
+    let tokenResponse = await login();
+    console.log(tokenResponse);
+    // appContext[0].map((obj) => {
+      // console.log("obj")
+      Object.keys(appContext[0]).map((valueset)=>{
+        console.log("valueset",valueset);
+        this.getValusets(valueset,tokenResponse.access_token);
       })
-}
+    // });
+  }
 
-validateState(){
-  const validationResult = {};
-  Object.keys(this.validateMap).forEach(key => {
-      if(this.state[key] && this.validateMap[key](this.state[key])){
-          // Basically we want to know if we have any errors
-          // or empty fields, and we want the errors to override
-          // the empty fields, so we make errors 0 and unpopulated
-          // fields 2.  Then we just look at whether the product of all
-          // the validations is 0 (error), 1 (valid) , or >1 (some unpopulated fields).
-          validationResult[key]=0;
-      }else if(this.state[key]){
-          // the field is populated and valid
-          validationResult[key]=1;
-      }else{
-          // the field is not populated
-          validationResult[key]=2
-      }
-  });
+  async getValusets(valueset,token){
+    const url = config.fhir_url+valueset;
+    // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
+    const response = await fetch(url, {
+          method: "GET",
+          headers: {
+              "Content-Type":"application/x-www-form-urlencoded",
+              "authorization":"Bearer "+token,
+              "Allow-Control-Allow-Origin":"*",
+              "cache-control": "no-cache"
+          },
+          
+        }).then((response) =>{
+            return response.json();
+        }).then((response)=>{
+          console.log("Respspspsps");
+          console.log(response);
 
-  return validationResult;
-}
-async submit_info(){
-  this.consoleLog("Initiating form submission",types.info);
-  let json_request = this.getJson();
-  console.log(JSON.stringify(json_request))
-  console.log("Req: ",json_request);
-  var auth = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
-  var myHeaders = new Headers({
-    "Content-Type": "application/json",
-    "authorization": auth,
-  });
-  let url='';
-    if(this.state.prior_auth){
-      url = config.provider_pa_url;
-    }
-    else{
-      url = config.provider_cd_url;
-    }
-      console.log("Fetching response from "+url+",types.info")
-      this.consoleLog("Fetching response from "+url+",types.info")
-      try{
-
-        const fhirResponse= await fetch(url,{
-            method: config.provider_response_method_post,
-            headers: myHeaders,
-            body: JSON.stringify(json_request)
         })
-        // .then(response => {
-        // console.log("Fetching response from http://54.227.173.76:8446/coverage_determination/",types.info,fhirResponse,fhirResponse.status);
-        //   console.log("Recieved response",response)
-        //   this.consoleLog("Recieved response",types.info);
-        //     // return response.json();
-        //     // let res = {cards:[{
-        //     //   summary:fhirResponse
-        //     // }]}
-        //     // // Object.assign({}, this.state.response);
-        //     // // res.cards[0]['summary'] = fhirResponse
-        //     // // this.state.response.cards[0].summary=fhirResponse
-        //     // // console.log(this.state.response.cards[0].summary,'oooooo');
-        //     console.log(response.json(),'lllllllll')
-        //   return response.json();
-        //   // this.setState({response: JSON.stringify(fhirResponse)});
-        //
-        // }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
-        const res_json = await  fhirResponse.json();
-        console.log("res_json");
-        console.log(res_json);
-        this.setState({response: res_json});
-   
-        if(fhirResponse && fhirResponse.status){
-          this.consoleLog("Server returned status "
-                          + fhirResponse.status + ": "
-                          + fhirResponse.error,types.error);
-          this.consoleLog(fhirResponse.message,types.error);
-        }else{
-          // console.log(fhirResponse,'pppppppppppp');
-
-          // this.setState({response: fhirResponse});
-          this.setState({response: res_json});
-        }
-      this.setState({loading:false});
-      }catch(error){
-        this.setState({loading:false});
-        this.consoleLog("Unexpected error occured",types.error)
-        // this.consoleLog(e.,types.error);
-        if(error instanceof TypeError){
-          this.consoleLog(error.name + ": " + error.message,types.error);
-        }
-      }
-
+  }
+  uploadFile(event) {
+    this.state.upload = event.target.files;
+    console.log(this.state.upload,'how many fielssss');
+       
 }
+  // async getJwt(){
+  //   let jwt = await jwt();
+  //   return jwt;
+  // }
+
+  validateState(){
+    const validationResult = {};
+    Object.keys(this.validateMap).forEach(key => {
+        if(this.state[key] && this.validateMap[key](this.state[key])){
+            // Basically we want to know if we have any errors
+            // or empty fields, and we want the errors to override
+            // the empty fields, so we make errors 0 and unpopulated
+            // fields 2.  Then we just look at whether the product of all
+            // the validations is 0 (error), 1 (valid) , or >1 (some unpopulated fields).
+            validationResult[key]=0;
+        }else if(this.state[key]){
+            // the field is populated and valid
+            validationResult[key]=1;
+        }else{
+            // the field is not populated
+            validationResult[key]=2
+        }
+    });
+
+    return validationResult;
+  }
+  async submit_info(){
+    this.consoleLog("Initiating form submission",types.info);
+    let json_request = this.getJson();
+    console.log(JSON.stringify(json_request))
+    console.log("Req: ",json_request);
+    var auth = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
+    var myHeaders = new Headers({
+      "Content-Type": "application/json",
+      "authorization": auth,
+    });
+    let inputData = {};
+    let jwt = await createJwt();
+    console.log('jwttttt',jwt)
+    jwt = "Bearer " + jwt;
+    for(var i =0; i<this.state.upload.length;i++){
+      var reader = new FileReader();
+      reader.readAsBinaryString(this.state.upload[i]);
+      console.log(this.state.upload[i],'here first');
+      let content_type =this.state.upload[i].type;
+      let file_name = this.state.upload[i].name;
+      reader.onloadend = (f) => {
+          inputData = {
+              "resourceType": "Communication",
+              "id": "376",
+              "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2018-10-08T07:22:32.421+00:00"
+              },
+              "status": "preparation",
+              "identifier": [
+                  {
+                      "use": "official"
+                  }
+              ],
+              "payload": [{
+                  "contentAttachment": {
+                      "data": reader.result,
+                      "contentType": content_type,
+                      "title":file_name,
+                      "language": "en"
+                  }
+              }]
+          }
+        
+        let resp =   fetch("http://localhost:8080/hapi-fhir-jpaserver-example/baseDstu3/Communication?_format=json&_pretty=true",{
+                method: "POST",
+                headers: {
+                  'Accept' : 'application/json',
+                  "authorization": jwt,
+              },
+                // body: JSON.stringify(json_request)
+                body:JSON.stringify(inputData),
+            })
+            // const res_json =   resp.json();
+            console.log("res_json,'ppppppppppppppppppppppp",resp);
+            console.log(resp);
+      }
+    }
+    let url='';
+      if(this.state.prior_auth){
+        url = config.provider_prior_authorization_url;
+      }
+      else{
+        console.log(this.state.prior_auth,'----------')
+        url = config.provider_coverage_decision_url;
+      }
+        console.log("Fetching response from "+url+",types.info")
+        this.consoleLog("Fetching response from "+url+",types.info")
+        try{
+
+          const fhirResponse= await fetch(url,{
+              method: config.provider_response_method_post,
+              headers: myHeaders,
+              body: JSON.stringify(json_request)
+          })
+          // .then(response => {
+          // console.log("Fetching response from http://54.227.173.76:8446/coverage_determination/",types.info,fhirResponse,fhirResponse.status);
+          //   console.log("Recieved response",response)
+          //   this.consoleLog("Recieved response",types.info);
+          //     // return response.json();
+          //     // let res = {cards:[{
+          //     //   summary:fhirResponse
+          //     // }]}
+          //     // // Object.assign({}, this.state.response);
+          //     // // res.cards[0]['summary'] = fhirResponse
+          //     // // this.state.response.cards[0].summary=fhirResponse
+          //     // // console.log(this.state.response.cards[0].summary,'oooooo');
+          //     console.log(response.json(),'lllllllll')
+          //   return response.json();
+          //   // this.setState({response: JSON.stringify(fhirResponse)});
+          //
+          // }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
+          const res_json = await  fhirResponse.json();
+          console.log("res_json");
+          console.log(res_json);
+          this.setState({response: res_json});
+    
+          if(fhirResponse && fhirResponse.status){
+            this.consoleLog("Server returned status "
+                            + fhirResponse.status + ": "
+                            + fhirResponse.error,types.error);
+            this.consoleLog(fhirResponse.message,types.error);
+          }else{
+            // console.log(fhirResponse,'pppppppppppp');
+
+            // this.setState({response: fhirResponse});
+            this.setState({response: res_json});
+          }
+        this.setState({loading:false});
+        }catch(error){
+          this.setState({loading:false});
+          this.consoleLog("Unexpected error occured",types.error)
+          // this.consoleLog(e.,types.error);
+          if(error instanceof TypeError){
+            this.consoleLog(error.name + ": " + error.message,types.error);
+          }
+        }
+
+  }
 
   renderClaimSubmit() {
     const status_opts = config.status_options;
@@ -334,6 +406,18 @@ async submit_info(){
           <div className="right-form">
                 <DisplayBox
                 response = {this.state.response} req_type="coverage_determination" />
+                <div>
+                  <div className="header">
+                      Upload
+                  </div>
+                      <span>
+                        <input type="file"
+                        name="myFile"
+                        onChange={this.uploadFile} 
+                        multiple/>
+                      </span>
+                  <br />
+                  </div>
             </div>
 
 
