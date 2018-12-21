@@ -20,7 +20,7 @@
   "provider_response_header":{
     "Content-Type":"application/x-www-form-urlencoded"
   },
-  "fhir_url":"http://54.227.173.76:8181/fhir/baseDstu3/",
+  "fhir_url":"http://54.227.173.76:8181/fhir/baseDstu3",
   "username":"john",
   "password":"john123",
   "status_options":{

@@ -326,6 +326,112 @@ export default class CoverageDetermination extends Component {
                     <div className="col-6">James</div>
                     <div className="col-6">23-10-1970</div>
                 </div>
+                <div className="header">
+                      Condition:
+                  </div>
+                  <div className="left-col">
+                    <div className="col-name">Code</div>
+                    <div className="col-name">Clinical Status</div>
+                    <div className="col-name">Verification Status</div>
+                    <div className="col-name">Severity</div>
+                    <div className="col-name">Onset</div>
+                </div>
+                <div className="right-col">
+                    <div className="col-6">End Stage Liver Disease</div>
+                    <div className="col-6">Active</div>
+                    <div className="col-6">Confirmed</div>
+                    <div className="col-6">Moderate to severe</div>
+                    <div className="col-6">08/03/2013</div>
+                </div>
+                <div className="header">
+                      Procedure:
+                  </div>
+                  <div className="left-col">
+                    <div className="col-name">Status</div>
+                    <div className="col-name">Code</div>
+                    <div className="col-name">Context</div>
+                    <div className="col-name">Body Site</div>
+                    <div className="col-name">Outcome</div>
+                    <div className="col-name">Performed</div>
+                </div>
+                <div className="right-col">
+                    <div className="col-6">Completed</div>
+                    <div className="col-6">Transplantation of liver (procedure)</div>
+                    <div className="col-6">Encounter/f002</div>
+                    <div className="col-6">Lung structure</div>
+                    <div className="col-6">Improved Blood Circulation</div>
+                    <div className="col-6">08/03/2013</div>
+                </div>
+
+                <div className="header">
+                      Location:
+                  </div>
+                  <div className="left-col">
+                    <div className="col-name">Status</div>
+                    <div className="col-name">Address</div>
+                    <br/>
+                    <br/>
+                    <div className="col-name">Mode</div>
+                </div>
+                <div className="right-col">
+                    <div className="col-6">Active</div>
+                    <div className="col-6">Ambulatory Health Care Facilities; Clinic/Center,
+                                           Federally Qualified Health Center (FQHC)</div>
+                    <div className="col-6">Instance</div>
+    
+                </div>
+
+                <div className="header">
+                        Episode Of Care:
+                  </div>
+                  <div className="left-col">
+                    <div className="col-name">Status</div>
+                    <div className="col-name">Type</div>
+                    <br/>
+                    <div className="col-name">Status History</div>
+                    <div>Status</div>
+                    <div>Period</div>
+                    <div>-Start</div>
+                    <div>-End</div>
+                    <div className="col-name">Diagnosis</div>
+                    <div>-Condition</div>
+                    <div>-Role</div>
+                </div>
+                <div className="right-col">
+                    <div className="col-6">Active</div>
+                    <div className="col-6">Aftercare for liver transplant done (situation)</div>
+                    <br/>
+                    <div className="col-6">Active</div>
+                    <br/>
+                    <div className="col-6">2014-09-15</div>
+                    <div className="col-6">2014-09-21</div>
+                    <br/>
+                    <div className="col-6">Condition/stroke</div>
+                    <div className="col-6">Chief Complaint</div>
+                </div>
+
+                <div className="header">
+                       Medication Statement:
+                  </div>
+                  <div className="left-col">
+                    <div className="col-name">Code</div>
+                    <br/>
+                    <div className="col-name">Status</div>
+                    <div className="col-name">Subject</div>
+                    <div className="col-name">Effective DateTime</div>
+                    <div className="col-name">Date Asserted</div>
+                    <div className="col-name">Taken</div>
+                    <div className="col-name">Reason Not Taken</div>
+                </div>
+                <div className="right-col">
+                    <div className="col-6">Prescription medication started (situation)ctive</div>
+                    <div className="col-6">Active</div>
+                    <div className="col-6">Donald Duck</div>
+                    <div className="col-6">2014-09-21</div>
+                    <div className="col-6">2014-10-22</div>
+                    <div className="col-6">No</div>
+                    <div className="col-6">Liver enzymes abnormal</div>
+                </div>
             </div>
             <div className="right-form">
                   <div className="header">
@@ -336,6 +442,19 @@ export default class CoverageDetermination extends Component {
                         name="myFile"
                         onChange={this.uploadFile} 
                         multiple/>
+                      </span>
+                  <br />
+                  <div className="header">
+                      Notes :
+                  </div>
+                      <span>
+                      <textarea rows="4" cols="50" name="notes">
+                        
+                        </textarea>
+                        {/* <input type="text"
+                        name="notes"
+                        // onChange={this.uploadFile} 
+                        /> */}
                       </span>
                   <br />
                   </div>

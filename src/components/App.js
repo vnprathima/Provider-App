@@ -12,7 +12,7 @@ export default class App extends Component {
         return (
             <BrowserRouter>
                 <Switch>
-                    <Route exact path="/" component={() => { return <Redirect to="/cr" />}} />
+                    <Route exact path="/" component={() => { return <Redirect to="/provider_request" />}} />
                     <Route path={"/cr"} component={RequestBuilder} />
                     <Route path={"/cd"} component={CoverageDetermination} />
                     <Route path={"/prior_auth"} component={PriorAuthorization} />
