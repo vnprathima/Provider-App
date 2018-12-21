@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
-import { login } from './Authentication';
+import { createToken } from './Authentication';
 
 // this.myclient = new FhirClient(this.URL);
 export const encounterOptions = [];
@@ -18,7 +18,7 @@ export default class DropdownEncounter extends Component {
       this.getEncounterDetails();
     }
   async getEncounterDetails(){
-    let token = await login();
+    let token = await createToken();
     var mkFhir = require('fhir.js');
     var client = mkFhir({
       baseUrl: 'http://54.227.173.76:8181/fhir/baseDstu3',

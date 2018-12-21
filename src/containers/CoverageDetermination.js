@@ -313,104 +313,23 @@ export default class CoverageDetermination extends Component {
       <React.Fragment>
           {/* <div>In Coverage determination forsm submit..</div> */}
           <div>
-          <div className="form-group container left-form">
-            <div>
-            <div className="header">
-                        CDS Hook
-            </div>
-            <DropdownCDSHook
-                elementName="hook"
-                updateCB={this.updateStateElement}
-              />
-            </div>
-            <div>
-              <div className="header">
-                      Patient
-              </div>
-              <DropdownPatient
-                elementName="patient"
-                updateCB={this.updateStateElement}
-              />
-            </div>
-            {this.state.hook === 'order-review' &&
-              <div>
-                <div>
-                  <div className="header">
-                          Resource Type
-                  </div>
-                  <DropdownResourceTypeLT
-                    elementName="resourceTypeLT"
-                    updateCB={this.updateStateElement}
-                  />
-              </div>
-              <div>
+          <div className="form-group container">
+            <div className="left-form">
                 <div className="header">
-                        Encounter
-                </div>
-                <DropdownEncounter
-                  elementName="encounter"
-                  updateCB={this.updateStateElement}
-                />
-              </div>
-              <div>
-                <div className="header">
-                    Code
-                </div>
-                <DropdownInput
-                    elementName='code'
-                    updateCB={this.updateStateElement}
-                    />
-                <br />
-                </div>
-              </div>
-            }
-            {this.state.hook === 'liver-transplant' &&
-              <div>
-                <div>
-                  <div className="header">
-                          Resource Type
+                      Patient Information:
                   </div>
-                  <DropdownResourceType
-                    elementName="resourceType"
-                    updateCB={this.updateStateElement}
-                  />
+                <div className="left-col">
+                    <div className="col-name">Patient Name</div>
+                    <div className="col-val">Date of Birth</div>
                 </div>
-                <div>
-                  <div className="header">
-                      Code
-                  </div>
-                  <DropdownCodeInput
-                      elementName='code'
-                      updateCB={this.updateStateElement}
-                      />
-                  <br />
-                  </div>
-              </div>
-            }
-
-
-            <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
-              </button>
-            
-              <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_prior_auth}>Submit Prior Authorization
-              </button>
-              {/* <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/> */}
-                <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
-                <Loader
-                  type="Oval"
-                  color="#222222"
-                  height="16"
-                  width="16"
-                />
+                <div className="right-col">
+                    <div className="col-6">James</div>
+                    <div className="col-6">23-10-1970</div>
                 </div>
-          </div>
-          
-          <div className="right-form">
-                <DisplayBox
-                response = {this.state.response} req_type="coverage_determination" />
-                <div>
+            </div>
+            <div className="right-form">
                   <div className="header">
-                      Upload
+                      Upload Additional Documentation :
                   </div>
                       <span>
                         <input type="file"
@@ -420,9 +339,17 @@ export default class CoverageDetermination extends Component {
                       </span>
                   <br />
                   </div>
+            <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
+              </button>
+                <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
+                <Loader
+                  type="Oval"
+                  color="#222222"
+                  height="16"
+                  width="16"
+                />
+                </div>
             </div>
-
-
         </div>
       </React.Fragment>);
     };
@@ -512,7 +439,7 @@ export default class CoverageDetermination extends Component {
        
       <div className="attributes mdl-grid">
           {this.renderClaimSubmit()}
-          <ReactTable  minRows='3' showPagination='false' data={data} columns={columns}/>
+          {/* <ReactTable  minRows='3' showPagination='false' data={data} columns={columns}/> */}
       </div>)
   }
 }

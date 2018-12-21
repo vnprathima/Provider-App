@@ -15,7 +15,7 @@ import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, {KEYUTIL} from 'jsrsasign';
-import {login} from '../components/Authentication';
+import {createToken} from '../components/Authentication';
 
 const types = {
     error: "errorClass",
@@ -88,7 +88,7 @@ export default class ProviderRequest extends Component {
     });
     }
     async getResourceRecords(appContext){
-        let tokenResponse = await login();
+        let tokenResponse = await createToken();
         appContext.requirements.map((obj) => {
             // console.log("obj")
             // console.log(obj)
@@ -303,7 +303,7 @@ export default class ProviderRequest extends Component {
             {this.state.request === 'coverage-requirement' &&
                   <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
                   }
-                  
+
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
               
               {/* {this.state.request === 'prior-authorization' &&
