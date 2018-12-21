@@ -214,12 +214,12 @@ export default class ProviderRequest extends Component {
     },1);
       return (
         <React.Fragment>
-          {/* <div>In Coverage determination forsm submit..</div> */}
           <div>
           <div className="form-group container left-form">
+          <div className="main_heading">HEALTH INSURANCE REQUEST FORM</div>
           <div>
             <div className="header">
-                        Request 
+                        Request Type 
             </div>
             <DropdownRequest
                 elementName="request"
@@ -228,7 +228,7 @@ export default class ProviderRequest extends Component {
             </div>
             <div>
             <div className="header">
-                        CDS Hook
+                        Diagnosis or Nature of illness or Injury
             </div>
             <DropdownCDSHook
                 elementName="hook"
@@ -237,7 +237,7 @@ export default class ProviderRequest extends Component {
             </div>
             <div>
               <div className="header">
-                      Patient
+                      Patient's Name
               </div>
               <DropdownPatient
                 elementName="patient"
@@ -248,7 +248,7 @@ export default class ProviderRequest extends Component {
               <div>
                 <div>
                   <div className="header">
-                          Resource Type
+                          Procedures,Services or Supplies
                   </div>
                   <DropdownResourceTypeLT
                     elementName="resourceTypeLT"
@@ -257,7 +257,7 @@ export default class ProviderRequest extends Component {
               </div>
               <div>
                 <div className="header">
-                        Encounter
+                        Encounter Detail
                 </div>
                 <DropdownEncounter
                   elementName="encounter"
@@ -266,7 +266,7 @@ export default class ProviderRequest extends Component {
               </div>
               <div>
                 <div className="header">
-                    Code
+                    SNOMED/HCPCS Code
                 </div>
                 <DropdownInput
                     elementName='code'
@@ -280,7 +280,7 @@ export default class ProviderRequest extends Component {
               <div>
                 <div>
                   <div className="header">
-                          Resource Type
+                          Procedures,Services or Supplies
                   </div>
                   <DropdownResourceType
                     elementName="resourceType"
@@ -289,7 +289,7 @@ export default class ProviderRequest extends Component {
                 </div>
                 <div>
                   <div className="header">
-                      Code
+                      SNOMED/HCPCS Code
                   </div>
                   <DropdownCodeInput
                       elementName='code'
@@ -300,24 +300,27 @@ export default class ProviderRequest extends Component {
               </div>
             }
 
-
+            {this.state.request === 'coverage-requirement' &&
+                  <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
+                  }
+                  
             <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
-              </button>
+              
               {/* {this.state.request === 'prior-authorization' &&
               <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_prior_auth}>Submit Prior Authorization
               </button>
               } */}
-            {this.state.request === 'coverage-requirement' &&
-              <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
-              }
+            
                 <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
                 <Loader
                   type="Oval"
-                  color="#222222"
+                  color="#ffffff"
                   height="16"
                   width="16"
                 />
                 </div>
+                  </button>
+                  
           </div>
           {this.state.request === 'coverage-requirement' &&
             <div className="right-form">

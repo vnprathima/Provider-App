@@ -3,7 +3,7 @@ import {Dropdown} from 'semantic-ui-react';
 
 export const requestOptions = [
   { key: 'coverage-requirement', value: 'coverage-requirement', text: 'Coverage Requirement' },
-  { key: 'decision', value: 'decision', text: 'Decision' },
+  { key: 'decision', value: 'decision', text: 'Claim Decision' },
   { key: 'prior-authorization', value: 'prior-authorization', text: 'Prior Authorization' },
 ]
 
@@ -31,7 +31,7 @@ export default class DropdownState extends Component {
       <Dropdown
       className={blackBorder}
         options={requestOptions}
-        placeholder='Choose State'
+        placeholder='Request Type'
         search
         selection
         fluid

@@ -184,7 +184,7 @@ export default class DropdownResourceType extends Component {
       <Dropdown
       className={blackBorder}
         options={options}
-        placeholder='Choose ResourceType'
+        placeholder='Procedures,Services or Supplies'
         search
         selection
         fluid

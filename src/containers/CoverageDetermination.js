@@ -20,7 +20,9 @@ import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, {KEYUTIL} from 'jsrsasign';
 import {createToken} from '../components/Authentication';
- 
+import ReactTable from "react-table";
+import 'react-table/react-table.css';
+
 const types = {
   error: "errorClass",
   info: "infoClass",
@@ -488,9 +490,29 @@ export default class CoverageDetermination extends Component {
       return request;
     }
   render() {
+    const data = [{
+    ResourceType: 'Patient',
+    ResourceData: {
+      name: 'Jason Maurer',
+      age: 23,
+    }
+  }]
+
+  const columns = [{
+    Header: 'Requirement',
+    accessor: 'ResourceType' // String-based value accessors!
+  }, {
+    id: 'ResourceData',
+    Header: 'Input Data',
+    accessor: d=> d.ResourceData,
+    Cell: row => <div><span>{row.value.name}</span>[<span className='number'>{row.value.age}</span>]</div> // Custom cell components!
+  }]
+
     return (
+       
       <div className="attributes mdl-grid">
           {this.renderClaimSubmit()}
+          <ReactTable  minRows='3' showPagination='false' data={data} columns={columns}/>
       </div>)
   }
 }

@@ -8,6 +8,7 @@ body {
   width: 50%;
   float: left;
   margin-top: 25px;
+  border-right: 1px solid lightgray;
 
 }
 .btn:focus,.btn:active {
@@ -15,10 +16,9 @@ body {
   box-shadow: none;
 }
 .submit-btn {
-  float: left;
+  float: center;
 
 }
-
 
 .floating-label {
   position: absolute;
@@ -67,16 +67,20 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 
 .btn-class{
-  border-width:1px 5px 3px 1px;
-  border-style: solid solid solid solid;
-  border-color: black;
-  background: linear-gradient(white,white)
+  /* border-width:1px 5px 3px 1px; */
+  /* border-style: solid solid solid solid; */
+  /* border-color: black; */
+  background: lightseagreen;
+  color: white;
+  font-variant-caps: all-petite-caps;
+  font-weight: bold;
+  font-size: 18px;
+  width:100%;
+  margin-top:20px;
 }
 
 .submit-btn:hover{
-  border-width:1px 3px 1px 1px;
-  margin-left:2px;
-  margin-top:2px;
+  color: antiquewhite;
 }
 
 
@@ -89,7 +93,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   float:right;
   width:50%;
   /* gotta account for the header on the left form */
-  margin-top:52px;
+  margin-top:14px;
 }
 
 .button-empty-fields{
@@ -155,27 +159,34 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   border-color: #555555 !important;
 }
 .header{
-  text-align: center;
-  font-size: 18px;
-  padding:10px;
+  text-align: left;
+  font-size: 16px;
+  padding: 20px 10px 5px 0px;
+  color: #8a6d3b;
 }
-
+.main_heading{
+  text-align: center;
+    font-size: 18px;
+    color: lightseagreen;
+}
 .checkBox{
   float:right;
-  border-style: solid;
-  border-width:1px 5px 3px 1px;
+  width: 30%;
+  /* border-style: solid; */
+  /* border-width:1px 5px 3px 1px; */
 }
 
 .checkBoxClicked{
-  border-width: 1px 3px 1px 1px;
+  /* border-width: 1px 3px 1px 1px; */
   float:right;
-  border-color:gray black black gray;
+  /* border-color:gray black black gray; */
 
 }
 
 .checkBox:hover{
-  border-width:1px 3px 1px 1px;
-  border-color:gray black black gray;
+  color:ali
+  /* border-width:1px 3px 1px 1px; */
+  /* border-color:gray black black gray; */
 }
 
 .onOffState{
@@ -223,7 +234,8 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   display:inline-block;
   transition:all 0.5s;
   margin-left:15px;
-  line-height:3em;
+  margin-top: 2px;
+  line-height:2em;
 }
 
 .rightStateInput{

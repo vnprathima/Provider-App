@@ -37,7 +37,7 @@ export default class DropdownResourceType extends Component {
       <Dropdown
       className={blackBorder}
         options={cdsOptions}
-        placeholder='Choose ResourceType'
+        placeholder='Diagnosis or Nature of illness or Injury'
         search
         selection
         fluid
