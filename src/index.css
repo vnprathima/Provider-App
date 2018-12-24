@@ -2,14 +2,13 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-
+  color:gray;
 }
 .left-form { 
   width: 50%;
   float: left;
-  margin-top: 25px;
-  border-right: 1px solid lightgray;
-  padding: 15px;
+  /* border-right: 1px solid lightgray; */
+  padding: 15px 0px;
 
 }
 .btn:focus,.btn:active {
@@ -18,6 +17,10 @@ body {
 }
 .submit-btn {
   float: center;
+
+}
+.docs{
+  padding: 10px;
 
 }
 
@@ -67,20 +70,26 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   border-color: #555555;
 }
 .left-col{
-  padding:5px;
-  width:50%;
-  float:left;
+  width: 30%;
+  float: left;
+  /* font-weight: bold; */
+  padding: 10px;
+  color: gray;
 }
 .right-col{
-  padding:5px;
-  width:50%;
+  padding:10px;
+  width:70%;
   float:left;
 }
 .col-name{
-  font-weight: bold;
+  /* font-weight: bold; */
+  padding:5px;
+  font-size: 14px;
+  color: gray;
 }
 .col-val{
-  font-size: inherit;
+  font-size: 14px;
+  padding: 5px;
 }
 .btn-class{
   /* border-width:1px 5px 3px 1px; */
@@ -105,12 +114,9 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 
 .right-form{
-
   float:right;
   width:50%;
-  /* gotta account for the header on the left form */
-  margin-top:14px;
-  padding: 15px;
+  padding: 15px 0px;
 }
 
 .button-empty-fields{
@@ -177,9 +183,10 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 .header{
   text-align: left;
-  font-size: 16px;
-  padding: 20px 10px 5px 0px;
+  font-size: 18px;
+  padding: 20px 10px 0px 15px;
   color: #8a6d3b;
+  /* border-bottom: 1px solid lightgrey; */
 }
 .main_heading{
   text-align: center;
