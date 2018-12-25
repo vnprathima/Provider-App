@@ -12,6 +12,8 @@ import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DisplayBox from '../components/DisplayBox';
 import CheckBox from '../components/CheckBox';
 import { createJwt } from '../components/AuthenticationJwt';
+import Dropzone from 'react-dropzone';
+
 
 
 import '../index.css';
@@ -29,8 +31,21 @@ const types = {
   debug: "debugClass",
   warning: "warningClass"
 }
+const styles = { border: '1px solid black', width: 600, color: 'black', padding: 20 };
+var FileDragAndDrop = require('react-file-drag-and-drop');
 
+const json ={
+  'condition':{
+    'code':'',
+    'clinical_status':'',
 
+  },
+  'procedure':{
+
+  }
+  
+
+}
 export default class CoverageDetermination extends Component {
   constructor(props) {
     super(props);
@@ -51,6 +66,7 @@ export default class CoverageDetermination extends Component {
       resource_records: {},
       keypair: KEYUTIL.generateKeypair('RSA', 2048),
       prior_auth: false,
+      files: [],
       errors: {},
     }
     this.validateMap = {
@@ -65,7 +81,8 @@ export default class CoverageDetermination extends Component {
     this.submit_info = this.submit_info.bind(this);
     this.submit_prior_auth = this.submit_prior_auth.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
-    this.uploadFile = this.uploadFile.bind(this);
+    // this.onRemove=this.onRemove.bind(this);
+    // this.uploadFile = this.uploadFile.bind(this);
 
     this.getResourceRecords = this.getResourceRecords.bind(this);
     if (window.location.href.indexOf("appContext") > -1) {
@@ -92,9 +109,24 @@ export default class CoverageDetermination extends Component {
   }
 
   //file upload
+  onDrop(files) {
+    this.setState({files});
+  }
 
-
-
+  onCancel() {
+    this.setState({
+      files: []
+    });
+  }
+  onRemove(file){
+    console.log(file)
+    var new_files=this.state.files;
+    new_files.pop(file);
+   
+    this.setState({files:new_files})
+  }
+ 
+ 
 
 
   updateStateElement = (elementName, text) => {
@@ -106,9 +138,6 @@ export default class CoverageDetermination extends Component {
     this.setState({ loading: true }, () => {
       this.submit_info();
     });
-  }
-  handleUploadChange = (event) => {
-    console.log('Selected file:', event.target.files);
   }
 
   submit_prior_auth() {
@@ -158,15 +187,6 @@ export default class CoverageDetermination extends Component {
 
     })
   }
-  uploadFile(event) {
-    this.state.upload = event.target.files;
-    console.log(this.state.upload, 'how many fielssss');
-
-  }
-  // async getJwt(){
-  //   let jwt = await jwt();
-  //   return jwt;
-  // }
 
   validateState() {
     const validationResult = {};
@@ -243,7 +263,6 @@ export default class CoverageDetermination extends Component {
           body: JSON.stringify(inputData),
         })
         // const res_json =   resp.json();
-        console.log("res_json,'ppppppppppppppppppppppp", resp);
         console.log(resp);
       }
     }
@@ -313,9 +332,15 @@ export default class CoverageDetermination extends Component {
     const status_opts = config.status_options;
     // const validationResult = this.validateState();
     const validationResult = this.validateState();
-    const total = Object.keys(validationResult).reduce((previous, current) => {
-      return validationResult[current] * previous
-    }, 1);
+    const total = Object.keys(validationResult).reduce((previous,current) =>{
+        return validationResult[current]*previous
+    },1);
+    const files = this.state.files.map(file => (
+      <div className='file-block' key={file.name}>
+        <a onClick={(file) => this.onRemove(file)} className="close-thik"></a>
+        {file.name}
+      </div>
+    ))
     return (
       <React.Fragment>
         {/* <div>In Coverage determination forsm submit..</div> */}
@@ -438,21 +463,37 @@ export default class CoverageDetermination extends Component {
               </div>
             </div>
             <div className="right-form">
-              <div className="header">
-                Upload Required/Additional Documentation 
+                  <div className="header">
+                      Upload Required/Additional Documentation :
                   </div>
+                      <span>
+                        
+                      </span>
+                  <br />
               <div className="">
                 <div className="left-col">Required Documents</div>
                 <div className="right-col">Seven Element order, Xray of Liver</div>
               </div>
-              <div className="">
-              <div className="left-col">
-                <input type="file"
-                  name="myFile"
-                  onChange={this.uploadFile}
-                  multiple />
-              </div>
-              <div className="right-col">-</div>
+              <div className="drop-box">
+              <section>
+                  <Dropzone
+                    onDrop={this.onDrop.bind(this)}
+                    onFileDialogCancel={this.onCancel.bind(this)
+                    }
+                  >
+                    {({getRootProps, getInputProps}) => (
+                      <div >
+                      <div   {...getRootProps()}>
+                        <input {...getInputProps()} />
+                          <p>Drop files here, or click to select files</p> 
+                      </div>
+                      
+                      </div>
+                    )}
+                  </Dropzone>
+                 
+                </section>
+                <div  >{files}</div>
               </div>
               <div className="header">
                 Additional Notes 
