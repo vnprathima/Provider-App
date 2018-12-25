@@ -69,14 +69,17 @@ export default class CoverageDetermination extends Component {
 
     this.getResourceRecords = this.getResourceRecords.bind(this);
     if (window.location.href.indexOf("appContext") > -1) {
+
       this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
+      this.patientId =  decodeURIComponent(window.location.href.split("?")[1]).split('&appContext')[0].split('patientId=')[1]
+      console.log("this.appContext");
+    console.log(this.appContext);
       this.getResourceRecords(this.appContext);
     }
     else {
       this.appContext = null;
     }
-    // console.log("this.appContext");
-    // console.log(this.appContext);
+    
   }
   consoleLog(content, type) {
     let jsonContent = {
@@ -124,24 +127,28 @@ export default class CoverageDetermination extends Component {
     console.log(tokenResponse);
     // appContext[0].map((obj) => {
     // console.log("obj")
-    Object.keys(appContext[0]).map((valueset) => {
-      console.log("valueset", valueset);
-      this.getValusets(valueset, tokenResponse.access_token);
-    })
+    // Object.keys(appContext[0]).map((valueset) => {
+    //   console.log("valueset", valueset);
+      this.getValusets( tokenResponse,appContext);
+    // })
     // });
   }
 
-  async getValusets(valueset, token) {
-    const url = config.fhir_url + valueset;
+  async getValusets( token,appContext) {
+    const url = config.crd_url + "smart_app";
     // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
     const response = await fetch(url, {
-      method: "GET",
+      method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
         "authorization": "Bearer " + token,
-        "Allow-Control-Allow-Origin": "*",
-        "cache-control": "no-cache"
+        
       },
+      body: JSON.stringify({
+          'appContext':appContext,
+          'patientId':this.patientId
+
+      }),
 
     }).then((response) => {
       return response.json();

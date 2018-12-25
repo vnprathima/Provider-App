@@ -129,7 +129,9 @@ export default class DisplayBox extends Component{
           }
           // linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
           // linkCopy.url += `&patientId=${this.props.patientId}`;
-          linkCopy.url += encodeURIComponent("appContext="+JSON.stringify(link.appContext));
+          console.log("this.props.patientId")
+          console.log(this.props.patientId)
+          linkCopy.url += encodeURIComponent("patientId="+this.props.patientId+"&appContext="+JSON.stringify(link.appContext));
           // console.log(decodeURIComponent(linkCopy.url));
         }
         console.log("Enododod",linkCopy)

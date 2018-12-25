@@ -325,7 +325,7 @@ export default class ProviderRequest extends Component {
           {this.state.request === 'coverage-requirement' &&
             <div className="right-form">
             <DisplayBox
-            response = {this.state.response} req_type="coverage_requirement" />
+            response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patient} />
             </div>
             }
             {this.state.request !== 'coverage-requirement' &&
