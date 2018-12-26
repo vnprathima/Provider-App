@@ -13,8 +13,7 @@ import DisplayBox from '../components/DisplayBox';
 import CheckBox from '../components/CheckBox';
 import { createJwt } from '../components/AuthenticationJwt';
 import Dropzone from 'react-dropzone';
-
-
+import 'font-awesome/css/font-awesome.min.css';
 
 import '../index.css';
 import '../components/consoleBox.css';
@@ -24,6 +23,8 @@ import KJUR, { KEYUTIL } from 'jsrsasign';
 import { createToken } from '../components/Authentication';
 import ReactTable from "react-table";
 import 'react-table/react-table.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 
 const types = {
   error: "errorClass",
@@ -119,12 +120,18 @@ export default class CoverageDetermination extends Component {
       files: []
     });
   }
-  onRemove(file) {
-    console.log(file)
-    var new_files = this.state.files;
-    new_files.pop(file);
-
-    this.setState({ files: new_files })
+  onRemove(file){
+    console.log(file,'this file will beremoved')
+    var new_files=this.state.files;
+    console.log(new_files,'llll')
+    for( var i = 0; i < new_files.length; i++){ 
+      if ( new_files[i] === file) {
+        new_files.splice(i, 1); 
+      }
+   }
+    // new_files.pop(file);
+   
+    this.setState({files:new_files})
   }
 
 
@@ -176,11 +183,12 @@ export default class CoverageDetermination extends Component {
       }),
 
     }).then((response) => {
+      console.log('response',response)
       return response.json();
     }).then((response) => {
       // console.log("Respspspsps");
       // console.log(response);
-      console.log("Resource json---before--",response);
+      console.log("Resource json---before--",response,appContext);
       this.setState({resourceJson: response});
       console.log("Resource json---",this.state.resourceJson);
     })
@@ -353,8 +361,9 @@ export default class CoverageDetermination extends Component {
       return validationResult[current] * previous
     }, 1);
     const files = this.state.files.map(file => (
+      // console.log(file,'is it the same file')
       <div className='file-block' key={file.name}>
-        <a onClick={(file) => this.onRemove(file)} className="close-thik"></a>
+        <a onClick={() => this.onRemove(file)} className="close-thik"></a>
         {file.name}
       </div>
     ))
@@ -423,6 +432,7 @@ export default class CoverageDetermination extends Component {
     //   }];
     
     const resourceData = this.state.resourceJson.map((res, index) => {
+      console.log(res.resource,'whats coming')
       return (
         <div key={index}>
           <div className="header">{res.resource.resourceType}</div>
@@ -436,7 +446,7 @@ export default class CoverageDetermination extends Component {
         
         <div>
           <div className="main_heading">HEALTH INSURANCE CLAIM SUBMIT</div>
-          <div className="content">
+          <div className="form-group">
             <div className="left-form">
               {resourceData}  
               {/* <div className="header">
@@ -566,19 +576,22 @@ export default class CoverageDetermination extends Component {
                 <div className="right-col">Seven Element order, Xray of Liver</div>
               </div>
               <div className="drop-box">
-                <section>
-                  <Dropzone
+              <section>
+                  <Dropzone 
                     onDrop={this.onDrop.bind(this)}
                     onFileDialogCancel={this.onCancel.bind(this)
                     }
                   >
-                    {({ getRootProps, getInputProps }) => (
-                      <div >
-                        <div   {...getRootProps()}>
-                          <input {...getInputProps()} />
-                          <p>Drop files here, or click to select files</p>
-                        </div>
+                    {({getRootProps, getInputProps}) => (
+                      <div    >
+                      <div className='drag-drop-box' {...getRootProps()}>
+                        <input {...getInputProps()} />
+                          <p>Drop files here, or click to select files  
+                              {/* <i class="fa fa-upload" aria-hidden="true"></i> */}
+                              <FontAwesomeIcon icon={faUpload}/>
 
+                            </p> 
+                      </div>
                       </div>
                     )}
                   </Dropzone>
@@ -616,7 +629,6 @@ export default class CoverageDetermination extends Component {
     var coverageId = null;
     var encounterId = '';
     var gender = null;
-    console.log(this.state.patient, 'sdfghhhhhj')
     // if(this.state.patient != null){
     //    patientId = this.state.patient.replace("Patient/","");
     // }

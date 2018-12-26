@@ -321,3 +321,14 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   right: 3px;
   color: grey;
 }
+.drag-drop-box{
+  height:50px
+}
+.nobull {
+  list-style-type: none;
+  }
+
+.fa-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

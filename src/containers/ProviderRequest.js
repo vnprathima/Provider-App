@@ -9,6 +9,11 @@ import DropdownResourceType from '../components/DropdownResourceType';
 import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DisplayBox from '../components/DisplayBox';
 import CheckBox from '../components/CheckBox';
+import 'font-awesome/css/font-awesome.min.css';
+import { faNotesMedical,faShieldAlt, faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+
 
 import '../index.css';
 import '../components/consoleBox.css';
@@ -44,6 +49,11 @@ export default class ProviderRequest extends Component {
         resource_records:{},
         keypair:KEYUTIL.generateKeypair('RSA',2048),
         prior_auth:false,
+        requirement_button_disable:'',
+        decision_button_disable:'',
+        prior_auth_button_disable:'',
+        button_disable: false,
+        color:'grey',
       errors: {},
     }
     this.validateMap={
@@ -117,6 +127,53 @@ export default class ProviderRequest extends Component {
 
         })
     }
+    setRequirement(req) {
+    console.log(req);
+    let request_type =this.state.request ;
+    let requirement_disable = this.state.requirement_button_disable;
+    let decision_disable = this.state.decision_button_disable;
+    let prior_auth_disable = this.state.prior_auth_button_disable;
+    requirement_disable = "fa-disabled";
+    decision_disable='';
+    prior_auth_disable='';
+    request_type = req;
+    this.setState({request:request_type});
+    this.setState({requirement_button_disable:requirement_disable});
+    this.setState({decision_button_disable:decision_disable});
+    this.setState({prior_auth_button_disable:prior_auth_disable});
+    }
+    setDecision(req) {
+      console.log(req);
+      let request_type =this.state.request ;
+      let requirement_disable = this.state.requirement_button_disable;
+      let decision_disable = this.state.decision_button_disable;
+      let prior_auth_disable = this.state.prior_auth_button_disable;
+      requirement_disable = "";
+      decision_disable='fa-disabled';
+      prior_auth_disable='';
+      request_type = req;
+      this.setState({request:request_type});
+      this.setState({requirement_button_disable:requirement_disable});
+      this.setState({decision_button_disable:decision_disable});
+      this.setState({prior_auth_button_disable:prior_auth_disable});
+      }
+      setPriorAuth(req) {
+        console.log(req);
+        let request_type =this.state.request ;
+        let requirement_disable = this.state.requirement_button_disable;
+        let decision_disable = this.state.decision_button_disable;
+        let prior_auth_disable = this.state.prior_auth_button_disable;
+        requirement_disable = "";
+        decision_disable='';
+        prior_auth_disable='fa-disabled';
+        request_type = req;
+        this.setState({request:request_type});
+        this.setState({requirement_button_disable:requirement_disable});
+        this.setState({decision_button_disable:decision_disable});
+        this.setState({prior_auth_button_disable:prior_auth_disable});
+        }
+
+
 
     validateState(){
     const validationResult = {};
@@ -224,6 +281,14 @@ export default class ProviderRequest extends Component {
                 <div className="header">
                             Request Type 
                 </div>
+                <ul class="nobull" >
+                  <li> <FontAwesomeIcon icon={faNotesMedical} className={this.state.requirement_button_disable} size={'2x'} onClick={() => this.setRequirement('coverage-requirement',true)} /> </li>
+                  <li>  <FontAwesomeIcon icon={faShieldAlt} className={this.state.decision_button_disable} size={'2x'}  onClick={() => this.setDecision('decision',true)} /></li>
+                  <li> <FontAwesomeIcon icon={faClipboardCheck} className={this.state.prior_auth_button_disable} size={'2x'} onClick={() => this.setPriorAuth('prior-authorization',true)}/></li>
+                </ul>
+                {/* <div><i class="fas fa-shield-alt" ></i></div>
+                <div><i class="fas fa-notes-medical"></i></div>
+                <div><i class="fas fa-clipboard-check"></i></div> */}
                 <div className="dropdown">
                 <DropdownRequest
                     elementName="request"

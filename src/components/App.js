@@ -6,7 +6,11 @@ import CoverageDetermination from '../containers/CoverageDetermination';
 import PriorAuthorization from '../containers/PriorAuthorization';
 import ProviderRequest from '../containers/ProviderRequest';
 import Review from '../containers/Review';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faIgloo,faNotesMedical } from '@fortawesome/free-solid-svg-icons'
 
+library.add(faIgloo,faNotesMedical)
 export default class App extends Component {
     render() {
         return (
