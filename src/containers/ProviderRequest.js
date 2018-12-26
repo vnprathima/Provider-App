@@ -154,10 +154,12 @@ export default class ProviderRequest extends Component {
     let json_request = this.getJson();
     console.log(JSON.stringify(json_request))
     console.log("Req: ",json_request);
-    var auth = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
+    var token = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
+    // let token = await createToken();
+    // token = "Bearer " + token;
     var myHeaders = new Headers({
         "Content-Type": "application/json",
-        "authorization": auth,
+        "authorization": token,
     });
     let url='';
     if(this.state.request== 'prior-authorization'){

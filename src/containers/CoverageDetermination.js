@@ -34,16 +34,16 @@ const types = {
 const styles = { border: '1px solid black', width: 600, color: 'black', padding: 20 };
 var FileDragAndDrop = require('react-file-drag-and-drop');
 
-const json ={
-  'condition':{
-    'code':'',
-    'clinical_status':'',
+const json = {
+  'condition': {
+    'code': '',
+    'clinical_status': '',
 
   },
-  'procedure':{
+  'procedure': {
 
   }
-  
+
 
 }
 export default class CoverageDetermination extends Component {
@@ -68,6 +68,7 @@ export default class CoverageDetermination extends Component {
       prior_auth: false,
       files: [],
       errors: {},
+      resourceJson: []
     }
     this.validateMap = {
       // age:(foo=>{return isNaN(foo)}),
@@ -110,7 +111,7 @@ export default class CoverageDetermination extends Component {
 
   //file upload
   onDrop(files) {
-    this.setState({files});
+    this.setState({ files });
   }
 
   onCancel() {
@@ -118,15 +119,15 @@ export default class CoverageDetermination extends Component {
       files: []
     });
   }
-  onRemove(file){
+  onRemove(file) {
     console.log(file)
-    var new_files=this.state.files;
+    var new_files = this.state.files;
     new_files.pop(file);
-   
-    this.setState({files:new_files})
+
+    this.setState({ files: new_files })
   }
- 
- 
+
+
 
 
   updateStateElement = (elementName, text) => {
@@ -154,13 +155,10 @@ export default class CoverageDetermination extends Component {
   async getResourceRecords(appContext) {
     let tokenResponse = await createToken();
     console.log(tokenResponse);
-    // appContext[0].map((obj) => {
-    // console.log("obj")
-    // Object.keys(appContext[0]).map((valueset) => {
-    //   console.log("valueset", valueset);
-      this.getValusets( tokenResponse,appContext);
-    // })
-    // });
+    await this.getValusets( tokenResponse,appContext);
+    // console.log("Resource json---before--",resourcejson);
+    // this.setState({resourceJson: resourcejson});
+    // console.log("Resource json---",this.state.resourceJson);
   }
 
   async getValusets( token,appContext) {
@@ -171,20 +169,20 @@ export default class CoverageDetermination extends Component {
       headers: {
         "Content-Type": "application/json",
         "authorization": "Bearer " + token,
-        
       },
       body: JSON.stringify({
           'appContext':appContext,
           'patientId':this.patientId
-
       }),
 
     }).then((response) => {
       return response.json();
     }).then((response) => {
-      console.log("Respspspsps");
-      console.log(response);
-
+      // console.log("Respspspsps");
+      // console.log(response);
+      console.log("Resource json---before--",response);
+      this.setState({resourceJson: response});
+      console.log("Resource json---",this.state.resourceJson);
     })
   }
 
@@ -327,28 +325,121 @@ export default class CoverageDetermination extends Component {
     }
 
   }
-
+  renderObject(inputObj) {
+    console.log("In render ", inputObj);
+    return (
+      <div>
+        {Object.keys(inputObj).map((key, i) =>{
+            if (typeof(inputObj[key]) == "string" && key != "id" && key != "resourceType"){
+              return(
+                <div key={i}>
+                  <div className="left-col">{key}</div>
+                  <div className="right-col">{inputObj[key]}</div>
+                </div>)
+            }
+            if (typeof(inputObj[key]) == "object" && key != "id" && key != "resourceType"){
+              console.log("recursive--",inputObj[key], "---", key);
+              this.renderObject(inputObj[key]);
+            }
+          })}
+      </div>
+    )
+  }
   renderClaimSubmit() {
     const status_opts = config.status_options;
     // const validationResult = this.validateState();
     const validationResult = this.validateState();
-    const total = Object.keys(validationResult).reduce((previous,current) =>{
-        return validationResult[current]*previous
-    },1);
+    const total = Object.keys(validationResult).reduce((previous, current) => {
+      return validationResult[current] * previous
+    }, 1);
     const files = this.state.files.map(file => (
       <div className='file-block' key={file.name}>
         <a onClick={(file) => this.onRemove(file)} className="close-thik"></a>
         {file.name}
       </div>
     ))
+    // const json = [
+    //   {
+    //     "resource": {
+    //       "resourceType": "Patient",
+    //       "id": "6-1",
+    //       "codeCodeableConcept": { "coding": [{ "system": "http://www.ama-assn.org/go/cpt", "code": "94660" }] },
+    //       'Date of Birth': '23/10/1970',
+    //     }
+    //   }, {
+    //     "resource": {
+    //       "resourceType": "Condition",
+    //       'Code': 'End Stage Liver Disease',
+    //       'Clinical Status': 'Active',
+    //       'Verification Status': 'Confirmed',
+    //       'Severity': 'Moderate to severe',
+    //       'Onset': '08/03/2013'
+    //     }
+    //   }, {
+    //     "resource": {
+    //       "resourceType": "Procedure",
+    //       'Status': 'Completed',
+    //       'Code': 'Transplantation of liver (procedure)',
+    //       'Context': 'Encounter/f002',
+    //       'Body Site': 'Lung structure',
+    //       'Outcome': 'Improved Blood Circulation',
+    //       'Performed': '08/03/2013'
+    //     }
+    //   }, {
+    //     "resource": {
+    //       "resourceType": "Location",
+    //       'Status': 'Active',
+    //       'Address': 'Ambulatory Health Care Facilities; Clinic/Center,Federally Qualified Health Center (FQHC)',
+    //       'Mode': 'Instance'
+    //     }
+    //   }, {
+    //     "resource": {
+    //       "resourceType": "Episode Of Care",
+    //       'Status': 'Active',
+    //       'Type': 'Aftercare for liver transplant done (situation)',
+    //       'Status History': {
+    //         'Status': 'Active',
+    //         'Period': {
+    //           'Start': '2014-09-15',
+    //           'End': '2014-09-21',
+    //         }
+    //       },
+    //       'Diagnosis': {
+    //         'Condition': 'Condition/stroke',
+    //         'Role': 'Chief Complaint'
+    //       }
+    //     }
+    //   }, {
+    //     "resource": {
+    //       "resourceType": "Medication Statement",
+    //       'Code': 'Prescription medication started (situation)',
+    //       'Status': 'Active',
+    //       'Subject': 'Fred Adams',
+    //       'Effective DateTime': '2014-09-21',
+    //       'Date Asserted': '2014-10-22',
+    //       'Taken': 'No',
+    //       'Reason Not Taken': 'Liver enzymes abnormal',
+    //     }
+    //   }];
+    
+    const resourceData = this.state.resourceJson.map((res, index) => {
+      return (
+        <div key={index}>
+          <div className="header">{res.resource.resourceType}</div>
+          {this.renderObject(res.resource)}
+        </div>);
+    });
+
     return (
       <React.Fragment>
         {/* <div>In Coverage determination forsm submit..</div> */}
+        
         <div>
           <div className="main_heading">HEALTH INSURANCE CLAIM SUBMIT</div>
           <div className="form-group">
             <div className="left-form">
-              <div className="header">
+              {resourceData}  
+              {/* <div className="header">
                 Patient Information
                   </div>
               <div className="left-col">
@@ -397,13 +488,13 @@ export default class CoverageDetermination extends Component {
               </div>
 
               <div className="header">Location</div>
-              <div>                     
-                  <div className="left-col">Status</div>
-                  <div className="right-col">Active</div>
+              <div>
+                <div className="left-col">Status</div>
+                <div className="right-col">Active</div>
               </div>
               <div>
-                  <div className="left-col">Address</div>
-                  <div className="right-col">Ambulatory Health Care Facilities; Clinic/Center,
+                <div className="left-col">Address</div>
+                <div className="right-col">Ambulatory Health Care Facilities; Clinic/Center,
                                            Federally Qualified Health Center (FQHC)</div>
               </div>
               <div>
@@ -460,43 +551,43 @@ export default class CoverageDetermination extends Component {
                 <div className="col-val">2014-10-22</div>
                 <div className="col-val">No</div>
                 <div className="col-val">Liver enzymes abnormal</div>
-              </div>
+              </div> */}
             </div>
             <div className="right-form">
-                  <div className="header">
-                      Upload Required/Additional Documentation :
+              <div className="header">
+                Upload Required/Additional Documentation
                   </div>
-                      <span>
-                        
-                      </span>
-                  <br />
+              <span>
+
+              </span>
+              <br />
               <div className="">
                 <div className="left-col">Required Documents</div>
                 <div className="right-col">Seven Element order, Xray of Liver</div>
               </div>
               <div className="drop-box">
-              <section>
+                <section>
                   <Dropzone
                     onDrop={this.onDrop.bind(this)}
                     onFileDialogCancel={this.onCancel.bind(this)
                     }
                   >
-                    {({getRootProps, getInputProps}) => (
+                    {({ getRootProps, getInputProps }) => (
                       <div >
-                      <div   {...getRootProps()}>
-                        <input {...getInputProps()} />
-                          <p>Drop files here, or click to select files</p> 
-                      </div>
-                      
+                        <div   {...getRootProps()}>
+                          <input {...getInputProps()} />
+                          <p>Drop files here, or click to select files</p>
+                        </div>
+
                       </div>
                     )}
                   </Dropzone>
-                 
+
                 </section>
                 <div  >{files}</div>
               </div>
               <div className="header">
-                Additional Notes 
+                Additional Notes
               </div>
               <div className="docs">
                 <textarea name="myNotes" rows="10" cols="83" />
@@ -504,16 +595,16 @@ export default class CoverageDetermination extends Component {
 
               <button className={"submit-btn btn btn-class " + (!total ? "button-error" : total === 1 ? "button-ready" : "button-empty-fields")} onClick={this.startLoading}>Submit
               </button>
-            <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
-              <Loader
-                type="Oval"
-                color="#222222"
-                height="16"
-                width="16"
-              />
+              <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
+                <Loader
+                  type="Oval"
+                  color="#222222"
+                  height="16"
+                  width="16"
+                />
+              </div>
             </div>
-            </div>
-            
+
           </div>
         </div>
       </React.Fragment>);
@@ -600,7 +691,6 @@ export default class CoverageDetermination extends Component {
     }]
 
     return (
-
       <div className="attributes mdl-grid">
         {this.renderClaimSubmit()}
         {/* <ReactTable  minRows='3' showPagination='false' data={data} columns={columns}/> */}
