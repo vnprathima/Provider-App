@@ -174,7 +174,12 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   padding-bottom:-2px;
   margin-bottom:2px;
 }
-
+.content{
+  margin-top: 30px;
+}
+.dropdown{
+  padding: 5px 15px;
+}
 .dropdownCode{
   border-width: 1px 1px 0px 9px !important;
 }
@@ -189,9 +194,16 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   /* border-bottom: 1px solid lightgrey; */
 }
 .main_heading{
-  text-align: center;
-    font-size: 18px;
-    color: lightseagreen;
+  text-align: left;
+  font-size: 18px;
+  color: white;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: lightseagreen;
+  padding: 10px;
+  z-index: 99;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!important;
 }
 .checkBox{
   float:right;
@@ -283,11 +295,13 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   border-radius: 3px;
   word-wrap: break-word;
   padding: 10px;
-  color: #2d2c2c;
-  background-color: #efecec;
+  color: grey;
+    background-color: #F4F9F9;
   /* overflow:hidden; */
   float: left;
   position: relative;
+  height: 60px;
+  margin: 5px;
 }
 .drop-box{
   border: 1px solid #b9b1b1;
@@ -303,7 +317,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   float:right;
   /* position: relative; */
   position:absolute;
-  top:0;
-  right:0;
-  
+  top: 1px;
+  right: 3px;
+  color: grey;
 }

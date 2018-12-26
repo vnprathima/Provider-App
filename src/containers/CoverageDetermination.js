@@ -436,7 +436,7 @@ export default class CoverageDetermination extends Component {
         
         <div>
           <div className="main_heading">HEALTH INSURANCE CLAIM SUBMIT</div>
-          <div className="form-group">
+          <div className="content">
             <div className="left-form">
               {resourceData}  
               {/* <div className="header">

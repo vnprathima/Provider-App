@@ -217,127 +217,141 @@ export default class ProviderRequest extends Component {
       return (
         <React.Fragment>
           <div>
-          <div className="form-group container left-form">
-          <div className="main_heading">HEALTH INSURANCE REQUEST FORM</div>
-          <div>
-            <div className="header">
-                        Request Type 
-            </div>
-            <DropdownRequest
-                elementName="request"
-                updateCB={this.updateStateElement}
-              />
-            </div>
-            <div>
-            <div className="header">
-                        Diagnosis or Nature of illness or Injury
-            </div>
-            <DropdownCDSHook
-                elementName="hook"
-                updateCB={this.updateStateElement}
-              />
-            </div>
-            <div>
-              <div className="header">
-                      Patient's Name
-              </div>
-              <DropdownPatient
-                elementName="patient"
-                updateCB={this.updateStateElement}
-              />
-            </div>
-            {this.state.hook === 'order-review' &&
-              <div>
-                <div>
-                  <div className="header">
-                          Procedures,Services or Supplies
-                  </div>
-                  <DropdownResourceTypeLT
-                    elementName="resourceTypeLT"
-                    updateCB={this.updateStateElement}
-                  />
-              </div>
+            <div className="main_heading">HEALTH INSURANCE REQUEST FORM</div>
+            <div className="content">
+              <div className="left-form">
               <div>
                 <div className="header">
-                        Encounter Detail
+                            Request Type 
                 </div>
-                <DropdownEncounter
-                  elementName="encounter"
-                  updateCB={this.updateStateElement}
-                />
-              </div>
-              <div>
-                <div className="header">
-                    SNOMED/HCPCS Code
-                </div>
-                <DropdownInput
-                    elementName='code'
-                    updateCB={this.updateStateElement}
-                    />
-                <br />
-                </div>
-              </div>
-            }
-            {this.state.hook === 'liver-transplant' &&
-              <div>
-                <div>
-                  <div className="header">
-                          Procedures,Services or Supplies
-                  </div>
-                  <DropdownResourceType
-                    elementName="resourceType"
+                <div className="dropdown">
+                <DropdownRequest
+                    elementName="request"
                     updateCB={this.updateStateElement}
                   />
                 </div>
+                </div>
+                <div>
+                <div className="header">
+                            Diagnosis or Nature of illness or Injury
+                </div>
+                <div className="dropdown">
+                <DropdownCDSHook
+                    elementName="hook"
+                    updateCB={this.updateStateElement}
+                  />
+                </div>
+                </div>
                 <div>
                   <div className="header">
-                      SNOMED/HCPCS Code
+                          Patient's Name
                   </div>
-                  <DropdownCodeInput
-                      elementName='code'
-                      updateCB={this.updateStateElement}
+                  <div className="dropdown">
+                  <DropdownPatient
+                    elementName="patient"
+                    updateCB={this.updateStateElement}
+                  />
+                  </div>
+                </div>
+                {this.state.hook === 'order-review' &&
+                  <div>
+                    <div>
+                      <div className="header">
+                              Procedures,Services or Supplies
+                      </div>
+                      <div className="dropdown">
+                      <DropdownResourceTypeLT
+                        elementName="resourceTypeLT"
+                        updateCB={this.updateStateElement}
                       />
-                  <br />
+                      </div>
                   </div>
-              </div>
-            }
+                  <div>
+                    <div className="header">
+                            Encounter Detail
+                    </div>
+                    <div className="dropdown">
+                    <DropdownEncounter
+                      elementName="encounter"
+                      updateCB={this.updateStateElement}
+                    />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="header">
+                        SNOMED/HCPCS Code
+                    </div>
+                    <div className="dropdown">
+                    <DropdownInput
+                        elementName='code'
+                        updateCB={this.updateStateElement}
+                        />
+                    </div>
+                    </div>
+                  </div>
+                }
+                {this.state.hook === 'liver-transplant' &&
+                  <div>
+                    <div>
+                      <div className="header">
+                              Procedures,Services or Supplies
+                      </div>
+                      <div className="dropdown">
+                      <DropdownResourceType
+                        elementName="resourceType"
+                        updateCB={this.updateStateElement}
+                      />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="header">
+                          SNOMED/HCPCS Code
+                      </div>
+                      <div className="dropdown">
+                      <DropdownCodeInput
+                          elementName='code'
+                          updateCB={this.updateStateElement}
+                          />
+                        </div>
+                      </div>
+                  </div>
+                }
 
-            {this.state.request === 'coverage-requirement' &&
-                  <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
-                  }
+                {this.state.request === 'coverage-requirement' &&
+                      <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
+                      }
 
-            <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
-              
-              {/* {this.state.request === 'prior-authorization' &&
-              <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_prior_auth}>Submit Prior Authorization
-              </button>
-              } */}
-            
-                <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
-                <Loader
-                  type="Oval"
-                  color="#ffffff"
-                  height="16"
-                  width="16"
-                />
-                </div>
-                  </button>
+                <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
                   
-          </div>
-          {this.state.request === 'coverage-requirement' &&
-            <div className="right-form">
-            <DisplayBox
-            response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patient} />
-            </div>
-            }
-            {this.state.request !== 'coverage-requirement' &&
-            <div className="right-form">
-                    <DisplayBox
-                    response = {this.state.response} req_type="coverage_determination" />
+                  {/* {this.state.request === 'prior-authorization' &&
+                  <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_prior_auth}>Submit Prior Authorization
+                  </button>
+                  } */}
+                
+                    <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
+                    <Loader
+                      type="Oval"
+                      color="#ffffff"
+                      height="16"
+                      width="16"
+                    />
+                    </div>
+                      </button>
+                      
+              </div>
+              {this.state.request === 'coverage-requirement' &&
+                <div className="right-form">
+                <DisplayBox
+                response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patient} />
                 </div>
-            }
-
-
+                }
+                {this.state.request !== 'coverage-requirement' &&
+                <div className="right-form">
+                        <DisplayBox
+                        response = {this.state.response} req_type="coverage_determination" />
+                    </div>
+                }
+              </div>
         </div>
       </React.Fragment>);
     };
