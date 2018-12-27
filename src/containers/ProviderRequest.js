@@ -10,7 +10,7 @@ import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DisplayBox from '../components/DisplayBox';
 import CheckBox from '../components/CheckBox';
 import 'font-awesome/css/font-awesome.min.css';
-import { faNotesMedical,faShieldAlt, faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
+import { faListAlt, faAmericanSignLanguageInterpreting } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 
@@ -127,6 +127,7 @@ export default class ProviderRequest extends Component {
 
         })
     }
+    
     setRequirement(req) {
     console.log(req);
     let request_type =this.state.request ;
@@ -278,17 +279,19 @@ export default class ProviderRequest extends Component {
             <div className="content">
               <div className="left-form">
               <div>
+                <div className="tab">
+                  <div className={"requirements-icon "  + this.state.requirement_button_disable} onClick={() => this.setRequirement('coverage-requirement',true)}>
+                    <FontAwesomeIcon icon={faListAlt}  />
+                      &nbsp;Coverage Requirements
+                  </div>
+                  <div className={"priorauth-icon " + this.state.prior_auth_button_disable} onClick={() => this.setPriorAuth('prior-authorization',true)}>
+                    <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
+                    &nbsp;Prior Authorization
+                  </div>
+                </div>
                 <div className="header">
                             Request Type 
                 </div>
-                <ul class="nobull" >
-                  <li> <FontAwesomeIcon icon={faNotesMedical} className={this.state.requirement_button_disable} size={'2x'} onClick={() => this.setRequirement('coverage-requirement',true)} /> </li>
-                  <li>  <FontAwesomeIcon icon={faShieldAlt} className={this.state.decision_button_disable} size={'2x'}  onClick={() => this.setDecision('decision',true)} /></li>
-                  <li> <FontAwesomeIcon icon={faClipboardCheck} className={this.state.prior_auth_button_disable} size={'2x'} onClick={() => this.setPriorAuth('prior-authorization',true)}/></li>
-                </ul>
-                {/* <div><i class="fas fa-shield-alt" ></i></div>
-                <div><i class="fas fa-notes-medical"></i></div>
-                <div><i class="fas fa-clipboard-check"></i></div> */}
                 <div className="dropdown">
                 <DropdownRequest
                     elementName="request"
@@ -381,7 +384,6 @@ export default class ProviderRequest extends Component {
                       </div>
                   </div>
                 }
-
                 {this.state.request === 'coverage-requirement' &&
                       <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
                       }
@@ -410,7 +412,13 @@ export default class ProviderRequest extends Component {
                 response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patient} />
                 </div>
                 }
-                {this.state.request !== 'coverage-requirement' &&
+                {this.state.request === 'prior-authorization' &&
+                <div className="right-form">
+                <DisplayBox
+                response = {this.state.response} req_type="prior-authorization" patientId={this.state.patient} />
+                </div>
+                }
+                {this.state.request !== 'coverage-requirement' && this.state.request !== 'prior-authorization' &&
                 <div className="right-form">
                         <DisplayBox
                         response = {this.state.response} req_type="coverage_determination" />

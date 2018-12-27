@@ -317,6 +317,14 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
             else{
               return <div className='decision-card alert-warning'><strong> Coverage : </strong> Not Eligible</div>
             }
+          }
+          else if(this.props.req_type == "prior-authorization" && this.props.response != null && this.props.response.hasOwnProperty("PriorAuthorization")){
+            if(this.props.response.PriorAuthorization){
+                return <div className='decision-card alert-info'><strong>Prior Authorization : </strong> Yes</div>
+            }
+            else{
+              return <div className='decision-card alert-warning'><strong>Prior Authorization : </strong> No</div>
+            }
 
 
           }

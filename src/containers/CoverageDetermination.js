@@ -1,30 +1,16 @@
 import React, { Component } from 'react';
-
-import InputBox from '../components/InputBox';
-
-import DropdownPatient from '../components/DropdownPatient';
-import DropdownCDSHook from '../components/DropdownCDSHook';
-import DropdownEncounter from '../components/DropdownEncounter';
-import DropdownInput from '../components/DropdownInput';
-import DropdownCodeInput from '../components/DropdownCodeInput';
-import DropdownResourceType from '../components/DropdownResourceType';
-import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
-import DisplayBox from '../components/DisplayBox';
-import CheckBox from '../components/CheckBox';
 import { createJwt } from '../components/AuthenticationJwt';
 import Dropzone from 'react-dropzone';
 import 'font-awesome/css/font-awesome.min.css';
-
 import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, { KEYUTIL } from 'jsrsasign';
 import { createToken } from '../components/Authentication';
-import ReactTable from "react-table";
 import 'react-table/react-table.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 
 const types = {
   error: "errorClass",
@@ -32,21 +18,7 @@ const types = {
   debug: "debugClass",
   warning: "warningClass"
 }
-const styles = { border: '1px solid black', width: 600, color: 'black', padding: 20 };
-var FileDragAndDrop = require('react-file-drag-and-drop');
 
-const json = {
-  'condition': {
-    'code': '',
-    'clinical_status': '',
-
-  },
-  'procedure': {
-
-  }
-
-
-}
 export default class CoverageDetermination extends Component {
   constructor(props) {
     super(props);
@@ -129,13 +101,8 @@ export default class CoverageDetermination extends Component {
         new_files.splice(i, 1); 
       }
    }
-    // new_files.pop(file);
-   
     this.setState({files:new_files})
   }
-
-
-
 
   updateStateElement = (elementName, text) => {
     console.log('wht element name', elementName)
@@ -149,8 +116,6 @@ export default class CoverageDetermination extends Component {
   }
 
   submit_prior_auth() {
-    // this.setState({prior_auth:true};
-    // this.state.prior_auth = true;
     this.state.prior_auth = true;
     this.setState({ prior_auth: true });
     console.log(this.state.prior_auth, '--------------');
@@ -163,15 +128,12 @@ export default class CoverageDetermination extends Component {
     let tokenResponse = await createToken();
     console.log(tokenResponse);
     await this.getValusets( tokenResponse,appContext);
-    // console.log("Resource json---before--",resourcejson);
-    // this.setState({resourceJson: resourcejson});
-    // console.log("Resource json---",this.state.resourceJson);
   }
 
   async getValusets( token,appContext) {
     const url = config.crd_url + "smart_app";
     // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
-    const response = await fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -181,13 +143,9 @@ export default class CoverageDetermination extends Component {
           'appContext':appContext,
           'patientId':this.patientId
       }),
-
     }).then((response) => {
-      console.log('response',response)
       return response.json();
     }).then((response) => {
-      // console.log("Respspspsps");
-      // console.log(response);
       console.log("Resource json---before--",response,appContext);
       this.setState({resourceJson: response});
       console.log("Resource json---",this.state.resourceJson);
@@ -265,10 +223,8 @@ export default class CoverageDetermination extends Component {
             'Accept': 'application/json',
             "authorization": jwt,
           },
-          // body: JSON.stringify(json_request)
           body: JSON.stringify(inputData),
         })
-        // const res_json =   resp.json();
         console.log(resp);
       }
     }
@@ -317,16 +273,12 @@ export default class CoverageDetermination extends Component {
           + fhirResponse.error, types.error);
         this.consoleLog(fhirResponse.message, types.error);
       } else {
-        // console.log(fhirResponse,'pppppppppppp');
-
-        // this.setState({response: fhirResponse});
         this.setState({ response: res_json });
       }
       this.setState({ loading: false });
     } catch (error) {
       this.setState({ loading: false });
       this.consoleLog("Unexpected error occured", types.error)
-      // this.consoleLog(e.,types.error);
       if (error instanceof TypeError) {
         this.consoleLog(error.name + ": " + error.message, types.error);
       }
@@ -367,69 +319,6 @@ export default class CoverageDetermination extends Component {
         {file.name}
       </div>
     ))
-    // const json = [
-    //   {
-    //     "resource": {
-    //       "resourceType": "Patient",
-    //       "id": "6-1",
-    //       "codeCodeableConcept": { "coding": [{ "system": "http://www.ama-assn.org/go/cpt", "code": "94660" }] },
-    //       'Date of Birth': '23/10/1970',
-    //     }
-    //   }, {
-    //     "resource": {
-    //       "resourceType": "Condition",
-    //       'Code': 'End Stage Liver Disease',
-    //       'Clinical Status': 'Active',
-    //       'Verification Status': 'Confirmed',
-    //       'Severity': 'Moderate to severe',
-    //       'Onset': '08/03/2013'
-    //     }
-    //   }, {
-    //     "resource": {
-    //       "resourceType": "Procedure",
-    //       'Status': 'Completed',
-    //       'Code': 'Transplantation of liver (procedure)',
-    //       'Context': 'Encounter/f002',
-    //       'Body Site': 'Lung structure',
-    //       'Outcome': 'Improved Blood Circulation',
-    //       'Performed': '08/03/2013'
-    //     }
-    //   }, {
-    //     "resource": {
-    //       "resourceType": "Location",
-    //       'Status': 'Active',
-    //       'Address': 'Ambulatory Health Care Facilities; Clinic/Center,Federally Qualified Health Center (FQHC)',
-    //       'Mode': 'Instance'
-    //     }
-    //   }, {
-    //     "resource": {
-    //       "resourceType": "Episode Of Care",
-    //       'Status': 'Active',
-    //       'Type': 'Aftercare for liver transplant done (situation)',
-    //       'Status History': {
-    //         'Status': 'Active',
-    //         'Period': {
-    //           'Start': '2014-09-15',
-    //           'End': '2014-09-21',
-    //         }
-    //       },
-    //       'Diagnosis': {
-    //         'Condition': 'Condition/stroke',
-    //         'Role': 'Chief Complaint'
-    //       }
-    //     }
-    //   }, {
-    //     "resource": {
-    //       "resourceType": "Medication Statement",
-    //       'Code': 'Prescription medication started (situation)',
-    //       'Status': 'Active',
-    //       'Subject': 'Fred Adams',
-    //       'Effective DateTime': '2014-09-21',
-    //       'Date Asserted': '2014-10-22',
-    //       'Taken': 'No',
-    //       'Reason Not Taken': 'Liver enzymes abnormal',
-    //     }
-    //   }];
     
     const resourceData = this.state.resourceJson.map((res, index) => {
       console.log(res.resource,'whats coming')
@@ -442,135 +331,18 @@ export default class CoverageDetermination extends Component {
 
     return (
       <React.Fragment>
-        {/* <div>In Coverage determination forsm submit..</div> */}
-        
         <div>
           <div className="main_heading">HEALTH INSURANCE CLAIM SUBMIT</div>
-          <div className="form-group">
+          <div className="content">
             <div className="left-form">
               {resourceData}  
-              {/* <div className="header">
-                Patient Information
-                  </div>
-              <div className="left-col">
-                <div className="col-name">Patient Name</div>
-                <div className="col-name">Date of Birth</div>
-              </div>
-              <div className="right-col">
-                <div className="col-val">James</div>
-                <div className="col-val">23-10-1970</div>
-              </div>
-              <div className="header">
-                Condition
-              </div>
-              <div className="left-col">
-                <div className="col-name">Code</div>
-                <div className="col-name">Clinical Status</div>
-                <div className="col-name">Verification Status</div>
-                <div className="col-name">Severity</div>
-                <div className="col-name">Onset</div>
-              </div>
-              <div className="right-col">
-                <div className="col-val">End Stage Liver Disease</div>
-                <div className="col-val">Active</div>
-                <div className="col-val">Confirmed</div>
-                <div className="col-val">Moderate to severe</div>
-                <div className="col-val">08/03/2013</div>
-              </div>
-              <div className="header">
-                Procedure
-                  </div>
-              <div className="left-col">
-                <div className="col-name">Status</div>
-                <div className="col-name">Code</div>
-                <div className="col-name">Context</div>
-                <div className="col-name">Body Site</div>
-                <div className="col-name">Outcome</div>
-                <div className="col-name">Performed</div>
-              </div>
-              <div className="right-col">
-                <div className="col-val">Completed</div>
-                <div className="col-val">Transplantation of liver (procedure)</div>
-                <div className="col-val">Encounter/f002</div>
-                <div className="col-val">Lung structure</div>
-                <div className="col-val">Improved Blood Circulation</div>
-                <div className="col-val">08/03/2013</div>
-              </div>
-
-              <div className="header">Location</div>
-              <div>
-                <div className="left-col">Status</div>
-                <div className="right-col">Active</div>
-              </div>
-              <div>
-                <div className="left-col">Address</div>
-                <div className="right-col">Ambulatory Health Care Facilities; Clinic/Center,
-                                           Federally Qualified Health Center (FQHC)</div>
-              </div>
-              <div>
-                <div className="left-col">Mode</div>
-                <div className="right-col">Instance</div>
-              </div>
-              <div className="header">
-                Episode Of Care
-                  </div>
-              <div className="left-col">
-                <div className="col-name">Status</div>
-                <div className="col-name">Type</div>
-                <br />
-                <div className="col-name">Status History</div>
-                <div>Status</div>
-                <div>Period</div>
-                <div>-Start</div>
-                <div>-End</div>
-                <div className="col-name">Diagnosis</div>
-                <div>-Condition</div>
-                <div>-Role</div>
-              </div>
-              <div className="right-col">
-                <div className="col-val">Active</div>
-                <div className="col-val">Aftercare for liver transplant done (situation)</div>
-                <br />
-                <div className="col-val">Active</div>
-                <br />
-                <div className="col-val">2014-09-15</div>
-                <div className="col-val">2014-09-21</div>
-                <br />
-                <div className="col-val">Condition/stroke</div>
-                <div className="col-val">Chief Complaint</div>
-              </div>
-
-              <div className="header">
-                Medication Statement
-                  </div>
-              <div className="left-col">
-                <div className="col-name">Code</div>
-                <br />
-                <div className="col-name">Status</div>
-                <div className="col-name">Subject</div>
-                <div className="col-name">Effective DateTime</div>
-                <div className="col-name">Date Asserted</div>
-                <div className="col-name">Taken</div>
-                <div className="col-name">Reason Not Taken</div>
-              </div>
-              <div className="right-col">
-                <div className="col-val">Prescription medication started (situation)ctive</div>
-                <div className="col-val">Active</div>
-                <div className="col-val">Donald Duck</div>
-                <div className="col-val">2014-09-21</div>
-                <div className="col-val">2014-10-22</div>
-                <div className="col-val">No</div>
-                <div className="col-val">Liver enzymes abnormal</div>
-              </div> */}
             </div>
             <div className="right-form">
               <div className="header">
                 Upload Required/Additional Documentation
                   </div>
               <span>
-
               </span>
-              <br />
               <div className="">
                 <div className="left-col">Required Documents</div>
                 <div className="right-col">Seven Element order, Xray of Liver</div>
@@ -586,11 +358,8 @@ export default class CoverageDetermination extends Component {
                       <div    >
                       <div className='drag-drop-box' {...getRootProps()}>
                         <input {...getInputProps()} />
-                          <p>Drop files here, or click to select files  
-                              {/* <i class="fa fa-upload" aria-hidden="true"></i> */}
-                              <FontAwesomeIcon icon={faUpload}/>
-
-                            </p> 
+                          <div className="file-upload-icon"><FontAwesomeIcon icon={faCloudUploadAlt}/></div>
+                          <div>Drop files here, or click to select files </div> 
                       </div>
                       </div>
                     )}
@@ -623,7 +392,6 @@ export default class CoverageDetermination extends Component {
       </React.Fragment>);
   };
   getJson() {
-    const birthYear = 2018 - parseInt(this.state.age, 10);
     var patientId = null;
     var practitionerId = null;
     var coverageId = null;
@@ -684,28 +452,9 @@ export default class CoverageDetermination extends Component {
     return request;
   }
   render() {
-    const data = [{
-      ResourceType: 'Patient',
-      ResourceData: {
-        name: 'Jason Maurer',
-        age: 23,
-      }
-    }]
-
-    const columns = [{
-      Header: 'Requirement',
-      accessor: 'ResourceType' // String-based value accessors!
-    }, {
-      id: 'ResourceData',
-      Header: 'Input Data',
-      accessor: d => d.ResourceData,
-      Cell: row => <div><span>{row.value.name}</span>[<span className='number'>{row.value.age}</span>]</div> // Custom cell components!
-    }]
-
     return (
       <div className="attributes mdl-grid">
         {this.renderClaimSubmit()}
-        {/* <ReactTable  minRows='3' showPagination='false' data={data} columns={columns}/> */}
       </div>)
   }
 }
