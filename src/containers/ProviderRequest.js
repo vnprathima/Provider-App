@@ -3,7 +3,6 @@ import DropdownPatient from '../components/DropdownPatient';
 import DropdownCDSHook from '../components/DropdownCDSHook';
 import DropdownEncounter from '../components/DropdownEncounter';
 import DropdownInput from '../components/DropdownInput';
-import DropdownRequest from '../components/DropdownRequest';
 import DropdownCodeInput from '../components/DropdownCodeInput';
 import DropdownResourceType from '../components/DropdownResourceType';
 import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
@@ -12,8 +11,6 @@ import CheckBox from '../components/CheckBox';
 import 'font-awesome/css/font-awesome.min.css';
 import { faListAlt, faAmericanSignLanguageInterpreting } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-
 
 import '../index.css';
 import '../components/consoleBox.css';
@@ -38,7 +35,7 @@ export default class ProviderRequest extends Component {
         resourceTypeLT:null,
         // encounterId:null,
         encounter:null,
-        request:null,
+        request:"coverage-requirement",
         response:null,
         token: null,
         oauth:false,
@@ -49,11 +46,12 @@ export default class ProviderRequest extends Component {
         resource_records:{},
         keypair:KEYUTIL.generateKeypair('RSA',2048),
         prior_auth:false,
-        requirement_button_disable:'',
-        decision_button_disable:'',
-        prior_auth_button_disable:'',
         button_disable: false,
         color:'grey',
+        req_active:'active',
+        auth_active:'',
+        prefetchData:{},
+        prefetch:false,
       errors: {},
     }
     this.validateMap={
@@ -65,17 +63,8 @@ export default class ProviderRequest extends Component {
     };
     this.startLoading = this.startLoading.bind(this);
     this.submit_info = this.submit_info.bind(this);
-    // this.submit_prior_auth = this.submit_prior_auth.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
-    this.getResourceRecords = this.getResourceRecords.bind(this);
-    if(window.location.href.indexOf("appContext") > -1){
-      this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
-      this.getResourceRecords(this.appContext);
-    }
-    else{
-        this.appContext = null ;
-    }
-
+    this.getPrefetchData = this.getPrefetchData.bind(this);
   }
   consoleLog(content, type){
     let jsonContent = {
@@ -89,181 +78,147 @@ export default class ProviderRequest extends Component {
 
 
     updateStateElement = (elementName, text) => {
-    this.setState({ [elementName]: text});
+      console.log("Element---",elementName,"value--",text);
+      this.setState({ [elementName]: text});
     }
 
     startLoading(){
-    this.setState({loading:true}, ()=>{
-        this.submit_info();
-    });
-    }
-    async getResourceRecords(appContext){
-        let tokenResponse = await createToken();
-        appContext.requirements.map((obj) => {
-            // console.log("obj")
-            // console.log(obj)
-            Object.keys(obj).map((valueset)=>{
-            // console.log("valueset")
-            this.getValusets(obj,valueset,tokenResponse.access_token);
-            })
-        });
-        }
-        
-    async getValusets(obj,valueset,token){
-    const url = config.fhir_url+valueset;
-    const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type":"application/x-www-form-urlencoded",
-                "authorization":"Bearer "+token,
-                "Access-Control-Allow-Origin":"*"
-            },
-            
-        }).then((response) =>{
-            return response.json();
-        }).then((response)=>{
-            console.log("Respspspsps");
-            console.log(response);
-
-        })
+      this.setState({loading:true}, ()=>{
+          this.submit_info();
+      });
     }
     
-    setRequirement(req) {
-    console.log(req);
-    let request_type =this.state.request ;
-    let requirement_disable = this.state.requirement_button_disable;
-    let decision_disable = this.state.decision_button_disable;
-    let prior_auth_disable = this.state.prior_auth_button_disable;
-    requirement_disable = "fa-disabled";
-    decision_disable='';
-    prior_auth_disable='';
-    request_type = req;
-    this.setState({request:request_type});
-    this.setState({requirement_button_disable:requirement_disable});
-    this.setState({decision_button_disable:decision_disable});
-    this.setState({prior_auth_button_disable:prior_auth_disable});
-    }
-    setDecision(req) {
-      console.log(req);
-      let request_type =this.state.request ;
-      let requirement_disable = this.state.requirement_button_disable;
-      let decision_disable = this.state.decision_button_disable;
-      let prior_auth_disable = this.state.prior_auth_button_disable;
-      requirement_disable = "";
-      decision_disable='fa-disabled';
-      prior_auth_disable='';
-      request_type = req;
-      this.setState({request:request_type});
-      this.setState({requirement_button_disable:requirement_disable});
-      this.setState({decision_button_disable:decision_disable});
-      this.setState({prior_auth_button_disable:prior_auth_disable});
+    async getPrefetchData() {
+      console.log(this.state.hook);
+      if(this.state.hook === "patient-view" || this.state.hook === "liver-transplant" ){
+        var prefectInput = {"Patient":this.state.patient};
       }
-      setPriorAuth(req) {
-        console.log(req);
-        let request_type =this.state.request ;
-        let requirement_disable = this.state.requirement_button_disable;
-        let decision_disable = this.state.decision_button_disable;
-        let prior_auth_disable = this.state.prior_auth_button_disable;
-        requirement_disable = "";
-        decision_disable='';
-        prior_auth_disable='fa-disabled';
-        request_type = req;
-        this.setState({request:request_type});
-        this.setState({requirement_button_disable:requirement_disable});
-        this.setState({decision_button_disable:decision_disable});
-        this.setState({prior_auth_button_disable:prior_auth_disable});
-        }
+      else if(this.state.hook === "order-review"){
+        var prefectInput = {
+                            "Patient":this.state.patientId,
+                            "Encounter":this.state.encounterId,
+                            "Practitioner":this.state.practitionerId,
+                            "Coverage":this.state.coverageId
+                            };
+      } else if(this.state.hook === "medication-prescribe"){
+        var prefectInput = {
+                              "Patient":this.state.patient,
+                              "Practitioner":this.state.practitionerId
+                            };
+      }
+      let tokenResponse = await createToken();
+      await this.getResourceData( tokenResponse,prefectInput);
+      // return prefetchData;
+    }
 
+    async getResourceData( token,prefectInput) {
+      console.log("Prefetch input--",JSON.stringify(prefectInput));
+      const url = config.crd_url + "prefetch";
+      // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": "Bearer " + token,
+        },
+        body: JSON.stringify(prefectInput),
+      }).then((response) => {
+        return response.json();
+      }).then((response) => {
+        console.log("Prefetch json---before--",response);
+        this.setState({prefetchData: response});
+        // return response;
+        console.log("Prefetch json---after--",this.state.prefetchData);
+      })
+    }
+
+    setRequestType(req){
+      this.setState({request:req});
+      if (req==="coverage-requirement"){
+          this.setState({auth_active:""});
+          this.setState({req_active:"active"});
+      }
+      if (req==="prior-authorization"){
+          this.setState({auth_active:"active"});
+          this.setState({req_active:""});
+      }
+    }
 
 
     validateState(){
-    const validationResult = {};
-    Object.keys(this.validateMap).forEach(key => {
-        if(this.state[key] && this.validateMap[key](this.state[key])){
+      const validationResult = {};
+      Object.keys(this.validateMap).forEach(key => {
+          if(this.state[key] && this.validateMap[key](this.state[key])){
             // Basically we want to know if we have any errors
             // or empty fields, and we want the errors to override
             // the empty fields, so we make errors 0 and unpopulated
             // fields 2.  Then we just look at whether the product of all
             // the validations is 0 (error), 1 (valid) , or >1 (some unpopulated fields).
             validationResult[key]=0;
-        }else if(this.state[key]){
-            // the field is populated and valid
-            validationResult[key]=1;
-        }else{
-            // the field is not populated
-            validationResult[key]=2
-        }
-    });
-
-    return validationResult;
+          }else if(this.state[key]){
+              // the field is populated and valid
+              validationResult[key]=1;
+          }else{
+              // the field is not populated
+              validationResult[key]=2
+          }
+      });
+      return validationResult;
     }
-    // submit_prior_auth(){
-    //     // this.setState({prior_auth:true};
-    //     // this.state.prior_auth = true;
-    //     this.state.prior_auth = true;
-    //     this.setState({prior_auth:true});
-    //     console.log(this.state.prior_auth,'--------------');
-    //     this.setState({loading:true }, ()=>{
-    //       this.submit_info();
-    //     });
-    //   }
+
     async submit_info(){
-    this.consoleLog("Initiating form submission",types.info);
-    let json_request = this.getJson();
-    console.log(JSON.stringify(json_request))
-    console.log("Req: ",json_request);
-    // var token = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
-    let token = await createToken();
-    token = "Bearer " + token;
-    var myHeaders = new Headers({
-        "Content-Type": "application/json",
-        "authorization": token,
-    });
-    let url='';
-    if(this.state.request== 'prior-authorization'){
-        url = config.provider_prior_authorization_url;
-    }
-    else if(this.state.request == 'coverage-requirement'){
-        url = config.provider_coverage_requirement_url;
-    }
-    else{
-        url = config.provider_coverage_decision_url;
-    }
-        
-    console.log("Fetching response from "+url+",types.info")
-    this.consoleLog("Fetching response from "+url+",types.info")
-    try{
-        const fhirResponse= await fetch(url,{
-            method: config.provider_response_method_post,
-            headers: myHeaders,
-            body: JSON.stringify(json_request)
-        })
-        const res_json = await  fhirResponse.json();
-        console.log("res_json");
-        console.log(res_json);
-        this.setState({response: res_json});
-
-        if(fhirResponse && fhirResponse.status){
-        this.consoleLog("Server returned status "
-                        + fhirResponse.status + ": "
-                        + fhirResponse.error,types.error);
-        this.consoleLog(fhirResponse.message,types.error);
-        }else{
-        // console.log(fhirResponse,'pppppppppppp');
-
-        // this.setState({response: fhirResponse});
-        this.setState({response: res_json});
+        this.consoleLog("Initiating form submission",this.state.prefetch);
+        let json_request = await this.getJson();
+        console.log(JSON.stringify(json_request))
+        console.log("Req: ",json_request);
+        // var token = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
+        let token = await createToken();
+        token = "Bearer " + token;
+        var myHeaders = new Headers({
+            "Content-Type": "application/json",
+            "authorization": token,
+        });
+        let url='';
+        if(this.state.request == 'prior-authorization'){
+            url = config.provider_prior_authorization_url;
+            
         }
-    this.setState({loading:false});
-    }catch(error){
+        else if(this.state.request == 'coverage-requirement'){
+            url = config.provider_coverage_requirement_url;
+        }
+        else{
+            url = config.provider_coverage_decision_url;
+        }
+        console.log("Fetching response from "+url+",types.info")
+        this.consoleLog("Fetching response from "+url+",types.info")
+        try{
+            const fhirResponse= await fetch(url,{
+                method: config.provider_response_method_post,
+                headers: myHeaders,
+                body: JSON.stringify(json_request)
+            })
+            const res_json = await  fhirResponse.json();
+            console.log("res_json");
+            console.log(res_json);
+            this.setState({response: res_json});
+
+            if(fhirResponse && fhirResponse.status){
+              this.consoleLog("Server returned status "
+                              + fhirResponse.status + ": "
+                              + fhirResponse.error,types.error);
+              this.consoleLog(fhirResponse.message,types.error);
+            }else{
+              this.setState({response: res_json});
+            }
         this.setState({loading:false});
-        this.consoleLog("Unexpected error occured",types.error)
-        // this.consoleLog(e.,types.error);
-        if(error instanceof TypeError){
-        this.consoleLog(error.name + ": " + error.message,types.error);
+        }catch(error){
+            this.setState({loading:false});
+            this.consoleLog("Unexpected error occured",types.error)
+            // this.consoleLog(e.,types.error);
+            if(error instanceof TypeError){
+              this.consoleLog(error.name + ": " + error.message,types.error);
+            }
         }
-    }
-
     }
   renderClaimSubmit() {
     const status_opts = config.status_options;
@@ -280,16 +235,16 @@ export default class ProviderRequest extends Component {
               <div className="left-form">
               <div>
                 <div className="tab">
-                  <div className={"requirements-icon "  + this.state.requirement_button_disable} onClick={() => this.setRequirement('coverage-requirement',true)}>
+                  <div className={"requirements-icon "  + this.state.req_active} onClick={() => this.setRequestType('coverage-requirement')}>
                     <FontAwesomeIcon icon={faListAlt}  />
                       &nbsp;Coverage Requirements
                   </div>
-                  <div className={"priorauth-icon " + this.state.prior_auth_button_disable} onClick={() => this.setPriorAuth('prior-authorization',true)}>
+                  <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setRequestType('prior-authorization')}>
                     <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
                     &nbsp;Prior Authorization
                   </div>
                 </div>
-                <div className="header">
+                {/* <div className="header">
                             Request Type 
                 </div>
                 <div className="dropdown">
@@ -297,7 +252,7 @@ export default class ProviderRequest extends Component {
                     elementName="request"
                     updateCB={this.updateStateElement}
                   />
-                </div>
+                </div> */}
                 </div>
                 <div>
                 <div className="header">
@@ -428,14 +383,12 @@ export default class ProviderRequest extends Component {
         </div>
       </React.Fragment>);
     };
-    getJson(){
-        const birthYear = 2018-parseInt(this.state.age,10);
+    async getJson(){
         var patientId =  null;
         var practitionerId = null;
         var coverageId = null ;
         var encounterId='';
-        var gender=null;
-        console.log(this.state.patient,'sdfghhhhhj')
+        
         // if(this.state.patient != null){
         //    patientId = this.state.patient.replace("Patient/","");
         // }
@@ -488,45 +441,10 @@ export default class ProviderRequest extends Component {
         {
          request.context.encounterId = this.state.encounter
         }
-        console.log(request)
         if (this.state.prefetch) {
-            request.prefetch = {
-              deviceRequestBundle: {
-                resourceType: "Bundle",
-                type: "collection",
-                entry: [
-                  {
-                    resource: {
-                        resourceType: this.state.resourceType,  // select
-                        id: "6-1",
-                        codeCodeableConcept: {
-                          coding: [
-                            {
-                              system: this.state.codeSystem,
-                              code: this.state.code
-                            }
-                          ]
-                        },
-                    }
-                  },
-                  {
-                    resource: {
-                      resourceType: "Patient",
-                      id: patientId,
-                      gender: this.state.gender,
-                      birthDate: birthYear + "-01-23",
-                      address: [
-                        {
-                          use: "home",
-                          type: "both",
-                          state: this.state.patientState
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            };
+            var prefetchData = await this.getPrefetchData();
+            console.log("Prefetch data---",this.state.prefetchData);
+              request.prefetch =  this.state.prefetchData;
           }
         return request;
       }

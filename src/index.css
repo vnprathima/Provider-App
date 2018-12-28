@@ -215,6 +215,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 .checkBoxClicked{
   /* border-width: 1px 3px 1px 1px; */
   float:right;
+  width: 30%;
   /* border-color:gray black black gray; */
 
 }
@@ -339,12 +340,14 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   color:grey;
   cursor: not-allowed;
 }
+.active{
+ color: lightseagreen;
+}
 .requirements-icon{
     width: 50%;
     float: left;
     font-size: 20px;
     padding: 19px;
-    color: lightseagreen;
     cursor: pointer
 }
 .priorauth-icon{    
@@ -352,7 +355,6 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
     float: left;
     font-size: 20px;
     padding: 19px;
-    color: lightseagreen;
     cursor: pointer
   }
 
@@ -361,6 +363,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   overflow: hidden;
       background: #fcfcfc;
     border: 2px solid #ddd;
+    color:gray;
 }
 
 /* Style the buttons inside the tab */
