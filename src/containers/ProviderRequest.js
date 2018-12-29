@@ -6,6 +6,18 @@ import DropdownInput from '../components/DropdownInput';
 import DropdownCodeInput from '../components/DropdownCodeInput';
 import DropdownResourceType from '../components/DropdownResourceType';
 import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
+import DropdownFrequency from '../components/DropdownFrequency';
+import DropdownMedicationList from '../components/DropdownMedicationList';
+import DropdownTreating from '../components/DropdownTreating';
+import {Input} from 'semantic-ui-react';
+import rxnorm from '../medication-list';
+import NumericInput from 'react-numeric-input';
+import DatePicker from "react-datepicker";
+import {DateInput} from 'semantic-ui-calendar-react';
+
+import "react-datepicker/dist/react-datepicker.css";
+
+
 import DisplayBox from '../components/DisplayBox';
 import CheckBox from '../components/CheckBox';
 import 'font-awesome/css/font-awesome.min.css';
@@ -25,33 +37,43 @@ const types = {
     debug: "debugClass",
     warning: "warningClass"
   }
-
+  let allMed = [];
 export default class ProviderRequest extends Component {
   constructor(props){
     super(props);
     this.state = {
         patient:null,
+        patientId:null,
+        practitionerId:null,
         resourceType:null,
         resourceTypeLT:null,
-        // encounterId:null,
+        encounterId:null,
+        coverageId:null,
         encounter:null,
         request:"coverage-requirement",
         response:null,
         token: null,
         oauth:false,
+        treating:null,
         loading:false,
         logs:[],
         cards:[],
+        medicationInput:null,
+        medication:null,
+        medicationStartDate:'',
+        medicationEndDate:'',
         hook:null,
         resource_records:{},
         keypair:KEYUTIL.generateKeypair('RSA',2048),
         prior_auth:false,
-        button_disable: false,
+        dosageAmount:null,
+        treating:null,
         color:'grey',
         req_active:'active',
         auth_active:'',
         prefetchData:{},
         prefetch:false,
+        frequency:null,
       errors: {},
     }
     this.validateMap={
@@ -63,6 +85,15 @@ export default class ProviderRequest extends Component {
     };
     this.startLoading = this.startLoading.bind(this);
     this.submit_info = this.submit_info.bind(this);
+    // this.submit_prior_auth = this.submit_prior_auth.bind(this);
+    this.onEncounterChange = this.onEncounterChange.bind(this);
+    this.onPatientChange = this.onPatientChange.bind(this);
+    this.onPractitionerChange = this.onPractitionerChange.bind(this);
+    this.changeDosageAmount=this.changeDosageAmount.bind(this);
+    this.changeMedicationInput=this.changeMedicationInput.bind(this);
+    this.onCoverageChange=this.onCoverageChange.bind(this);
+    this.changeMedicationStDate = this.changeMedicationStDate.bind(this);
+
     this.consoleLog = this.consoleLog.bind(this);
     this.getPrefetchData = this.getPrefetchData.bind(this);
   }
@@ -144,6 +175,42 @@ export default class ProviderRequest extends Component {
       }
     }
 
+    onEncounterChange (event){
+      this.setState({ encounterId: event.target.value });
+    }
+    onPatientChange (event){
+      console.log(event.target.value)
+      this.setState({ patientId: event.target.value });
+    }
+    onPractitionerChange (event){
+      this.setState({ practitionerId: event.target.value });
+    }
+    onCoverageChange (event){
+      this.setState({ coverageId: event.target.value });
+    }
+    changeMedicationInput(event) {
+      this.setState({ medicationInput: event.target.value });
+    }
+    changeMedicationStDate= (event, {name, value}) => {
+      
+        if (this.state.hasOwnProperty(name)) {
+          this.setState({[name]: value });
+        }
+    }
+    changeMedicationEndDate= (event, {name, value}) =>{
+      if(this.state.hasOwnProperty(name))
+      this.setState({ [name]: value });
+    }
+    changeDosageAmount(event) {
+      if(event.target.value !=undefined){
+        let transformedNumber = Number(event.target.value) || 1;
+        if (transformedNumber > 5) { transformedNumber = 5; }
+        if (transformedNumber < 1) { transformedNumber = 1; }
+        this.setState({ dosageAmount: transformedNumber });
+      }
+      
+    }
+   
 
     validateState(){
       const validationResult = {};
@@ -267,18 +334,30 @@ export default class ProviderRequest extends Component {
                 </div>
                 <div>
                   <div className="header">
-                          Patient's Name
+                          Patient's ID
                   </div>
-                  <div className="dropdown">
+                  <div >
+                      <Input className='ui fluid   input' type="text" name="patient" fuild value={this.state.patientId} onChange={this.onPatientChange}></Input>
+                    </div>
+                  {/* <div className="dropdown">
                   <DropdownPatient
                     elementName="patient"
                     updateCB={this.updateStateElement}
                   />
+                  </div> */}
+                  <div>
+                    <div className="header">
+                            Practitioner ID
+                    </div>
+                    <div >
+                      <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
+                    </div>
                   </div>
+
                 </div>
                 {this.state.hook === 'order-review' &&
                   <div>
-                    <div>
+                    {/* <div>
                       <div className="header">
                               Procedures,Services or Supplies
                       </div>
@@ -288,19 +367,25 @@ export default class ProviderRequest extends Component {
                         updateCB={this.updateStateElement}
                       />
                       </div>
-                  </div>
+                  </div> */}
                   <div>
                     <div className="header">
-                            Encounter Detail
+                            Encounter ID
                     </div>
-                    <div className="dropdown">
-                    <DropdownEncounter
-                      elementName="encounter"
-                      updateCB={this.updateStateElement}
-                    />
+                    <div >
+                      <Input className='ui fluid  input' type="text" name="encounter" fluid value={this.state.encounterId} onChange={this.onEncounterChange}></Input>
                     </div>
                   </div>
+                  
                   <div>
+                    <div className="header">
+                            Coverage ID
+                    </div>
+                    <div >
+                      <Input className='ui fluid  input' type="text" name="coverage" fluid value={this.state.coverageId} onChange={this.onCoverageChange}></Input>
+                    </div>
+                  </div>
+                  {/* <div>
                     <div className="header">
                         SNOMED/HCPCS Code
                     </div>
@@ -310,12 +395,14 @@ export default class ProviderRequest extends Component {
                         updateCB={this.updateStateElement}
                         />
                     </div>
-                    </div>
+                    </div> */}
                   </div>
                 }
+            
                 {this.state.hook === 'liver-transplant' &&
                   <div>
-                    <div>
+                    {/* reousrce types for liver Transplant */}
+                    {/* <div>
                       <div className="header">
                               Procedures,Services or Supplies
                       </div>
@@ -325,7 +412,8 @@ export default class ProviderRequest extends Component {
                         updateCB={this.updateStateElement}
                       />
                       </div>
-                    </div>
+                    </div> */}
+                    {/* Codes for Liver Transplant */}
                     <div>
                       <div className="header">
                           SNOMED/HCPCS Code
@@ -338,6 +426,89 @@ export default class ProviderRequest extends Component {
                         </div>
                       </div>
                   </div>
+                }
+                {this.state.hook === 'medication-prescribe' &&
+                <div>
+                  <div className="header">
+                          Treating
+                      </div>
+                    <div className="dropdown">
+                      <DropdownTreating
+                          elementName='treating'
+                          updateCB={this.updateStateElement}
+                          />
+                  </div>
+                  {/* <div>
+                  <div className="header">
+                          Medication Input
+                      </div>
+                  <div className="dropdown">
+                  <DropdownMedicationList
+                      elementName="medication"
+                      updateCB={this.updateStateElement}
+                    />
+                  </div>
+                  </div> */}
+                <div>
+                    <div className='leftStateInput'>
+                    <div className='header' >
+                          Number
+                    </div>
+                    <div >
+                    <Input 
+                      type="number"
+                      value={this.state.dosageAmount}
+                       onChange={this.changeDosageAmount}
+                       placeholder="Number"/></div>
+                    {/* <div class="ui input"><input type="text" placeholder="Number"/></div> */}
+                    </div>
+                    <div className='rightStateInput'>
+                      <div className="header" >
+                            Frequency
+                      </div>
+                    <div >
+                    <DropdownFrequency
+                        elementName='frequency'
+                        updateCB={this.updateStateElement}
+                        />
+                  </div>
+                  </div>
+                </div>
+  
+                <div>
+                  <div className='leftStateInput'>
+                  <div className="header" >
+                            Start Date
+                    </div>
+                    <div >
+                    <DateInput
+                      name="medicationStartDate"
+                      placeholder="Start Date"
+                      value={this.state.medicationStartDate}
+                      iconPosition="left"
+                      onChange={this.changeMedicationStDate}
+                    />
+                    </div>
+                    
+                  </div>
+                  <div className='rightStateInput'>
+                  <div className="header" >
+                            End Date
+                    </div>
+                    <div >
+                    <DateInput
+                      name="medicationEndDate"
+                      placeholder="End Date"
+                      value={this.state.medicationEndDate}
+                      iconPosition="left"
+                      onChange={this.changeMedicationEndDate}
+                    />
+                    </div>
+                  
+                  </div>
+                </div>
+                
+                </div>
                 }
                 {this.state.request === 'coverage-requirement' &&
                       <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
@@ -364,13 +535,13 @@ export default class ProviderRequest extends Component {
               {this.state.request === 'coverage-requirement' &&
                 <div className="right-form">
                 <DisplayBox
-                response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patient} />
+                response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patientId} />
                 </div>
                 }
                 {this.state.request === 'prior-authorization' &&
                 <div className="right-form">
                 <DisplayBox
-                response = {this.state.response} req_type="prior-authorization" patientId={this.state.patient} />
+                response = {this.state.response} req_type="prior-authorization" patientId={this.state.patientId} />
                 </div>
                 }
                 {this.state.request !== 'coverage-requirement' && this.state.request !== 'prior-authorization' &&
@@ -384,70 +555,118 @@ export default class ProviderRequest extends Component {
       </React.Fragment>);
     };
     async getJson(){
-        var patientId =  null;
-        var practitionerId = null;
-        var coverageId = null ;
-        var encounterId='';
-        
-        // if(this.state.patient != null){
-        //    patientId = this.state.patient.replace("Patient/","");
-        // }
-        // else{
-        //   this.consoleLog("No© client id provided in properties.json",this.warning);
-        // }
-        patientId=this.state.patient;
-        let request = {
-          hookInstance: config.provider_hook_instance,
-          // fhirServer: config.fhir_url,
-          hook: this.state.hook,
-          // fhirAuthorization : {
-          //   "access_token" : this.state.token,
-          //   "token_type" : config.token_type, // json
-          //   "expires_in" : config.expires_in, // json
-          //   "scope" : config.fhir_auth_scope,
-          //   "subject" : config.fhir_auth_subject,
-          // },
-          // user: this.state.practitioner, // select
-          context: {
-            patientId: patientId ,  // select
-            orders: {
-              resourceType: "Bundle",
-              entry: [
-                {
-                  resource:{
-                    resourceType:"Patient",
-                    id:patientId
-                  }
-                },
-                {
-                  resource: {
-                    resourceType: this.state.resourceType,  // select
-                    id: "6-1",
-                    codeCodeableConcept: {
-                      coding: [
-                        {
-                          system: this.state.codeSystem,
-                          code: this.state.code
-                        }
-                      ]
-                    },
-                  }
+      var patientId =  null;
+      var practitionerId = null;
+      var coverageId = null ;
+      // var encounterId='';
+      patientId=this.state.patientId;
+      let coverage = {
+        resource: {
+          resourceType: "Coverage",
+          id: this.state.coverageId,
+          class: [
+            {
+              type: {
+                system: "http://hl7.org/fhir/coverage-class",
+                code: "plan"
+              },
+              value: "Medicare Part D"
+            }
+          ],
+          payor: [
+            {
+              reference: "Organization/6"
+            }
+          ]
+        }
+      };
+      let medicationJson = {
+        resourceType: "MedicationOrder",
+        dosageInstruction: [
+          {
+            doseQuantity: {
+              value: this.state.dosageAmount,
+              system: "http://unitsofmeasure.org",
+              code: "{pill}"
+            },
+            timing: {
+              repeat: {
+                frequency: this.state.frequency,
+                boundsPeriod: {
+                  start: this.state.medicationStartDate,
+                  end:this.state.medicationEndDate,
                 }
-              ]
+              }
             }
           }
-        };
-        if(this.state.hook==='order-review')
-        {
-         request.context.encounterId = this.state.encounter
+        ],
+        medicationCodeableConcept: {
+          text: "Pimozide 2 MG Oral Tablet [Orap]",
+          coding: [
+            {
+              display: "Pimozide 2 MG Oral Tablet [Orap]",
+              system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+              code: this.state.medication,
+            }
+          ]
+        },
+        reasonCodeableConcept: {
+          coding: [
+            {
+              system: "http://snomed.info/sct",
+              code: this.state.treating,
+            }
+          ],
+          text: "Alzheimer's disease"
         }
-        if (this.state.prefetch) {
-            var prefetchData = await this.getPrefetchData();
-            console.log("Prefetch data---",this.state.prefetchData);
-              request.prefetch =  this.state.prefetchData;
+
+      };
+      let request = {
+        hookInstance: config.provider_hook_instance,
+        // fhirServer: config.fhir_url,
+        // hook:this.state.hook,
+        hook: 'liver-transplant',
+        // fhirAuthorization : {
+        //   "access_token" : this.state.token,
+        //   "token_type" : config.token_type, // json
+        //   "expires_in" : config.expires_in, // json
+        //   "scope" : config.fhir_auth_scope,
+        //   "subject" : config.fhir_auth_subject,
+        // },
+        userId : this.state.practitionerId,
+        patientId: patientId ,
+        context: {
+          userId : this.state.practitionerId,
+          patientId: patientId ,  // select
+          orders: {
+            resourceType: "Bundle",
+            entry: [
+              {
+                resource:{
+                  resourceType:"Patient",
+                  id:patientId
+                }
+              },
+            ]
           }
-        return request;
+        }
+      };
+      if(this.state.hook==='order-review')
+      {
+        // request.context.encounterId = this.state.encounterId,
+        request.context.encounterId = this.state.encounterId
+        request.context.orders.entry.push(coverage);
       }
+      if(this.state.hook==='medication-prescribe'){
+        request.context.orders.entry.push(medicationJson);
+      }
+      if (this.state.prefetch) {
+          var prefetchData = await this.getPrefetchData();
+          console.log("Prefetch data---",this.state.prefetchData);
+            request.prefetch =  this.state.prefetchData;
+        }
+      return request;
+    }
   render() {
     return (
       <div className="attributes mdl-grid">
