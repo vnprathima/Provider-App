@@ -40,6 +40,7 @@
   "provider_coverage_decision_url":"http://54.227.173.76:8090/cds-services/coverage_decision",
   "provider_prior_authorization_url":"http://54.227.173.76:8090/cds-services/prior_authorization",
   "provider_coverage_requirement_url":"http://54.227.173.76:8090/cds-services/coverage_requirement",
+  "provider_patient_view_url":"http://54.227.173.76:8090/cds-services/patient_view",
   "jwt_header_alg":"RS256",
   "jwt_header_type":"JWT",
   "jwt_header_jku":"http://localhost:3001/public_keys",

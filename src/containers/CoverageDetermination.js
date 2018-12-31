@@ -11,6 +11,8 @@ import { createToken } from '../components/Authentication';
 import 'react-table/react-table.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
+import DisplayBox from '../components/DisplayBox';
+
 
 const types = {
   error: "errorClass",
@@ -68,6 +70,8 @@ export default class CoverageDetermination extends Component {
       this.hook =  decodeURIComponent(window.location.href.split("?")[1]).split('&appContext')[0].split('hook=')[1]
       console.log("this.appContext");
     console.log(this.appContext);
+    console.log(this.hook,'hoookks')
+
       this.getResourceRecords(this.appContext);
     }
     else {
@@ -106,7 +110,6 @@ export default class CoverageDetermination extends Component {
   }
 
   updateStateElement = (elementName, text) => {
-    console.log('wht element name', elementName)
     this.setState({ [elementName]: text });
   }
 
@@ -142,7 +145,7 @@ export default class CoverageDetermination extends Component {
       },
       body: JSON.stringify({
           'appContext':appContext,
-          'hook':this.hook
+          'hook':this.hook,
 
       }),
     }).then((response) => {
@@ -212,7 +215,6 @@ export default class CoverageDetermination extends Component {
     console.log("Fetching response from " + url + ",types.info")
     this.consoleLog("Fetching response from " + url + ",types.info")
     try {
-      console.log('in tryy')
       const fhirResponse = await fetch(url, {
         method: config.provider_response_method_post,
         headers: myHeaders,
@@ -246,7 +248,7 @@ export default class CoverageDetermination extends Component {
           + fhirResponse.error, types.error);
         this.consoleLog(fhirResponse.message, types.error);
       } else {
-        console.log('wwwwwwwwwwww',res_json)
+        // console.log('wwwwwwwwwwww',res_json)
         this.setState({ response: res_json });
       }
       this.setState({ loading: false });
@@ -297,8 +299,9 @@ export default class CoverageDetermination extends Component {
     const resourceData = this.state.resourceJson.map((res, index) => {
       return (
         <div key={index}>
-          <div className="header">{res.resource.resourceType}</div>
-          {this.renderObject(res.resource)}
+          {/* <div className="header">{res.resource.resourceType}</div> */}
+          <div className="header">{res.resourceType}</div>
+          {this.renderObject(res)}
         </div>);
     });
 
@@ -358,6 +361,10 @@ export default class CoverageDetermination extends Component {
                   width="16"
                 />
               </div>
+              <div >
+                        <DisplayBox
+                        response = {this.state.response} req_type="coverage_determination" />
+                    </div>
             </div>
 
           </div>
@@ -382,7 +389,9 @@ export default class CoverageDetermination extends Component {
     let request = {
       hookInstance: config.provider_hook_instance,
       // fhirServer: config.fhir_url,
-      hook: 'liver-transplant',
+      
+      // hook: 'liver-transplant',
+      hook: this.hook,
       // fhirAuthorization : {
       //   "access_token" : this.state.token,
       //   "token_type" : config.token_type, // json
@@ -399,16 +408,13 @@ export default class CoverageDetermination extends Component {
           ]
         }
       }
-    };
-    
-    
+    };    
     if(this.state.files !=null){
       for(var i=0;i<this.state.files.length;i++){
         (function(file) {
           let content_type = file.type;
           let file_name = file.name;
           var reader = new FileReader();  
-          console.log('are you dsds',file.name);
           reader.onload = function(e) {  
               // get file content  
               inputData = {
@@ -469,10 +475,10 @@ export default class CoverageDetermination extends Component {
 
     request.context.orders.entry[0].push(msgDefinition)
 
-    if (this.state.hook === 'order-review') {
-      request.context.encounterId = this.state.encounter
-    }
-    console.log(request,'yippppppppyyyy')
+    // if (this.state.hook === 'order-review') {
+    //   request.context.encounterId = this.state.encounter
+    // }
+    // console.log(request,'yippppppppyyyy')
     return request;
   }
   render() {

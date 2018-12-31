@@ -43,8 +43,8 @@ export default class ProviderRequest extends Component {
     super(props);
     this.state = {
         patient:null,
-        patientId:null,
-        practitionerId:null,
+        patientId:'',
+        practitionerId:'',
         resourceType:null,
         resourceTypeLT:null,
         encounterId:null,
@@ -93,6 +93,16 @@ export default class ProviderRequest extends Component {
     this.changeMedicationInput=this.changeMedicationInput.bind(this);
     this.onCoverageChange=this.onCoverageChange.bind(this);
     this.changeMedicationStDate = this.changeMedicationStDate.bind(this);
+    this.changeMedicationEndDate = this.changeMedicationEndDate.bind(this);
+    // this.consoleLog = this.consoleLog.bind(this);
+    // this.getResourceRecords = this.getResourceRecords.bind(this);
+    // if(window.location.href.indexOf("appContext") > -1){
+    //   this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
+    //   this.getResourceRecords(this.appContext);
+    // }
+    // else{
+    //     this.appContext = null ;
+    // }
 
     this.consoleLog = this.consoleLog.bind(this);
     this.getPrefetchData = this.getPrefetchData.bind(this);
@@ -179,7 +189,7 @@ export default class ProviderRequest extends Component {
       this.setState({ encounterId: event.target.value });
     }
     onPatientChange (event){
-      console.log(event.target.value)
+      // console.log(event.target.value)
       this.setState({ patientId: event.target.value });
     }
     onPractitionerChange (event){
@@ -255,6 +265,9 @@ export default class ProviderRequest extends Component {
         }
         else{
             url = config.provider_coverage_decision_url;
+        }
+        if(this.state.hook == 'patient-view'){
+          url = config.provider_patient_view_url;
         }
         console.log("Fetching response from "+url+",types.info")
         this.consoleLog("Fetching response from "+url+",types.info")
@@ -414,7 +427,7 @@ export default class ProviderRequest extends Component {
                       </div>
                     </div> */}
                     {/* Codes for Liver Transplant */}
-                    <div>
+                    {/* <div>
                       <div className="header">
                           SNOMED/HCPCS Code
                       </div>
@@ -424,7 +437,7 @@ export default class ProviderRequest extends Component {
                           updateCB={this.updateStateElement}
                           />
                         </div>
-                      </div>
+                      </div> */}
                   </div>
                 }
                 {this.state.hook === 'medication-prescribe' &&
@@ -626,8 +639,8 @@ export default class ProviderRequest extends Component {
       let request = {
         hookInstance: config.provider_hook_instance,
         // fhirServer: config.fhir_url,
-        // hook:this.state.hook,
-        hook: 'liver-transplant',
+        hook:this.state.hook,
+        // hook: 'liver-transplant',
         // fhirAuthorization : {
         //   "access_token" : this.state.token,
         //   "token_type" : config.token_type, // json
