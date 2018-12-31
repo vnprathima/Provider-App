@@ -62,7 +62,7 @@ export default class CoverageDetermination extends Component {
     if (window.location.href.indexOf("appContext") > -1) {
 
       this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
-      this.patientId =  decodeURIComponent(window.location.href.split("?")[1]).split('&appContext')[0].split('patientId=')[1]
+      this.hook =  decodeURIComponent(window.location.href.split("?")[1]).split('&appContext')[0].split('hook=')[1]
       console.log("this.appContext");
     console.log(this.appContext);
       this.getResourceRecords(this.appContext);
@@ -141,7 +141,7 @@ export default class CoverageDetermination extends Component {
       },
       body: JSON.stringify({
           'appContext':appContext,
-          'patientId':this.patientId
+          'hook':this.hook
       }),
     }).then((response) => {
       return response.json();
