@@ -535,21 +535,21 @@ export default class ProviderRequest extends Component {
               {this.state.request === 'coverage-requirement' &&
                 <div className="right-form">
                 <DisplayBox
-                response = {this.state.response} req_type="coverage_requirement" patientId={this.state.patientId} hook={this.state.hook}  />
+                response = {this.state.response} req_type="coverage_requirement" userId={this.state.practitionerId} patientId={this.state.patientId} hook={this.state.hook}  />
 
                 </div>
                 }
                 {this.state.request === 'prior-authorization' &&
                 <div className="right-form">
                 <DisplayBox
-                response = {this.state.response} req_type="prior-authorization" patientId={this.state.patientId} hook={this.state.hook}  />
+                response = {this.state.response} req_type="prior-authorization"  userId={this.state.practitionerId}  patientId={this.state.patientId} hook={this.state.hook}  />
 
                 </div>
                 }
                 {this.state.request !== 'coverage-requirement' && this.state.request !== 'prior-authorization' &&
                 <div className="right-form">
                         <DisplayBox
-                        response = {this.state.response} req_type="coverage_determination" patientId={this.state.patient} hook={this.state.hook} />
+                        response = {this.state.response} req_type="coverage_determination" userId={this.state.practitionerId}  patientId={this.state.patient} hook={this.state.hook} />
                     </div>
                 }
               </div>

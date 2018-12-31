@@ -135,9 +135,10 @@ export default class DisplayBox extends Component{
           var appContext = JSON.parse(JSON.stringify(link.appContext));
           console.log(appContext);
           if(appContext.length > 0){
-            const appData = {"patientId":this.props.patientId}
+            const appData = {"patientId":this.props.patientId,"Practitioner":this.props.userId}
             const requirements = appContext[0]
-            appContext[0] = {appData:appData,requirements:requirements}
+
+            appContext[0] = {appData:appData,requirements:requirements,hook:this.props.hook}
           }
           linkCopy.url += encodeURIComponent("?hook="+this.props.hook+"&appContext="+JSON.stringify(appContext));
           // console.log(decodeURIComponent(linkCopy.url));
