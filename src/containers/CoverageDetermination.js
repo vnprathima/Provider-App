@@ -18,6 +18,7 @@ const types = {
   debug: "debugClass",
   warning: "warningClass"
 }
+let inputData = {};
 
 export default class CoverageDetermination extends Component {
   constructor(props) {
@@ -40,6 +41,7 @@ export default class CoverageDetermination extends Component {
       keypair: KEYUTIL.generateKeypair('RSA', 2048),
       prior_auth: false,
       files: [],
+      additionalNotes:'',
       errors: {},
       resourceJson: []
     }
@@ -55,6 +57,7 @@ export default class CoverageDetermination extends Component {
     this.submit_info = this.submit_info.bind(this);
     this.submit_prior_auth = this.submit_prior_auth.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
+    this.onNotesChange=this.onNotesChange.bind(this);
     // this.onRemove=this.onRemove.bind(this);
     // this.uploadFile = this.uploadFile.bind(this);
 
@@ -93,9 +96,7 @@ export default class CoverageDetermination extends Component {
     });
   }
   onRemove(file){
-    console.log(file,'this file will beremoved')
     var new_files=this.state.files;
-    console.log(new_files,'llll')
     for( var i = 0; i < new_files.length; i++){ 
       if ( new_files[i] === file) {
         new_files.splice(i, 1); 
@@ -142,13 +143,14 @@ export default class CoverageDetermination extends Component {
       body: JSON.stringify({
           'appContext':appContext,
           'hook':this.hook
+
       }),
     }).then((response) => {
       return response.json();
     }).then((response) => {
-      console.log("Resource json---before--",response,appContext);
       this.setState({resourceJson: response});
       console.log("Resource json---",this.state.resourceJson);
+
     })
   }
 
@@ -173,73 +175,44 @@ export default class CoverageDetermination extends Component {
 
     return validationResult;
   }
+  onNotesChange (event){
+    this.setState({ additionalNotes: event.target.value });
+    // this.props.updateCB(this.props.elementName, event.target.value);
+  }
   async submit_info() {
     this.consoleLog("Initiating form submission", types.info);
-    let json_request = this.getJson();
-    console.log(JSON.stringify(json_request))
-    console.log("Req: ", json_request);
-    var auth = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
-    var myHeaders = new Headers({
-      "Content-Type": "application/json",
-      "authorization": auth,
-    });
-    let inputData = {};
-    let jwt = await createJwt();
-    console.log('jwttttt', jwt)
-    jwt = "Bearer " + jwt;
-    for (var i = 0; i < this.state.upload.length; i++) {
-      var reader = new FileReader();
-      reader.readAsBinaryString(this.state.upload[i]);
-      console.log(this.state.upload[i], 'here first');
-      let content_type = this.state.upload[i].type;
-      let file_name = this.state.upload[i].name;
-      reader.onloadend = (f) => {
-        inputData = {
-          "resourceType": "Communication",
-          "id": "376",
-          "meta": {
-            "versionId": "1",
-            "lastUpdated": "2018-10-08T07:22:32.421+00:00"
-          },
-          "status": "preparation",
-          "identifier": [
-            {
-              "use": "official"
-            }
-          ],
-          "payload": [{
-            "contentAttachment": {
-              "data": reader.result,
-              "contentType": content_type,
-              "title": file_name,
-              "language": "en"
-            }
-          }]
-        }
 
-        let resp = fetch("http://localhost:8080/hapi-fhir-jpaserver-example/baseDstu3/Communication?_format=json&_pretty=true", {
-          method: "POST",
-          headers: {
-            'Accept': 'application/json',
-            "authorization": jwt,
-          },
-          body: JSON.stringify(inputData),
-        })
-        console.log(resp);
-      }
-    }
-    let url = '';
-    if (this.state.prior_auth) {
-      url = config.provider_prior_authorization_url;
-    }
-    else {
-      console.log(this.state.prior_auth, '----------')
-      url = config.provider_coverage_decision_url;
-    }
+    let json_request = await this.getJson();
+    // console.log(JSON.stringify(json_request))
+    // console.log("Req: ", json_request);
+    // var auth = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
+    // var myHeaders = new Headers({
+    //   "Content-Type": "application/json",
+    //   "authorization": auth,
+    // });
+    // let inputData = {};
+    // let jwt = await createJwt();
+    // console.log('jwttttt', jwt)
+    // jwt = "Bearer " + jwt;
+    let token = await createToken();
+    token = "Bearer " + token;
+    var myHeaders = new Headers({
+        "Content-Type": "application/json",
+        "authorization": token,
+    });
+    // let url = '';
+    // if (this.state.prior_auth) {
+    //   url = config.provider_prior_authorization_url;
+    // }
+    // else {
+    //   console.log(this.state.prior_auth, '----------')
+    //   url = config.provider_coverage_decision_url;
+    // }
+    let url = config.provider_coverage_decision_url
     console.log("Fetching response from " + url + ",types.info")
     this.consoleLog("Fetching response from " + url + ",types.info")
     try {
-
+      console.log('in tryy')
       const fhirResponse = await fetch(url, {
         method: config.provider_response_method_post,
         headers: myHeaders,
@@ -273,6 +246,7 @@ export default class CoverageDetermination extends Component {
           + fhirResponse.error, types.error);
         this.consoleLog(fhirResponse.message, types.error);
       } else {
+        console.log('wwwwwwwwwwww',res_json)
         this.setState({ response: res_json });
       }
       this.setState({ loading: false });
@@ -319,9 +293,8 @@ export default class CoverageDetermination extends Component {
         {file.name}
       </div>
     ))
-    
+    console.log(this.state.resourceJson,'this is resource json')
     const resourceData = this.state.resourceJson.map((res, index) => {
-      console.log(res.resource,'whats coming')
       return (
         <div key={index}>
           <div className="header">{res.resource.resourceType}</div>
@@ -372,7 +345,7 @@ export default class CoverageDetermination extends Component {
                 Additional Notes
               </div>
               <div className="docs">
-                <textarea name="myNotes" rows="10" cols="83" />
+                <textarea name="myNotes"  value={this.state.additionalNotes} onChange={this.onNotesChange} rows="10" cols="83" />
               </div>
 
               <button className={"submit-btn btn btn-class " + (!total ? "button-error" : total === 1 ? "button-ready" : "button-empty-fields")} onClick={this.startLoading}>Submit
@@ -391,7 +364,9 @@ export default class CoverageDetermination extends Component {
         </div>
       </React.Fragment>);
   };
-  getJson() {
+  
+  
+  async getJson() {
     var patientId = null;
     var practitionerId = null;
     var coverageId = null;
@@ -403,11 +378,11 @@ export default class CoverageDetermination extends Component {
     // else{
     //   this.consoleLog("No© client id provided in properties.json",this.warning);
     // }
-    patientId = this.state.patient;
+    // patientId = this.state.patient;
     let request = {
       hookInstance: config.provider_hook_instance,
       // fhirServer: config.fhir_url,
-      hook: this.state.hook,
+      hook: 'liver-transplant',
       // fhirAuthorization : {
       //   "access_token" : this.state.token,
       //   "token_type" : config.token_type, // json
@@ -417,38 +392,87 @@ export default class CoverageDetermination extends Component {
       // },
       // user: this.state.practitioner, // select
       context: {
-        patientId: patientId,  // select
+        patientId: 1,  // select
         orders: {
           resourceType: "Bundle",
-          entry: [
-            {
-              resource: {
-                resourceType: "Patient",
-                id: patientId
-              }
-            },
-            {
-              resource: {
-                resourceType: this.state.resourceType,  // select
-                id: "6-1",
-                codeCodeableConcept: {
-                  coding: [
-                    {
-                      system: this.state.codeSystem,
-                      code: this.state.code
-                    }
-                  ]
-                },
-              }
-            }
+          entry: [this.state.resourceJson
           ]
         }
       }
     };
+    
+    
+    if(this.state.files !=null){
+      for(var i=0;i<this.state.files.length;i++){
+        (function(file) {
+          let content_type = file.type;
+          let file_name = file.name;
+          var reader = new FileReader();  
+          console.log('are you dsds',file.name);
+          reader.onload = function(e) {  
+              // get file content  
+              inputData = {
+                "fullUrl":"http://54.227.173.76:8181/fhir/baseDstu3/Condition/35",
+                "resource":{
+                "resourceType": "Communication",
+                "id": "376",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2018-10-08T07:22:32.421+00:00"
+                },
+                "status": "preparation",
+                "identifier": [
+                  {
+                    "use": "official"
+                  }
+                ],
+                "payload": [{
+                  "contentAttachment": {
+                    "data": reader.result,
+                    "contentType": content_type,
+                    "title": file_name,
+                    "language": "en"
+                  }
+                }]
+              },
+              "search":{
+                "mode":"match",
+              } 
+              }
+              request.context.orders.entry[0].push(inputData)
+
+          }
+          reader.readAsBinaryString(file);
+        })(this.state.files[i])
+        // let rd=this.setupReader(this.state.files[i]);
+        // request.context.orders.entry[0].push(rd);
+      }
+      // console.log
+      
+    }
+    let msgDefinition= {
+      "fullUrl":"http://54.227.173.76:8181/fhir/baseDstu3/Condition/35",
+      "resource":{
+      "resourceType": "MessageDefinition",
+      "id": "98",
+      "title": this.state.additionalNotes,
+      "status": "draft",
+      "experimental": true,
+      "date": "2016-11-09",
+      "publisher": "Health Level Seven, Int'l",
+      "category": "notification"
+    },
+    "search":{
+      "mode":"match",
+    } 
+    }
+
+    request.context.orders.entry[0].push(msgDefinition)
+
     if (this.state.hook === 'order-review') {
       request.context.encounterId = this.state.encounter
     }
-    console.log(request)
+    console.log(request,'yippppppppyyyy')
     return request;
   }
   render() {

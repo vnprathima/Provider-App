@@ -6,7 +6,7 @@ import config from '../properties.json';
 // import { createJwt } from './jwt'
 
 
-// this.myclient = new FhirClient(this.URL);
+
 export const patientOptions = [
   {key:1,value: 1,text: "Peter James"},
   {key:2,value: 2,text: "Aloha Raeem"},
