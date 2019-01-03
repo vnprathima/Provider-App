@@ -136,6 +136,7 @@ export default class CoverageDetermination extends Component {
 
   async getValusets( token,appContext) {
     const url = config.crd_url + "smart_app";
+    console.log("fetching data from "+url,types.info)
     // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
     await fetch(url, {
       method: "POST",
@@ -261,7 +262,7 @@ export default class CoverageDetermination extends Component {
     }
 
   }
-  renderObject(inputObj) {
+   renderObject(inputObj) {
     console.log("In render ", inputObj);
     return (
       <div>
@@ -274,13 +275,70 @@ export default class CoverageDetermination extends Component {
                 </div>)
             }
             if (typeof(inputObj[key]) == "object" && key != "id" && key != "resourceType"){
-              console.log("recursive--",inputObj[key], "---", key);
-              this.renderObject(inputObj[key]);
+              console.log("recursive---------------",inputObj[key], "---------", key);
+               this.renderObject(inputObj[key])
+        
             }
           })}
       </div>
     )
   }
+  // renderObject(inputObj){
+  //   console.log("In render ", inputObj);
+  //   return(
+  //     <div>
+  //       {Object.keys(inputObj).map((key, i) =>{
+  //         if (typeof(inputObj[key]) == "string"){
+  //           return(
+  //             <div key={i}>
+  //               <div className="left-col">{key}</div>
+  //               <div className="right-col">{inputObj[key]}</div>
+  //             </div>)
+  //         }
+  //         else if((typeof(inputObj[key]) == "object" && key != "id" && key != "resourceType")){
+  //           console.log("recursive---------------",inputObj[key], "---------", key);
+  //           var ob =inputObj[key];
+  //           if(Array.isArray(inputObj[key] )){
+  //             ob.map(k=>{
+  //               if(ob.hasOwnProperty(k)){
+  //                 console.log('yaha pe')
+                  
+  //                 {Object.keys(k).map((new_key, j) =>{
+  //                   if (typeof(k[new_key]) == "string"){
+  //                     console.log('in loopss',k[new_key])
+
+  //                     // return(
+  //                     //   <div key={j}>
+  //                     //   <div className="left-col">'''''''''''''''''''''''''''''</div>
+  //                     //     <div className="left-col">{new_key}</div>
+  //                     //     <div className="right-col">{k[new_key]}</div>
+  //                     //   </div>)
+  //                   }
+  //                 })
+  //               }
+  //               }
+  //             })
+  //           }
+  //           {Object.keys(ob).map((new_key, j) =>{
+  //             if (typeof ob[new_key] == "string"){
+  //               console.log('in loopss',ob[new_key])
+  //               return(
+  //                 <div key={j}>
+  //                   <div className="left-col">{new_key}</div>
+  //                   <div className="right-col">{ob[new_key]}</div>
+  //                 </div>)
+  //             }
+  //           })
+  //         }
+  //         }
+          
+  //       })
+
+  //       }
+  //     </div>
+  //   )
+
+  // }
   renderClaimSubmit() {
     const status_opts = config.status_options;
     // const validationResult = this.validateState();
@@ -378,36 +436,64 @@ export default class CoverageDetermination extends Component {
     var practitionerId = null;
     var coverageId = null;
     var encounterId = '';
+    var patient_details='';
+    var practitioner_details='';
+    var procedure_details='';
     var gender = null;
-    // if(this.state.patient != null){
-    //    patientId = this.state.patient.replace("Patient/","");
-    // }
-    // else{
-    //   this.consoleLog("No© client id provided in properties.json",this.warning);
-    // }
-    // patientId = this.state.patient;
-    let request = {
-      hookInstance: config.provider_hook_instance,
-      // fhirServer: config.fhir_url,
-      
-      // hook: 'liver-transplant',
-      hook: this.hook,
-      // fhirAuthorization : {
-      //   "access_token" : this.state.token,
-      //   "token_type" : config.token_type, // json
-      //   "expires_in" : config.expires_in, // json
-      //   "scope" : config.fhir_auth_scope,
-      //   "subject" : config.fhir_auth_subject,
-      // },
-      // user: this.state.practitioner, // select
-      context: {
-        patientId: 1,  // select
-        orders: {
-          resourceType: "Bundle",
-          entry: [this.state.resourceJson
-          ]
+    var fileInputData = {
+      "resourceType": "Communication",
+      "id": "376",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "2018-10-08T07:22:32.421+00:00"
+      },
+      "status": "preparation",
+      "identifier": [
+        {
+          "use": "official"
+        }
+      ],
+      "payload": [],
+      "note": this.state.additionalNotes,
+    }
+    if(this.state.resourceJson.length>0){
+      for(var x=0;x<this.state.resourceJson.length;x++){
+        if(this.state.resourceJson[x].hasOwnProperty('resourceType')){
+          if(this.state.resourceJson[x].resourceType=='Patient'){
+            patient_details = this.state.resourceJson[x]
+          }
+          else if(this.state.resourceJson[x].resourceType=='Practitioner'){
+            practitioner_details=this.state.resourceJson[x]
+          }
+          else if(this.state.resourceJson[x].resourceType=='Procedure'){
+            procedure_details=this.state.resourceJson[x]
+          }
         }
       }
+    }
+    console.log(patient_details.resourceType+"/"+patient_details.id,'oooooo')
+    let request = {
+      resourceType:'Claim',
+      status:'draft',
+      contained: [this.state.resourceJson
+        
+      ],
+      patient: {
+        reference: patient_details.resourceType+"/"+patient_details.id
+      },
+      provider:{
+        reference: practitioner_details+"/"+practitioner_details.id
+      },
+      procedure: procedure_details,
+      use:"claim",
+      type:{
+        coding: [
+          {
+            system: "http://terminology.hl7.org/CodeSystem/claim-type",
+            code: "institutional"
+          }
+        ]
+      },
     };    
     if(this.state.files !=null){
       for(var i=0;i<this.state.files.length;i++){
@@ -417,35 +503,16 @@ export default class CoverageDetermination extends Component {
           var reader = new FileReader();  
           reader.onload = function(e) {  
               // get file content  
-              inputData = {
-                "fullUrl":"http://54.227.173.76:8181/fhir/baseDstu3/Condition/35",
-                "resource":{
-                "resourceType": "Communication",
-                "id": "376",
-                "meta": {
-                  "versionId": "1",
-                  "lastUpdated": "2018-10-08T07:22:32.421+00:00"
-                },
-                "status": "preparation",
-                "identifier": [
-                  {
-                    "use": "official"
-                  }
-                ],
-                "payload": [{
+              fileInputData.payload.push({
                   "contentAttachment": {
                     "data": reader.result,
                     "contentType": content_type,
                     "title": file_name,
                     "language": "en"
-                  }
-                }]
-              },
-              "search":{
-                "mode":"match",
-              } 
-              }
-              request.context.orders.entry[0].push(inputData)
+                  }})
+              
+              
+              // request.context.orders.entry[0].push(inputData)
 
           }
           reader.readAsBinaryString(file);
@@ -456,24 +523,12 @@ export default class CoverageDetermination extends Component {
       // console.log
       
     }
-    let msgDefinition= {
-      "fullUrl":"http://54.227.173.76:8181/fhir/baseDstu3/Condition/35",
-      "resource":{
-      "resourceType": "MessageDefinition",
-      "id": "98",
-      "title": this.state.additionalNotes,
-      "status": "draft",
-      "experimental": true,
-      "date": "2016-11-09",
-      "publisher": "Health Level Seven, Int'l",
-      "category": "notification"
-    },
-    "search":{
-      "mode":"match",
-    } 
-    }
 
-    request.context.orders.entry[0].push(msgDefinition)
+    request.contained[0].push(fileInputData)
+    // console.log(request,'qwertyuiowertyuert');
+    // console.log(JSON.stringify(request),'pppp')
+
+    // request.context.orders.entry[0].push(msgDefinition)
 
     // if (this.state.hook === 'order-review') {
     //   request.context.encounterId = this.state.encounter
