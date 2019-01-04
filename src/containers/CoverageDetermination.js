@@ -66,8 +66,8 @@ export default class CoverageDetermination extends Component {
     this.getResourceRecords = this.getResourceRecords.bind(this);
     if (window.location.href.indexOf("appContext") > -1) {
 
-      this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
-      this.hook =  decodeURIComponent(window.location.href.split("?")[1]).split('&appContext')[0].split('hook=')[1]
+      this.appContext = decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1];
+      // this.hook =  decodeURIComponent(window.location.href.split("?")[1]).split('&appContext')[0].split('hook=')[1]
       console.log("this.appContext");
     console.log(this.appContext);
     console.log(this.hook,'hoookks')
