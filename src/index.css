@@ -387,3 +387,31 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 .tab button.active {
   background-color: #ccc;
 }
+
+.login-form{
+  width: 450px;
+  top: 10%;
+  position: relative;
+  left: 31%;
+}
+.addAttr {
+  height: auto;
+  width: 620px;
+  padding: 30px 25px;
+  border-radius: 2px;
+  box-shadow: 0px 10px 14.1px 0.9px rgba(0, 0, 0, 0.24), 0px 4px 19.6px 0.4px rgba(0, 0, 0, 0.16)
+}
+.signin{
+  text-align: center;
+  font-size: 30px;
+  padding-top: 20px;
+}
+.padding-top-10px {
+  padding-top: 10px;
+}
+.errorMsg {
+  color: indianred;
+}
+.logout{
+  float:right;
+}

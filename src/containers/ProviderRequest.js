@@ -9,11 +9,14 @@ import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DropdownFrequency from '../components/DropdownFrequency';
 import DropdownMedicationList from '../components/DropdownMedicationList';
 import DropdownTreating from '../components/DropdownTreating';
-import {Input} from 'semantic-ui-react';
+import {Input,Button} from 'semantic-ui-react';
 import rxnorm from '../medication-list';
 import NumericInput from 'react-numeric-input';
 import DatePicker from "react-datepicker";
 import {DateInput} from 'semantic-ui-calendar-react';
+import Cookies from 'universal-cookie';
+import { withRouter } from 'react-router-dom';
+
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -38,7 +41,8 @@ const types = {
     warning: "warningClass"
   }
   let allMed = [];
-export default class ProviderRequest extends Component {
+const cookies = new Cookies();
+class ProviderRequest extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -94,6 +98,8 @@ export default class ProviderRequest extends Component {
     this.onCoverageChange=this.onCoverageChange.bind(this);
     this.changeMedicationStDate = this.changeMedicationStDate.bind(this);
     this.changeMedicationEndDate = this.changeMedicationEndDate.bind(this);
+    this.onClickLogout = this.onClickLogout.bind(this);
+
     // this.consoleLog = this.consoleLog.bind(this);
     // this.getResourceRecords = this.getResourceRecords.bind(this);
     // if(window.location.href.indexOf("appContext") > -1){
@@ -147,7 +153,7 @@ export default class ProviderRequest extends Component {
                               "Practitioner":this.state.practitionerId
                             };
       }
-      let tokenResponse = await createToken();
+      let tokenResponse = await createToken(config.username,config.password);
       await this.getResourceData( tokenResponse,prefectInput);
       // return prefetchData;
     }
@@ -220,7 +226,14 @@ export default class ProviderRequest extends Component {
       }
       
     }
-   
+    onClickLogout () {
+      // await Auth.signOut();
+      cookies.set('isLoggedIn', false);
+      var path = '/login';
+      console.log('this.props.history',this.props.history)
+      this.props.history.push(path);
+    }
+    
 
     validateState(){
       const validationResult = {};
@@ -249,7 +262,7 @@ export default class ProviderRequest extends Component {
         console.log(JSON.stringify(json_request))
         console.log("Req: ",json_request);
         // var token = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
-        let token = await createToken();
+        let token = await createToken(config.username,config.password);
         token = "Bearer " + token;
         var myHeaders = new Headers({
             "Content-Type": "application/json",
@@ -310,7 +323,7 @@ export default class ProviderRequest extends Component {
       return (
         <React.Fragment>
           <div>
-            <div className="main_heading">HEALTH INSURANCE REQUEST FORM</div>
+            <div className="main_heading">HEALTH INSURANCE REQUEST FORM <Button className={'logout'} onClick={this.onClickLogout}>Logout</Button></div>
             <div className="content">
               <div className="left-form">
               <div>
@@ -689,3 +702,5 @@ export default class ProviderRequest extends Component {
       </div>)
   }
 }
+
+export default withRouter(ProviderRequest);

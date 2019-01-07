@@ -2,7 +2,7 @@ import KJUR, {KEYUTIL} from 'jsrsasign';
 import config from '../properties.json';
 
 
-export async function createToken(){
+export async function createToken(username,password){
     const types = {
     error: "errorClass",
     info: "infoClass",
@@ -13,8 +13,8 @@ export async function createToken(){
     console.log("Retrieving OAuth token from "+tokenUrl,types.info);
     let params = {
         grant_type:"password",
-        username:"john",
-        password:"john123",
+        username:username,
+        password:password,
         client_id:"app-login"
       };
     if(config.client){

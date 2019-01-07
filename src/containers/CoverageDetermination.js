@@ -12,7 +12,8 @@ import 'react-table/react-table.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import DisplayBox from '../components/DisplayBox';
-
+import RecursiveIterator from 'recursive-iterator';
+import deepIterator from 'deep-iterator';
 
 const types = {
   error: "errorClass",
@@ -129,7 +130,7 @@ export default class CoverageDetermination extends Component {
   }
 
   async getResourceRecords(appContext) {
-    let tokenResponse = await createToken();
+    let tokenResponse = await createToken(config.username,config.password);
     console.log(tokenResponse);
     await this.getValusets( tokenResponse,appContext);
   }
@@ -198,7 +199,7 @@ export default class CoverageDetermination extends Component {
     // let jwt = await createJwt();
     // console.log('jwttttt', jwt)
     // jwt = "Bearer " + jwt;
-    let token = await createToken();
+    let token = await createToken(config.username,config.password);
     token = "Bearer " + token;
     var myHeaders = new Headers({
         "Content-Type": "application/json",
@@ -249,7 +250,6 @@ export default class CoverageDetermination extends Component {
           + fhirResponse.error, types.error);
         this.consoleLog(fhirResponse.message, types.error);
       } else {
-        // console.log('wwwwwwwwwwww',res_json)
         this.setState({ response: res_json });
       }
       this.setState({ loading: false });
@@ -263,7 +263,28 @@ export default class CoverageDetermination extends Component {
 
   }
    renderObject(inputObj) {
-    console.log("In render ", inputObj);
+    // console.log("In render ", inputObj);
+
+    const it = deepIterator(inputObj);
+      for (let {parent, key} of it) {
+        console.log(parent,key,'parent:key');
+      }
+    // for (let {node, path,key} of new RecursiveIterator(inputObj)) {
+    //   console.log(typeof(path) ,'----', node,'iiiiiiiii')
+    //   if(path != "id" && path != "resourceType" ,path!="extension"){
+    //     console.log('path:',path[0],node)
+    //     return(
+    //     <div key={node.key}>
+    //       <div className="left-col">{path[0]}</div>
+    //       <div className="right-col">{node}</div>
+    //     </div>)
+    //   }
+      // return(
+      //   <div key={key}>
+      //     <div className="left-col">{path}</div>
+      //     <div className="right-col">{node}</div>
+      //   </div>)
+    // }
     return (
       <div>
         {Object.keys(inputObj).map((key, i) =>{
@@ -277,6 +298,7 @@ export default class CoverageDetermination extends Component {
             if (typeof(inputObj[key]) == "object" && key != "id" && key != "resourceType"){
               console.log("recursive---------------",inputObj[key], "---------", key);
                this.renderObject(inputObj[key])
+
         
             }
           })}
