@@ -175,7 +175,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   margin-bottom:2px;
 }
 .content{
-  margin-top: 30px;
+  margin-top: 42px;
 }
 .dropdown{
   padding: 5px 15px;

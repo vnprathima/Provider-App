@@ -381,7 +381,8 @@ export default class CoverageDetermination extends Component {
         <div key={index}>
           {/* <div className="header">{res.resource.resourceType}</div> */}
           <div className="header">{res.resourceType}</div>
-          {this.renderObject(res)}
+          {/* {this.renderObject(res)} */}
+          {/* <RenderJson root={res}></RenderJson> */}
         </div>);
     });
 
@@ -392,6 +393,7 @@ export default class CoverageDetermination extends Component {
           <div className="content">
             <div className="left-form">
               {resourceData}  
+              {/* <RenderJson root={this.state.resourceJson}></RenderJson> */}
             </div>
             <div className="right-form">
               <div className="header">

@@ -102,17 +102,6 @@ class ProviderRequest extends Component {
     this.changeMedicationStDate = this.changeMedicationStDate.bind(this);
     this.changeMedicationEndDate = this.changeMedicationEndDate.bind(this);
     this.onClickLogout = this.onClickLogout.bind(this);
-
-    // this.consoleLog = this.consoleLog.bind(this);
-    // this.getResourceRecords = this.getResourceRecords.bind(this);
-    // if(window.location.href.indexOf("appContext") > -1){
-    //   this.appContext = JSON.parse(decodeURIComponent(window.location.href.split("?")[1]).split("appContext=")[1]);
-    //   this.getResourceRecords(this.appContext);
-    // }
-    // else{
-    //     this.appContext = null ;
-    // }
-
     this.consoleLog = this.consoleLog.bind(this);
     this.getPrefetchData = this.getPrefetchData.bind(this);
   }
@@ -125,7 +114,6 @@ class ProviderRequest extends Component {
       logs: [...prevState.logs, jsonContent]
     }))
   }
-
 
     updateStateElement = (elementName, text) => {
       console.log("Element---",elementName,"value--",text);
