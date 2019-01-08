@@ -33,6 +33,9 @@ import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 import KJUR, {KEYUTIL} from 'jsrsasign';
 import {createToken} from '../components/Authentication';
+// import Cookies from 'universal-cookie';
+
+// const cookies = new Cookies();
 
 const types = {
     error: "errorClass",
@@ -185,10 +188,10 @@ class ProviderRequest extends Component {
           this.setState({auth_active:""});
           this.setState({req_active:"active"});
       }
-      if (req==="prior-authorization"){
-          this.setState({auth_active:"active"});
-          this.setState({req_active:""});
-      }
+      // if (req==="prior-authorization"){
+      //     this.setState({auth_active:"active"});
+      //     this.setState({req_active:""});
+      // }
     }
 
     onEncounterChange (event){
@@ -269,11 +272,11 @@ class ProviderRequest extends Component {
             "authorization": token,
         });
         let url='';
-        if(this.state.request == 'prior-authorization'){
-            url = config.provider_prior_authorization_url;
+        // if(this.state.request == 'prior-authorization'){
+        //     url = config.provider_prior_authorization_url;
             
-        }
-        else if(this.state.request == 'coverage-requirement'){
+        // }
+       if(this.state.request == 'coverage-requirement'){
             url = config.provider_coverage_requirement_url;
         }
         else{
@@ -332,10 +335,10 @@ class ProviderRequest extends Component {
                     <FontAwesomeIcon icon={faListAlt}  />
                       &nbsp;Coverage Requirements
                   </div>
-                  <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setRequestType('prior-authorization')}>
+                  {/* <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setRequestType('prior-authorization')}>
                     <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
                     &nbsp;Prior Authorization
-                  </div>
+                  </div> */}
                 </div>
                 {/* <div className="header">
                             Request Type 
@@ -565,13 +568,13 @@ class ProviderRequest extends Component {
 
                 </div>
                 }
-                {this.state.request === 'prior-authorization' &&
+                {/* {this.state.request === 'prior-authorization' &&
                 <div className="right-form">
                 <DisplayBox
                 response = {this.state.response} req_type="prior-authorization"  userId={this.state.practitionerId}  patientId={this.state.patientId} hook={this.state.hook}  />
 
                 </div>
-                }
+                } */}
                 {this.state.request !== 'coverage-requirement' && this.state.request !== 'prior-authorization' &&
                 <div className="right-form">
                         <DisplayBox
