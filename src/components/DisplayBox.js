@@ -121,28 +121,28 @@ export default class DisplayBox extends Component{
             linkCopy = result;
             return linkCopy;
           });
-        } else if (link.type === 'smart') {
-          if (link.url.indexOf('?') < 0) {
-            linkCopy.url += '?';
-          } else {
-            linkCopy.url += '&';
-          }
-          // linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
-          // linkCopy.url += `&patientId=${this.props.patientId}`;
-          console.log("this.props.patientId");
-          console.log(this.props.patientId);
-          console.log(link.appContext);
-          // var appContext = JSON.parse(JSON.stringify(link.appContext));
-          // console.log(appContext);
-          // if(appContext.length > 0){
-          //   const appData = {"patientId":this.props.patientId,"Practitioner":this.props.userId}
-          //   const requirements = appContext[0]
-
-          //   appContext[0] = {appData:appData,requirements:requirements,hook:this.props.hook}
+        } //else if (link.type === 'smart') {
+          // if (link.url.indexOf('?') < 0) {
+          //   linkCopy.url += '?';
+          // } else {
+          //   linkCopy.url += '&';
           // }
-          linkCopy.url += encodeURIComponent("?appContext="+link.appContext);
-          // console.log(decodeURIComponent(linkCopy.url));
-        }
+          // // linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
+          // // linkCopy.url += `&patientId=${this.props.patientId}`;
+          // console.log("this.props.patientId");
+          // console.log(this.props.patientId);
+          // console.log(link.appContext);
+          // // var appContext = JSON.parse(JSON.stringify(link.appContext));
+          // // console.log(appContext);
+          // // if(appContext.length > 0){
+          // //   const appData = {"patientId":this.props.patientId,"Practitioner":this.props.userId}
+          // //   const requirements = appContext[0]
+
+          // //   appContext[0] = {appData:appData,requirements:requirements,hook:this.props.hook}
+          // // }
+          // linkCopy.url += encodeURIComponent("?appContext="+link.appContext);
+          // // console.log(decodeURIComponent(linkCopy.url));
+        //}
         console.log("Enododod",linkCopy)
         return linkCopy;
       });

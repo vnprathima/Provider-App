@@ -654,7 +654,7 @@ class ProviderRequest extends Component {
       };
       let request = {
         hookInstance: config.provider_hook_instance,
-        // fhirServer: config.fhir_url,
+        fhirServer: config.fhir_url,
         hook:this.state.hook,
         // hook: 'liver-transplant',
         // fhirAuthorization : {
