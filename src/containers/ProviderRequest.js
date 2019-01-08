@@ -182,6 +182,13 @@ class ProviderRequest extends Component {
       // }
     }
 
+    setPatientView(req,res){
+      this.setState({request:req});
+      this.setState({hook:res});
+      this.setState({auth_active:"active"});
+      this.setState({req_active:""});
+    }
+
     onEncounterChange (event){
       this.setState({ encounterId: event.target.value });
     }
@@ -326,7 +333,11 @@ class ProviderRequest extends Component {
                   {/* <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setRequestType('prior-authorization')}>
                     <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
                     &nbsp;Prior Authorization
-                  </div> */}
+                  </div> */} 
+                  <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setPatientView('coverage-requirement','patient-view')}>
+                    <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
+                    &nbsp;Patient View
+                  </div>
                 </div>
                 {/* <div className="header">
                             Request Type 
@@ -338,17 +349,32 @@ class ProviderRequest extends Component {
                   />
                 </div> */}
                 </div>
-                <div>
-                <div className="header">
-                            Diagnosis or Nature of illness or Injury
-                </div>
-                <div className="dropdown">
-                <DropdownCDSHook
-                    elementName="hook"
-                    updateCB={this.updateStateElement}
-                  />
-                </div>
-                </div>
+
+                
+                {this.state.auth_active !=='active' && 
+                  <div>
+                  <div>
+                  <div className="header">
+                              Diagnosis or Nature of illness or Injury
+                  </div>
+                  <div className="dropdown">
+                  <DropdownCDSHook
+                      elementName="hook"
+                      updateCB={this.updateStateElement}
+                    />
+                  </div>
+                  </div>
+                  <div>
+                    <div className="header">
+                            Practitioner ID
+                    </div>
+                    <div >
+                      <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
+                    </div>
+                  </div>
+                  </div>
+                }
+                
                 <div>
                   <div className="header">
                           Patient's ID
@@ -362,14 +388,14 @@ class ProviderRequest extends Component {
                     updateCB={this.updateStateElement}
                   />
                   </div> */}
-                  <div>
+                  {/* <div>
                     <div className="header">
                             Practitioner ID
                     </div>
                     <div >
                       <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
                     </div>
-                  </div>
+                  </div> */}
 
                 </div>
                 {this.state.hook === 'order-review' &&
@@ -527,7 +553,7 @@ class ProviderRequest extends Component {
                 
                 </div>
                 }
-                {this.state.request === 'coverage-requirement' &&
+                {this.state.request === 'coverage-requirement' && this.state.auth_active !== 'active' &&
                       <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
                       }
 
@@ -538,6 +564,7 @@ class ProviderRequest extends Component {
                   </button>
                   } */}
                 
+                  
                     <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
                     <Loader
                       type="Oval"

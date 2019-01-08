@@ -15,7 +15,6 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={props =>
-        
         cookies.get('isLoggedIn') ? (
           <Component {...props} />
         ) : (
