@@ -7,7 +7,7 @@ import CoverageDetermination from '../containers/CoverageDetermination';
 import PriorAuthorization from '../containers/PriorAuthorization';
 import ProviderRequest from '../containers/ProviderRequest';
 import Review from '../containers/Review';
-// import LoginPage from '../containers/loginPage';
+import LoginPage from '../containers/loginPage';
 import Launch from '../containers/Launch';
 import Main from '../containers/Main';
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -24,10 +24,10 @@ export default class App extends Component {
         return (
             <BrowserRouter>
                 <Switch>
-                    <Route exact path="/" component={() => {if(cookies.get('isLoggedIn')){return <Redirect to="/login" />}else{return <Redirect to="/login" />}}}/>
-                    {/* <Route exact path="/" component={() => { return <Redirect to="/login" />}} /> */}
+                    {/* <Route exact path="/" component={() => {if(cookies.get('isLoggedIn')){return <Redirect to="/login" />}else{return <Redirect to="/login" />}}}/> */}
+                    <Route exact path="/" component={() => { return <Redirect to="/login" />}} />
                     {/* <Route path={"/login"} component={() => {if(cookies.get('isLoggedIn')){return <Redirect to="/login" />}else{return <LoginPage />}}} /> */}
-                    {/* <Route path={"/login"} component={LoginPage} />                     */}
+                    <Route path={"/login"} component={LoginPage} />                    
                     <Route path={"/cr"} component={RequestBuilder} />
                     <Route path={"/cd"} component={CoverageDetermination} />
                     <Route path={"/prior_auth"} component={PriorAuthorization} />

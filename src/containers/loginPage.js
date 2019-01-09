@@ -28,7 +28,7 @@ class LoginPage extends React.Component {
       login_error_msg: '',
       isAuthenticated: false,
     }
-    this.onClickLogin = this.onClickLogin.bind(this);
+    this.handleUrl = this.handleUrl.bind(this);
     this.handleName = this.handleName.bind(this);
     this.handlepassword = this.handlepassword.bind(this);
     this.handleDataBase = this.handleDataBase.bind(this);
@@ -60,13 +60,16 @@ class LoginPage extends React.Component {
     this.setState({dataBase: event.target.value});
   }
 
-  handleServer(event){
+  handleUrl(event){
+    console.log(event.target.value,'yyayyayya url');
+    cookies.set('fhir_url', event.target.value);
+    config.fhir_url=cookies.get('fhir_url');
     this.setState({server: event.target.value});
   }
 
-  onClickLogin(){
-    this.setState({serverUrl: !this.state.serverUrl})
-  }
+  // handleUrl(){
+  //   this.setState({serverUrl: this.state.serverUrl})
+  // }
 
   submit(){
     if (this.props.isLoggedIn && this.props.sessionID){
@@ -141,6 +144,18 @@ class LoginPage extends React.Component {
                 inputProps={{
                 maxLength: 50,
                 }}
+            />
+            </div>
+            <div className="col-12 padding-top-10px">
+            <Input
+                // id="full-width"
+                label="URL"
+                type="text"
+                className='ui fluid   input'
+                // className = {classes.textField}
+                onChange={this.handleUrl.bind(this)}
+                defaultValue={this.state.server}
+                fluid
             />
             </div>
          

@@ -191,6 +191,7 @@ class ProviderRequest extends Component {
     async getResourceData( token,prefectInput) {
       console.log("Prefetch input--",JSON.stringify(prefectInput));
       const url = config.crd_url + "prefetch";
+      // const url = config.fhir_url;
       // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
       await fetch(url, {
         method: "POST",
@@ -706,6 +707,7 @@ class ProviderRequest extends Component {
         }
 
       };
+      console.log(config.fhir_url,'thif is fhir url')
       let request = {
         hookInstance: config.provider_hook_instance,
         fhirServer: config.fhir_url,
