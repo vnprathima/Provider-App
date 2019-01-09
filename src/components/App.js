@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import {Switch} from 'react-router';
 import {BrowserRouter, Redirect, Route} from 'react-router-dom';
-import PrivateRoute from './privateRoute';
-import RequestBuilder from '../containers/RequestBuilder';
+//import PrivateRoute from './privateRoute';
+//import RequestBuilder from '../containers/RequestBuilder';
 import CoverageDetermination from '../containers/CoverageDetermination';
-import PriorAuthorization from '../containers/PriorAuthorization';
+//import PriorAuthorization from '../containers/PriorAuthorization';
 import ProviderRequest from '../containers/ProviderRequest';
-import Review from '../containers/Review';
+//import Review from '../containers/Review';
 import LoginPage from '../containers/loginPage';
 import Launch from '../containers/Launch';
 import Main from '../containers/Main';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faIgloo,faNotesMedical } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'universal-cookie';
 

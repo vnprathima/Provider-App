@@ -1,4 +1,4 @@
-import KJUR, {KEYUTIL} from 'jsrsasign';
+//import KJUR, {KEYUTIL} from 'jsrsasign';
 import config from '../properties.json';
 
 
@@ -56,7 +56,7 @@ export async function createToken(username,password){
     console.log("Failed to get token", types.error);
     console.log("Bad request");
     });
-    let t = await tokenResponse
+//    let t = await tokenResponse
     // console.log("tokenResponse:",t)
     return tokenResponse;
 

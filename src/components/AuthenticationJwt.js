@@ -19,7 +19,7 @@ export async function createJwt(){
     const endTime = KJUR.jws.IntDate.get('now + 1day');
     const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
     // const pubPem = {"pem":KEYUTIL.getPEM(pubKey),"id":kid};
-    const pubPem = {"pem":jwkPub2,"id":kid};
+//    const pubPem = {"pem":jwkPub2,"id":kid};
 
     // Check if the public key is already in the db
     const checkForPublic = await fetch("http://localhost:3001/public_keys?id="+kid,{
@@ -30,13 +30,13 @@ export async function createJwt(){
     }).then(response => {return response.json()});
     if(!checkForPublic.length){
     // POST key to db if it's not already there
-    const alag = await fetch("http://localhost:3001/public_keys",{
+   /* const alag = await fetch("http://localhost:3001/public_keys",{
         "body": JSON.stringify(pubPem),
         "headers":{
         "Content-Type":"application/json"
         },
         "method":"POST"
-    });
+    });*/
     }
     const header = {
     "alg":config.jwt_header_alg,

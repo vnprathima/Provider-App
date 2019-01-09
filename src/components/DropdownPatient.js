@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
-import {createToken} from './Authentication';
+//import {createToken} from './Authentication';
 import {createJwt} from './AuthenticationJwt';
 import config from '../properties.json';
 // import { createJwt } from './jwt'

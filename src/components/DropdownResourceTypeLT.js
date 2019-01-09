@@ -19,10 +19,10 @@ export default class DropdownResourceType extends Component {
     super(props);
     this.state = { currentValue: ""}
     this.handleChange = this.handleChange.bind(this);
-    var mkFhir = require('fhir.js');
-    var client = mkFhir({
+    //var mkFhir = require('fhir.js');
+   /* var client = mkFhir({
       baseUrl: 'http://localhost:8080/hapi-fhir-jpaserver-example/baseDstu3'
-    });
+    });*/
     // client
     //   .search( {type: 'Patient', query: {  }})
     //   .then(function(res){

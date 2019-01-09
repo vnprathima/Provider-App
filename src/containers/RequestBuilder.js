@@ -100,13 +100,13 @@ export default class RequestBuilder extends Component{
       }).then(response => {return response.json()});
       if(!checkForPublic.length){
         // POST key to db if it's not already there
-        const alag = await fetch("http://localhost:3001/public_keys",{
+       /* const alag = await fetch("http://localhost:3001/public_keys",{
           "body": JSON.stringify(pubPem),
           "headers":{
             "Content-Type":"application/json"
           },
           "method":"POST"
-        });
+        });*/
       }
       const header = {
         "alg":config.jwt_header_alg,
@@ -333,7 +333,7 @@ export default class RequestBuilder extends Component{
             </div>
 
               {Object.keys(this.validateMap)
-              .map((key) => {
+              .forEach((key) => {
 
                 // Make type of input and the associated options available in some
                 // top level json instead of hard-coding the if-else per key
@@ -459,8 +459,8 @@ export default class RequestBuilder extends Component{
     getJson(){
       const birthYear = 2018-parseInt(this.state.age,10);
       var patientId =  null;
-      var practitionerId = null;
-      var coverageId = null ;
+//      var practitionerId = null;
+  //    var coverageId = null ;
       patientId=this.state.patient;
       // if(this.state.patient != null){
       //    patientId = this.state.patient.replace("Patient/","");
