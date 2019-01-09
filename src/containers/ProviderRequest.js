@@ -56,7 +56,7 @@ class ProviderRequest extends Component {
     this.state = {
         patient:null,
         fhirUrl:'',
-        acessToken:'',
+        accessToken:'',
         scope:'',
         patientId:'',
         practitionerId:'',
@@ -242,7 +242,15 @@ class ProviderRequest extends Component {
       if (req==="coverage-requirement"){
           this.setState({auth_active:""});
           this.setState({req_active:"active"});
+          this.setState({hook:""})
       }
+      if (req==="patient-view"){
+          this.setState({auth_active:"active"});
+          this.setState({req_active:""});
+          this.setState({request:"coverage-requirement"});
+          this.setState({hook:"patient-view"});
+      }
+
     }
 
     setPatientView(req,res){
@@ -313,7 +321,7 @@ class ProviderRequest extends Component {
         console.log(JSON.stringify(json_request))
         console.log("Req: ",json_request);
         let url='';
-        if(this.state.request === 'coverage-requirement'){
+        if(this.state.request === 'coverage-requirement' && this.state.hook !== 'patient-view'){
             url = config.provider_coverage_requirement_url;
         }
         if(this.state.hook === 'patient-view'){
@@ -367,32 +375,54 @@ class ProviderRequest extends Component {
                     <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
                     &nbsp;Prior Authorization
                   </div> */} 
-                  <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setPatientView('coverage-requirement','patient-view')}>
+                  <div className={"priorauth-icon " + this.state.auth_active} onClick={() => this.setRequestType('patient-view')}>
                     <FontAwesomeIcon icon={faAmericanSignLanguageInterpreting} />
                     &nbsp;Patient View
                   </div>
                 </div>
                 </div>
-
-                
-                {this.state.auth_active !=='active' && 
+                <div>
                   <div>
-                    <div>
                       <div className="header">
-                            Fhir URL
+                            Your Fhir URL
                     </div>
                     <div className="dropdown">
-                        <Input className='ui fluid   input' type="text" name="fhirUrl" fluid value={this.state.fhirUrl} onChange={this.onFhirUrlChange}></Input>
+                        <Input className='ui fluid input' type="text" name="fhirUrl" fluid value={this.state.fhirUrl} onChange={this.onFhirUrlChange}></Input>
                       </div>
                     </div>
                   <div>
                     <div className="header">
-                            Access Token
+                            Bearer Access Token
                     </div>
                     <div className="dropdown">
                         <Input className='ui fluid   input' type="text" name="accessToken" fluid value={this.state.accessToken} onChange={this.onAccessTokenChange}></Input>
                     </div>
                   </div>
+                  <div className="header">
+                          Patient's ID
+                  </div>
+                  <div className="dropdown">
+                      <Input className='ui fluid   input' type="text" name="patient" fluid value={this.state.patientId} onChange={this.onPatientChange}></Input>
+                    </div>
+                  {/* <div className="dropdown">
+                  <DropdownPatient
+                    elementName="patient"
+                    updateCB={this.updateStateElement}
+                  />
+                  </div> */}
+                  {/* <div>
+                    <div className="header">
+                            Practitioner ID
+                    </div>
+                    <div >
+                      <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
+                    </div>
+                  </div> */}
+
+                </div>
+                {this.state.auth_active !=='active' && 
+                  <div>
+                    
                   {/* <div>
                     <div className="header">
                             Scope
@@ -422,30 +452,6 @@ class ProviderRequest extends Component {
                   </div>
                 </div>
                 }
-                
-                <div>
-                  <div className="header">
-                          Patient's ID
-                  </div>
-                  <div className="dropdown">
-                      <Input className='ui fluid   input' type="text" name="patient" fluid value={this.state.patientId} onChange={this.onPatientChange}></Input>
-                    </div>
-                  {/* <div className="dropdown">
-                  <DropdownPatient
-                    elementName="patient"
-                    updateCB={this.updateStateElement}
-                  />
-                  </div> */}
-                  {/* <div>
-                    <div className="header">
-                            Practitioner ID
-                    </div>
-                    <div >
-                      <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
-                    </div>
-                  </div> */}
-
-                </div>
                 {this.state.hook === 'order-review' &&
                   <div>
                     {/* <div>
@@ -711,7 +717,7 @@ class ProviderRequest extends Component {
         fhirServer:this.state.fhirUrl,
         hook:this.state.hook,
         fhirAuthorization : {
-          "access_token" : this.state.acessToken,
+          "access_token" : this.state.accessToken,
           "token_type" : config.token_type, // json
           "expires_in" : config.expires_in, // json
           "scope" : config.fhir_auth_scope,

@@ -24,6 +24,7 @@ export default class Review extends Component {
     }
     this.authorize();
     this.searchFHIR = this.searchFHIR.bind(this);
+    this.createFhirResource = this.createFhirResource.bind(this);
   }
 
    onDrop(files) {
@@ -125,16 +126,17 @@ export default class Review extends Component {
 async createFhirResource() {
     let claim_json = await this.getClaimJson();
     var settings = this.getSettings();
-    const fhirClient = new Client({ baseUrl: settings.api_server_uri });
+    const fhirClient = new Client({ baseUrl: "http://54.227.173.76:8280/payer_fhir/baseDstu3/" });
     var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
     authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
-      tokenUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+    tokenUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
     const oauth2 = simpleOauthModule.create({
         client: {
             id: config.client
         },
         auth: {
-            tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+            // tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+            tokenHost: "https://54.227.173.76:8443/",
             tokenPath: tokenUrl.pathname,
             authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
             authorizePath: authorizeUrl.pathname,
@@ -163,9 +165,12 @@ async createFhirResource() {
         console.log(searchResponse);
 
         if(searchResponse['total'] > 0){
-            resourceJson.push(searchResponse)
-            this.setState({resourceJson: resourceJson});
-            console.log("Resource json---",this.state.resourceJson);
+            searchResponse.entry.map((resrc,j)=>{
+                console.log("Search response --- ", resrc, j);
+                resourceJson.push(resrc['resource']);
+                this.setState({resourceJson: resourceJson});
+                console.log("Resource json---",this.state.resourceJson);
+            });
         }
     }
 
@@ -264,31 +269,49 @@ async createFhirResource() {
   refreshApp() {
     withRouter(({ history }) => (history.push('/')))
   }
-
+  syntaxHighlight(json) {
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+  }
   renderObject(inputObj) {
-    const it = deepIterator(inputObj);
-      for (let {parent, key} of it) {
-        console.log(parent,key,'parent:key');
-      }
-    return (
-      <div>
-        {Object.keys(inputObj).forEach((key, i) =>{
-            if (typeof(inputObj[key]) == "string" && key !== "id" && key !== "resourceType"){
-              return(
-                <div key={i}>
-                  <div className="left-col">{key}</div>
-                  <div className="right-col">{inputObj[key]}</div>
-                </div>)
-            }
-            if (typeof(inputObj[key]) == "object" && key !== "id" && key !== "resourceType"){
-              console.log("recursive---------------",inputObj[key], "---------", key);
-               this.renderObject(inputObj[key])
-
-        
-            }
-          })}
-      </div>
+    return(
+    <div><pre>{JSON.stringify(inputObj, null, 2) }</pre></div>
     )
+    // return (
+    //   <div>
+    //       {this.syntaxHighlight(JSON.stringify(inputObj))}
+    //       {/* {Object.keys(inputObj).forEach((key, i) =>{
+    //           return(<div>{JSON.stringify(inputObj[key])}</div>)
+    //         })} */}
+    //     {/* {Object.keys(inputObj).forEach((key, i) =>{
+    //         if (typeof(inputObj[key]) == "string" && key !== "id" && key !== "resourceType"){
+    //           return(
+    //             <div key={i}>
+    //               <div className="left-col">{key}</div>
+    //               <div className="right-col">{inputObj[key]}</div>
+    //             </div>)
+    //         }
+    //         if (typeof(inputObj[key]) == "object" && key !== "id" && key !== "resourceType"){
+    //           console.log("recursive---------------",inputObj[key], "---------", key);
+    //            this.renderObject(inputObj[key])
+    //         }
+    //       })} */}
+    //   </div>
+    // )
   }
   renderPage(){                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
        const files = this.state.files.map(file => (
