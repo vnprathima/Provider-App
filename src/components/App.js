@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {Switch} from 'react-router';
 import {BrowserRouter, Redirect, Route} from 'react-router-dom';
-// import PrivateRoute from './privateRoute';
+import PrivateRoute from './privateRoute';
 import RequestBuilder from '../containers/RequestBuilder';
 import CoverageDetermination from '../containers/CoverageDetermination';
 import PriorAuthorization from '../containers/PriorAuthorization';
@@ -24,15 +24,13 @@ export default class App extends Component {
         return (
             <BrowserRouter>
                 <Switch>
-                    {/* <Route exact path="/" component={() => {if(cookies.get('isLoggedIn')){return <Redirect to="/login" />}else{return <Redirect to="/login" />}}}/> */}
                     <Route exact path="/" component={() => { return <Redirect to="/login" />}} />
-                    {/* <Route path={"/login"} component={() => {if(cookies.get('isLoggedIn')){return <Redirect to="/login" />}else{return <LoginPage />}}} /> */}
                     <Route path={"/login"} component={LoginPage} />                    
-                    <Route path={"/cr"} component={RequestBuilder} />
+                    {/* <Route path={"/cr"} component={RequestBuilder} /> */}
                     <Route path={"/cd"} component={CoverageDetermination} />
-                    <Route path={"/prior_auth"} component={PriorAuthorization} />
+                    {/* <Route path={"/prior_auth"} component={PriorAuthorization} /> */}
                     <Route path={"/provider_request"} component={ProviderRequest} />                    
-                    <Route path={"/review"} component={Review} />
+                    {/* <Route path={"/review"} component={Review} /> */}
                     <Route exact path="/index" component={Main} />
                     <Route path={"/launch"} component={Launch} />
                 </Switch>

@@ -4,29 +4,16 @@ import { createToken } from '../components/Authentication';
 import config from '../properties.json';
 import {Input,Button} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
-import Cookies from 'universal-cookie';
-
-
-
-// $(document).keypress(function(e) {
-//   if(e.which === 13) {
-//     $('#submitButton').trigger('click');
-//   }
-// });
-const cookies = new Cookies();
 
 class LoginPage extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      serverUrl: false,
-      dataBase: '',
       name: '',
       password: '',
-      server: '',
+      fhir_url: '',
       login_load: false,
       login_error_msg: '',
-      isAuthenticated: false,
     }
     this.handleUrl = this.handleUrl.bind(this);
     this.handleName = this.handleName.bind(this);
@@ -44,10 +31,6 @@ class LoginPage extends React.Component {
     });
   }
 
-  userHasAuthenticated = authenticated => {
-    this.setState({ isAuthenticated: authenticated });
-  }
-
   handleName(event){
     this.setState({name: event.target.value});
   }
@@ -61,15 +44,11 @@ class LoginPage extends React.Component {
   }
 
   handleUrl(event){
-    console.log(event.target.value,'yyayyayya url');
-    cookies.set('fhir_url', event.target.value);
-    config.fhir_url=cookies.get('fhir_url');
-    this.setState({server: event.target.value});
+    // console.log(event.target.value,'yyayyayya url');
+    // cookies.set('fhir_url', event.target.value);
+    // config.fhir_url=sessionStorage.getItem('fhir_url');
+    this.setState({fhir_url: event.target.value});
   }
-
-  // handleUrl(){
-  //   this.setState({serverUrl: this.state.serverUrl})
-  // }
 
   submit(){
     if (this.props.isLoggedIn && this.props.sessionID){
@@ -78,21 +57,20 @@ class LoginPage extends React.Component {
   }
 
   async onClickLoginSubmit(){
-      this.setState({login_load: true, login_error_msg: ''});
-      console.log('in if and token is---',this.state.name,this.state.password,config.username,config.password)
-    //   await this.props.login(this.state.dataBase, this.state.name, this.state.password, this.state.server);
+    this.setState({login_load: true, login_error_msg: ''});
+    console.log('in if and token is---',this.state.name,this.state.password,config.username,config.password)
     let tokenResponse = await createToken(this.state.name,this.state.password);
     if(tokenResponse !=null && tokenResponse !=undefined){
-    console.log('in if and token is---',tokenResponse) 
-        var path = '/provider_request';
-        cookies.set('isLoggedIn', true);
-        this.props.history.push(path);
-        console.log('ypppp')        
+        console.log('in if and token is---',tokenResponse) 
+        sessionStorage.setItem('username', this.state.name);
+        sessionStorage.setItem('password', this.state.password);
+        sessionStorage.setItem('isLoggedIn', true);
+        sessionStorage.setItem('fhir_url', this.state.fhir_url);
+        this.props.history.push('/provider_request');
     }
     this.setState({login_load: false, login_error_msg: "Unable to login! Please try again."});
   }
   handleKeyPress = (e) => {
-    // console.log(e.key);
     if (e.key === 'Enter') {
         this.onClickLoginSubmit();
     }
@@ -154,7 +132,7 @@ class LoginPage extends React.Component {
                 className='ui fluid   input'
                 // className = {classes.textField}
                 onChange={this.handleUrl.bind(this)}
-                defaultValue={this.state.server}
+                defaultValue={this.state.fhir_url}
                 fluid
             />
             </div>

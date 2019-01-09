@@ -1,6 +1,6 @@
 {
   "realm": "ClientFhirServer",
-  "client": "app-login",
+  "client_id": "app-login",
   "token_type" : "Bearer",
   "expires_in" : 300,
   "provider_token_url": "https://54.227.173.76:8443/auth/realms/ClientFhirServer/protocol/openid-connect/token",

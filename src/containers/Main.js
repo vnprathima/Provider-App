@@ -37,7 +37,8 @@ export default class Review extends Component {
     var data = sessionStorage.getItem("app-settings");
     return JSON.parse(data);
   }
-    async getClaimJson() {
+  
+  async getClaimJson() {
     var patient_details='';
     var practitioner_details='';
     var procedure_details='';
@@ -124,16 +125,18 @@ async createFhirResource() {
     let claim_json = await this.getClaimJson();
     var settings = this.getSettings();
     const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-    const { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+    var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+    authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
+      tokenUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
     const oauth2 = simpleOauthModule.create({
         client: {
             id: config.client
         },
         auth: {
-        tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
-        tokenPath: tokenUrl.pathname,
-        authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
-        authorizePath: authorizeUrl.pathname,
+            tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+            tokenPath: tokenUrl.pathname,
+            authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
+            authorizePath: authorizeUrl.pathname,
         },
     });
     const options = {code : this.state.code};
@@ -176,13 +179,16 @@ async createFhirResource() {
   async authorize() {
     var settings = this.getSettings();
     const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-    const { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+    var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+    authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"};
+    tokenUrl = {protocol:"https://",host:"",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"};
     const oauth2 = simpleOauthModule.create({
         client: {
         id: settings.client_id
         },
         auth: {
-        tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+        // tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+        tokenHost: "https://54.227.173.76:8443/",
         tokenPath: tokenUrl.pathname,
         authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
         authorizePath: authorizeUrl.pathname,
@@ -216,7 +222,7 @@ async createFhirResource() {
                 console.log("Key-----",key,"value---",val);
                 if (key === 'patientId'){
                     key = 'Patient'
-                    val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
+                    // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
                 }
                 if (val !== ''){
                     self.readFHIR(fhirClient,key,val);

@@ -48,32 +48,6 @@ const types = {
   }
   let allMed = [];
 const cookies = new Cookies();
-function getHook(text){
-    console.log("First hook value");
-      console.log(text);
-      for(const key in orderReview){
-        if(key == text)
-        {
-           text = "order-review";
-         //  this.setState({ [elementName]: text});
-            console.log("Text");
-            console.log(text);
-            return text;
-        }
-        else{
-            for(const key in liverTransplant){
-        if(key == text)
-        {
-           text = "liver-transplant";
-          // this.setState({ [elementName]: text});
-            console.log("Text");
-            console.log(text);
-            return text;
-        }
-        }
-    }
-}
-}
 class ProviderRequest extends Component {
   constructor(props){
     super(props);
@@ -83,8 +57,8 @@ class ProviderRequest extends Component {
         practitionerId:'',
         resourceType:null,
         resourceTypeLT:null,
-        encounterId:'',
-        coverageId:'',
+        encounterId:null,
+        coverageId:null,
         encounter:null,
         request:"coverage-requirement",
         response:null,
@@ -113,9 +87,6 @@ class ProviderRequest extends Component {
       errors: {},
     }
     this.validateMap={
-        // age:(foo=>{return isNaN(foo)}),
-        // encounterId:(foo=>{return isNaN(foo)}),
-        // gender:(foo=>{return foo!=="male" && foo!=="female"}),
         status:(foo=>{return foo!=="draft" && foo!=="open"}),
         code:(foo=>{return !foo.match(/^[a-z0-9]+$/i)})
     };
@@ -148,8 +119,32 @@ class ProviderRequest extends Component {
       console.log("Element---",elementName,"value--",text);
       if(elementName=="hook")
       {
-       let result = getHook(text);
-       this.setState({ [elementName]: result});
+       // hookData(text);
+         console.log("First hook value");
+      console.log(text);
+      for(const key in orderReview){
+        if(key == text)
+        {
+           text = "order-review";
+           this.setState({ [elementName]: text});
+            console.log("Text");
+            console.log(text);
+        }
+        else{
+            for(const key in liverTransplant){
+        if(key == text)
+        {
+           text = "liver-transplant";
+           this.setState({ [elementName]: text});
+            console.log("Text");
+            console.log(text);
+        }
+        }
+    }
+      //  this.setState({ [elementName]: result});
+        
+        
+      }
       }
       else{
       this.setState({ [elementName]: text});
@@ -216,10 +211,6 @@ class ProviderRequest extends Component {
           this.setState({auth_active:""});
           this.setState({req_active:"active"});
       }
-      // if (req==="prior-authorization"){
-      //     this.setState({auth_active:"active"});
-      //     this.setState({req_active:""});
-      // }
     }
 
     setPatientView(req,res){
@@ -233,7 +224,6 @@ class ProviderRequest extends Component {
       this.setState({ encounterId: event.target.value });
     }
     onPatientChange (event){
-      // console.log(event.target.value)
       this.setState({ patientId: event.target.value });
     }
     onPractitionerChange (event){
@@ -265,57 +255,26 @@ class ProviderRequest extends Component {
       
     }
     onClickLogout () {
-      // await Auth.signOut();
-      cookies.set('isLoggedIn', false);
-      var path = '/login';
-      console.log('this.props.history',this.props.history)
-      this.props.history.push(path);
-    }
-    
-
-    validateState(){
-      const validationResult = {};
-      Object.keys(this.validateMap).forEach(key => {
-          if(this.state[key] && this.validateMap[key](this.state[key])){
-            // Basically we want to know if we have any errors
-            // or empty fields, and we want the errors to override
-            // the empty fields, so we make errors 0 and unpopulated
-            // fields 2.  Then we just look at whether the product of all
-            // the validations is 0 (error), 1 (valid) , or >1 (some unpopulated fields).
-            validationResult[key]=0;
-          }else if(this.state[key]){
-              // the field is populated and valid
-              validationResult[key]=1;
-          }else{
-              // the field is not populated
-              validationResult[key]=2
-          }
-      });
-      return validationResult;
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('fhir_url');
+      this.props.history.push('/login');
     }
 
     async submit_info(){
         this.consoleLog("Initiating form submission",this.state.prefetch);
-        let json_request = await this.getJson();
-        console.log(JSON.stringify(json_request))
-        console.log("Req: ",json_request);
-        // var token = 'Basic ' + new Buffer(config.username + ':' + config.password).toString('base64');
-        let token = await createToken(config.username,config.password);
+        
+        let token = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
         token = "Bearer " + token;
         var myHeaders = new Headers({
             "Content-Type": "application/json",
             "authorization": token,
         });
+        let json_request = await this.getJson(token);
+        console.log(JSON.stringify(json_request))
+        console.log("Req: ",json_request);
         let url='';
-        // if(this.state.request == 'prior-authorization'){
-        //     url = config.provider_prior_authorization_url;
-            
-        // }
-       if(this.state.request == 'coverage-requirement'){
+        if(this.state.request == 'coverage-requirement'){
             url = config.provider_coverage_requirement_url;
-        }
-        else{
-            url = config.provider_coverage_decision_url;
         }
         if(this.state.hook == 'patient-view'){
           url = config.provider_patient_view_url;
@@ -352,12 +311,6 @@ class ProviderRequest extends Component {
         }
     }
   renderClaimSubmit() {
-    const status_opts = config.status_options;
-    // const validationResult = this.validateState();
-    const validationResult = this.validateState();
-    const total = Object.keys(validationResult).reduce((previous,current) =>{
-        return validationResult[current]*previous
-    },1);
       return (
         <React.Fragment>
           <div>
@@ -379,15 +332,6 @@ class ProviderRequest extends Component {
                     &nbsp;Patient View
                   </div>
                 </div>
-                {/* <div className="header">
-                            Request Type 
-                </div>
-                <div className="dropdown">
-                <DropdownRequest
-                    elementName="request"
-                    updateCB={this.updateStateElement}
-                  />
-                </div> */}
                 </div>
 
                 
@@ -395,7 +339,7 @@ class ProviderRequest extends Component {
                   <div>
                   <div>
                   <div className="header">
-                              Diagnosis or Nature of illness or Injury
+                              ICD 10 Codes
                   </div>
                   <div className="dropdown">
                   <DropdownCDSHook
@@ -408,7 +352,7 @@ class ProviderRequest extends Component {
                     <div className="header">
                             Practitioner ID
                     </div>
-                    <div >
+                    <div className="dropdown">
                       <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
                     </div>
                   </div>
@@ -419,7 +363,7 @@ class ProviderRequest extends Component {
                   <div className="header">
                           Patient's ID
                   </div>
-                  <div >
+                  <div className="dropdown">
                       <Input className='ui fluid   input' type="text" name="patient" fluid value={this.state.patientId} onChange={this.onPatientChange}></Input>
                     </div>
                   {/* <div className="dropdown">
@@ -455,8 +399,8 @@ class ProviderRequest extends Component {
                     <div className="header">
                             Encounter ID
                     </div>
-                    <div >
-                      <Input className='ui fluid  input' type="text" name="encounter" value={this.state.encounterId} onChange={this.onEncounterChange}></Input>
+                    <div className="dropdown">
+                      <Input className='ui fluid  input' type="text" name="encounter" fluid value={this.state.encounterId} onChange={this.onEncounterChange}></Input>
                     </div>
                   </div>
                   
@@ -464,7 +408,7 @@ class ProviderRequest extends Component {
                     <div className="header">
                             Coverage ID
                     </div>
-                    <div >
+                    <div className="dropdown">
                       <Input className='ui fluid  input' type="text" name="coverage" fluid value={this.state.coverageId} onChange={this.onCoverageChange}></Input>
                     </div>
                   </div>
@@ -597,14 +541,7 @@ class ProviderRequest extends Component {
                       <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
                       }
 
-                <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
-                  
-                  {/* {this.state.request === 'prior-authorization' &&
-                  <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_prior_auth}>Submit Prior Authorization
-                  </button>
-                  } */}
-                
-                  
+                <button className="submit-btn btn btn-class button-ready" onClick={this.startLoading}>Submit
                     <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
                     <Loader
                       type="Oval"
@@ -640,11 +577,8 @@ class ProviderRequest extends Component {
         </div>
       </React.Fragment>);
     };
-    async getJson(){
+    async getJson(auth_token){
       var patientId =  null;
-      var practitionerId = null;
-      var coverageId = null ;
-      // var encounterId='';
       patientId=this.state.patientId;
       let coverage = {
         resource: {
@@ -707,19 +641,17 @@ class ProviderRequest extends Component {
         }
 
       };
-      console.log(config.fhir_url,'thif is fhir url')
       let request = {
         hookInstance: config.provider_hook_instance,
-        fhirServer: config.fhir_url,
+        fhirServer: sessionStorage.getItem('fhir_url'),
         hook:this.state.hook,
-        // hook: 'liver-transplant',
-        // fhirAuthorization : {
-        //   "access_token" : this.state.token,
-        //   "token_type" : config.token_type, // json
-        //   "expires_in" : config.expires_in, // json
-        //   "scope" : config.fhir_auth_scope,
-        //   "subject" : config.fhir_auth_subject,
-        // },
+        fhirAuthorization : {
+          "access_token" : auth_token,
+          "token_type" : config.token_type, // json
+          "expires_in" : config.expires_in, // json
+          "scope" : config.fhir_auth_scope,
+          "subject" : config.fhir_auth_subject,
+        },
         userId : this.state.practitionerId,
         patientId: patientId ,
         context: {

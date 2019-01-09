@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import queryString from 'query-string';
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
+import config from '../properties.json';
 
 export default class Review extends Component {
   constructor(props){
@@ -13,7 +14,7 @@ export default class Review extends Component {
     this.initialize = this.initialize.bind(this);   
        
     this.initialize({
-          client_id: "my_web_app",
+          client_id: config.client_id,
           scope: "patient/* openid profile"
         });
   }
@@ -40,7 +41,9 @@ export default class Review extends Component {
       var settings = this.getSettings();
       this.clearAuthToken();
       const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-      const { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+      var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+      authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
+      tokenUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
       const oauth2 = simpleOauthModule.create({
           client: {
           id: settings.client_id

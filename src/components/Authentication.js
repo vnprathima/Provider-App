@@ -15,10 +15,10 @@ export async function createToken(username,password){
         grant_type:"password",
         username:username,
         password:password,
-        client_id:"app-login"
+        client_id:config.client_id
       };
-    if(config.client){
-    console.log("Using client {" + config.client + "}",types.info)
+    if(config.client_id){
+    console.log("Using client {" + config.client_id + "}",types.info)
     }else{
     console.log("No client id provided in properties.json",this.warning);
     }
