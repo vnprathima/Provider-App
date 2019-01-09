@@ -48,6 +48,32 @@ const types = {
   }
   let allMed = [];
 const cookies = new Cookies();
+function getHook(text){
+    console.log("First hook value");
+      console.log(text);
+      for(const key in orderReview){
+        if(key == text)
+        {
+           text = "order-review";
+         //  this.setState({ [elementName]: text});
+            console.log("Text");
+            console.log(text);
+            return text;
+        }
+        else{
+            for(const key in liverTransplant){
+        if(key == text)
+        {
+           text = "liver-transplant";
+          // this.setState({ [elementName]: text});
+            console.log("Text");
+            console.log(text);
+            return text;
+        }
+        }
+    }
+}
+}
 class ProviderRequest extends Component {
   constructor(props){
     super(props);
@@ -57,8 +83,8 @@ class ProviderRequest extends Component {
         practitionerId:'',
         resourceType:null,
         resourceTypeLT:null,
-        encounterId:null,
-        coverageId:null,
+        encounterId:'',
+        coverageId:'',
         encounter:null,
         request:"coverage-requirement",
         response:null,
@@ -122,32 +148,8 @@ class ProviderRequest extends Component {
       console.log("Element---",elementName,"value--",text);
       if(elementName=="hook")
       {
-       // hookData(text);
-         console.log("First hook value");
-      console.log(text);
-      for(const key in orderReview){
-        if(key == text)
-        {
-           text = "order-review";
-           this.setState({ [elementName]: text});
-            console.log("Text");
-            console.log(text);
-        }
-        else{
-            for(const key in liverTransplant){
-        if(key == text)
-        {
-           text = "liver-transplant";
-           this.setState({ [elementName]: text});
-            console.log("Text");
-            console.log(text);
-        }
-        }
-    }
-      //  this.setState({ [elementName]: result});
-        
-        
-      }
+       let result = getHook(text);
+       this.setState({ [elementName]: result});
       }
       else{
       this.setState({ [elementName]: text});
@@ -453,7 +455,7 @@ class ProviderRequest extends Component {
                             Encounter ID
                     </div>
                     <div >
-                      <Input className='ui fluid  input' type="text" name="encounter" fluid value={this.state.encounterId} onChange={this.onEncounterChange}></Input>
+                      <Input className='ui fluid  input' type="text" name="encounter" value={this.state.encounterId} onChange={this.onEncounterChange}></Input>
                     </div>
                   </div>
                   
