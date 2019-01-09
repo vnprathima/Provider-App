@@ -1,41 +1,41 @@
 import React, {Component} from 'react';
-import { connect } from 'react-redux';
+//import { connect } from 'react-redux';
 import styles from './card-list.css';
 import Button from 'terra-button';
 import TerraCard from 'terra-card';
 import Text from 'terra-text';
-import cx from 'classnames';
-import PropTypes from 'prop-types';
+//import cx from 'classnames';
+//import PropTypes from 'prop-types';
 import axios from 'axios';
 
 
-const propTypes = {
+//const propTypes = {
     /**
      * A boolean to determine if the context of this component is under the Demo Card feature of the Sandbox, or in the actual
      * hook views that render cards themselves. This flag is necessary to make links and suggestions unactionable in the Card Demo view.
      */
-    isDemoCard: PropTypes.bool,
+  //  isDemoCard: PropTypes.bool,
     /**
      * The FHIR access token retrieved from the authorization server. Used to retrieve a launch context for a SMART app
      */
-    fhirAccessToken: PropTypes.object,
+    //fhirAccessToken: PropTypes.object,
     /**
      * Function callback to take a specific suggestion from a card
      */
-    takeSuggestion: PropTypes.func.isRequired,
+    //takeSuggestion: PropTypes.func.isRequired,
     /**
      * Identifier of the Patient resource for the patient in context
      */
-    patientId: PropTypes.string,
+    //patientId: PropTypes.string,
     /**
      * The FHIR server URL in context
      */
-    fhirServerUrl: PropTypes.string,
+    //fhirServerUrl: PropTypes.string,
     /**
      * JSON response from a CDS service containing potential cards to display
      */
-    cardResponses: PropTypes.object,
-  };
+    //cardResponses: PropTypes.object,
+  //};
 
 export default class DisplayBox extends Component{
     constructor(props){
@@ -256,7 +256,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           // Iterate over each card in the cards array
           if(this.props.response!=null){
             console.log("Resspsp",this.props.response.hasOwnProperty('requirements'),this.props.response);
-            if(this.props.req_type != "coverage_determination" && (this.props.response.hasOwnProperty('cards')) && this.props.response.cards !=null){
+            if(this.props.req_type !== "coverage_determination" && (this.props.response.hasOwnProperty('cards')) && this.props.response.cards !=null){
                 this.props.response.cards
                 .sort((b, a) => indicators[a.indicator] - indicators[b.indicator])
                 .forEach((c, cardInd) => {
@@ -319,7 +319,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           // console.log('............')
           // console.log(this.props.response ,this.props.req_type)
           // console.log(this.props.respons.opo.ssse)
-          if(this.props.req_type == "coverage_determination" && this.props.response != null && this.props.response.hasOwnProperty("Coverage")){
+          if(this.props.req_type === "coverage_determination" && this.props.response != null && this.props.response.hasOwnProperty("Coverage")){
             if(this.props.response.Coverage){
                 return <div className='decision-card alert-info'><strong>Coverage : </strong> Eligible</div>
             }
@@ -327,7 +327,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
               return <div className='decision-card alert-warning'><strong> Coverage : </strong> Not Eligible</div>
             }
           }
-          else if(this.props.req_type == "prior-authorization" && this.props.response != null && this.props.response.hasOwnProperty("PriorAuthorization")){
+          else if(this.props.req_type === "prior-authorization" && this.props.response != null && this.props.response.hasOwnProperty("PriorAuthorization")){
             if(this.props.response.PriorAuthorization){
                 return <div className='decision-card alert-info'><strong>Prior Authorization : </strong> Yes</div>
             }

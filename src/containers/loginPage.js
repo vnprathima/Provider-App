@@ -60,7 +60,7 @@ class LoginPage extends React.Component {
     this.setState({login_load: true, login_error_msg: ''});
     console.log('in if and token is---',this.state.name,this.state.password,config.username,config.password)
     let tokenResponse = await createToken(this.state.name,this.state.password);
-    if(tokenResponse !=null && tokenResponse !=undefined){
+    if(tokenResponse !==null && tokenResponse !==undefined){
         console.log('in if and token is---',tokenResponse) 
         sessionStorage.setItem('username', this.state.name);
         sessionStorage.setItem('password', this.state.password);

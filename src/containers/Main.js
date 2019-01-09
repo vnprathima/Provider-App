@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
-import $ from 'jquery'; 
+//import $ from 'jquery'; 
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
 import config from '../properties.json';
@@ -61,13 +61,13 @@ export default class Review extends Component {
     if(this.state.resourceJson.length>0){
       for(var x=0;x<this.state.resourceJson.length;x++){
         if(this.state.resourceJson[x].hasOwnProperty('resourceType')){
-          if(this.state.resourceJson[x].resourceType=='Patient'){
+          if(this.state.resourceJson[x].resourceType==='Patient'){
             patient_details = this.state.resourceJson[x]
           }
-          else if(this.state.resourceJson[x].resourceType=='Practitioner'){
+          else if(this.state.resourceJson[x].resourceType==='Practitioner'){
             practitioner_details=this.state.resourceJson[x]
           }
-          else if(this.state.resourceJson[x].resourceType=='Procedure'){
+          else if(this.state.resourceJson[x].resourceType==='Procedure'){
             procedure_details=this.state.resourceJson[x]
           }
         }
@@ -215,7 +215,7 @@ async createFhirResource() {
         }, Promise.resolve()).then((response) => {
             return response.json();
         }).then((response) => {
-            var resourceJson = [];
+//            var resourceJson = [];
             console.log("appData-----",response[0].appData);
             Object.keys(response[0].appData).forEach(function(key) {
                 var val = response[0].appData[key]
@@ -229,9 +229,9 @@ async createFhirResource() {
                 }
             });
             var docs = [];
-            response[0].requirements.map((i,req)=>{
+            response[0].requirements.forEach((i,req)=>{
                 console.log("Requirement-----",req);
-                if (req == 0){
+                if (req === 0){
                     Object.keys(response[0].requirements[req]).forEach(function(res_type) {
                         var code = response[0].requirements[req][res_type]['codes'][0]['code'];
                         if (res_type !== 'EpisodeOfCare' && res_type !== 'Location'){
@@ -266,15 +266,15 @@ async createFhirResource() {
       }
     return (
       <div>
-        {Object.keys(inputObj).map((key, i) =>{
-            if (typeof(inputObj[key]) == "string" && key != "id" && key != "resourceType"){
+        {Object.keys(inputObj).forEach((key, i) =>{
+            if (typeof(inputObj[key]) == "string" && key !== "id" && key !== "resourceType"){
               return(
                 <div key={i}>
                   <div className="left-col">{key}</div>
                   <div className="right-col">{inputObj[key]}</div>
                 </div>)
             }
-            if (typeof(inputObj[key]) == "object" && key != "id" && key != "resourceType"){
+            if (typeof(inputObj[key]) == "object" && key !== "id" && key !== "resourceType"){
               console.log("recursive---------------",inputObj[key], "---------", key);
                this.renderObject(inputObj[key])
 
@@ -287,12 +287,12 @@ async createFhirResource() {
   renderPage(){                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
        const files = this.state.files.map(file => (
             <div className='file-block' key={file.name}>
-                <a onClick={() => this.onRemove(file)} className="close-thik"></a>
+                <button onClick={() => this.onRemove(file)} className="close-thik"></button>
                 {file.name}
             </div>
         ))
         console.log(this.state.resourceJson,'this is resource json')
-        const resourceData = this.state.resourceJson.map((res, index) => {
+        const resourceData = this.state.resourceJson.forEach((res, index) => {
             if(res.hasOwnProperty('resourceType')){
                 return (
                     <div key={index}>

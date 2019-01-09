@@ -38,7 +38,7 @@ export default class Review extends Component {
           api_server_uri: this.state.iss
       });
       
-      var settings = this.getSettings();
+//      var settings = this.getSettings();
       this.clearAuthToken();
       const fhirClient = new Client({ baseUrl: settings.api_server_uri });
       var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();

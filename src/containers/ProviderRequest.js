@@ -1,22 +1,22 @@
 import React, {Component} from 'react';
-import DropdownPatient from '../components/DropdownPatient';
+//import DropdownPatient from '../components/DropdownPatient';
 import DropdownCDSHook from '../components/DropdownCDSHook';
-import DropdownEncounter from '../components/DropdownEncounter';
-import DropdownInput from '../components/DropdownInput';
-import DropdownCodeInput from '../components/DropdownCodeInput';
-import DropdownResourceType from '../components/DropdownResourceType';
-import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
+//import DropdownEncounter from '../components/DropdownEncounter';
+//import DropdownInput from '../components/DropdownInput';
+//import DropdownCodeInput from '../components/DropdownCodeInput';
+//import DropdownResourceType from '../components/DropdownResourceType';
+//import DropdownResourceTypeLT from '../components/DropdownResourceTypeLT';
 import DropdownFrequency from '../components/DropdownFrequency';
-import DropdownMedicationList from '../components/DropdownMedicationList';
+//import DropdownMedicationList from '../components/DropdownMedicationList';
 import DropdownTreating from '../components/DropdownTreating';
 import {Input,Button} from 'semantic-ui-react';
-import rxnorm from '../medication-list';
-import NumericInput from 'react-numeric-input';
-import DatePicker from "react-datepicker";
+//import rxnorm from '../medication-list';
+//import NumericInput from 'react-numeric-input';
+//import DatePicker from "react-datepicker";
 import {DateInput} from 'semantic-ui-calendar-react';
-import Cookies from 'universal-cookie';
+//import Cookies from 'universal-cookie';
 import { withRouter } from 'react-router-dom';
-import jsonData from "../example.json";
+//import jsonData from "../example.json";
 import orderReview from "../Order-Review.json";
 import liverTransplant from "../liver-transplant.json";
 
@@ -34,7 +34,7 @@ import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
-import KJUR, {KEYUTIL} from 'jsrsasign';
+import {KEYUTIL} from 'jsrsasign';
 import {createToken} from '../components/Authentication';
 // import Cookies from 'universal-cookie';
 
@@ -46,8 +46,8 @@ const types = {
     debug: "debugClass",
     warning: "warningClass"
   }
-  let allMed = [];
-const cookies = new Cookies();
+//  let allMed = [];
+//const cookies = new Cookies();
 class ProviderRequest extends Component {
   constructor(props){
     super(props);
@@ -57,8 +57,8 @@ class ProviderRequest extends Component {
         practitionerId:'',
         resourceType:null,
         resourceTypeLT:null,
-        encounterId:null,
-        coverageId:null,
+        encounterId:'',
+        coverageId:'',
         encounter:null,
         request:"coverage-requirement",
         response:null,
@@ -77,7 +77,6 @@ class ProviderRequest extends Component {
         keypair:KEYUTIL.generateKeypair('RSA',2048),
         prior_auth:false,
         dosageAmount:null,
-        treating:null,
         color:'grey',
         req_active:'active',
         auth_active:'',
@@ -117,13 +116,13 @@ class ProviderRequest extends Component {
 
     updateStateElement = (elementName, text) => {
       console.log("Element---",elementName,"value--",text);
-      if(elementName=="hook")
+      if(elementName==="hook")
       {
        // hookData(text);
          console.log("First hook value");
       console.log(text);
       for(const key in orderReview){
-        if(key == text)
+        if(key === text)
         {
            text = "order-review";
            this.setState({ [elementName]: text});
@@ -132,7 +131,7 @@ class ProviderRequest extends Component {
         }
         else{
             for(const key in liverTransplant){
-        if(key == text)
+        if(key === text)
         {
            text = "liver-transplant";
            this.setState({ [elementName]: text});
@@ -166,14 +165,14 @@ class ProviderRequest extends Component {
         var prefectInput = {"Patient":this.state.patient};
       }
       else if(this.state.hook === "order-review"){
-        var prefectInput = {
+        prefectInput = {
                             "Patient":this.state.patientId,
                             "Encounter":this.state.encounterId,
                             "Practitioner":this.state.practitionerId,
                             "Coverage":this.state.coverageId
                             };
       } else if(this.state.hook === "medication-prescribe"){
-        var prefectInput = {
+        prefectInput = {
                               "Patient":this.state.patient,
                               "Practitioner":this.state.practitionerId
                             };
@@ -246,7 +245,7 @@ class ProviderRequest extends Component {
       this.setState({ [name]: value });
     }
     changeDosageAmount(event) {
-      if(event.target.value !=undefined){
+      if(event.target.value !==undefined){
         let transformedNumber = Number(event.target.value) || 1;
         if (transformedNumber > 5) { transformedNumber = 5; }
         if (transformedNumber < 1) { transformedNumber = 1; }
@@ -273,10 +272,10 @@ class ProviderRequest extends Component {
         console.log(JSON.stringify(json_request))
         console.log("Req: ",json_request);
         let url='';
-        if(this.state.request == 'coverage-requirement'){
+        if(this.state.request === 'coverage-requirement'){
             url = config.provider_coverage_requirement_url;
         }
-        if(this.state.hook == 'patient-view'){
+        if(this.state.hook === 'patient-view'){
           url = config.provider_patient_view_url;
         }
         console.log("Fetching response from "+url+",types.info")
@@ -680,7 +679,7 @@ class ProviderRequest extends Component {
         request.context.orders.entry.push(medicationJson);
       }
       if (this.state.prefetch) {
-          var prefetchData = await this.getPrefetchData();
+         // var prefetchData = await this.getPrefetchData();
           console.log("Prefetch data---",this.state.prefetchData);
             request.prefetch =  this.state.prefetchData;
         }

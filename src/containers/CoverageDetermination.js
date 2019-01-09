@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import { createJwt } from '../components/AuthenticationJwt';
+//import { createJwt } from '../components/AuthenticationJwt';
 import Dropzone from 'react-dropzone';
 import 'font-awesome/css/font-awesome.min.css';
 import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
-import KJUR, { KEYUTIL } from 'jsrsasign';
+import { KEYUTIL } from 'jsrsasign';
 import { createToken } from '../components/Authentication';
 import 'react-table/react-table.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import DisplayBox from '../components/DisplayBox';
-import RecursiveIterator from 'recursive-iterator';
+//import RecursiveIterator from 'recursive-iterator';
 import deepIterator from 'deep-iterator';
 
 const types = {
@@ -21,7 +21,7 @@ const types = {
   debug: "debugClass",
   warning: "warningClass"
 }
-let inputData = {};
+//let inputData = {};
 
 export default class CoverageDetermination extends Component {
   constructor(props) {
@@ -121,7 +121,7 @@ export default class CoverageDetermination extends Component {
   }
 
   submit_prior_auth() {
-    this.state.prior_auth = true;
+//    this.state.prior_auth = true;
     this.setState({ prior_auth: true });
     console.log(this.state.prior_auth, '--------------');
     this.setState({ loading: true }, () => {
@@ -287,15 +287,15 @@ export default class CoverageDetermination extends Component {
     // }
     return (
       <div>
-        {Object.keys(inputObj).map((key, i) =>{
-            if (typeof(inputObj[key]) == "string" && key != "id" && key != "resourceType"){
+        {Object.keys(inputObj).forEach((key, i) =>{
+            if (typeof(inputObj[key]) == "string" && key !== "id" && key !== "resourceType"){
               return(
                 <div key={i}>
                   <div className="left-col">{key}</div>
                   <div className="right-col">{inputObj[key]}</div>
                 </div>)
             }
-            if (typeof(inputObj[key]) == "object" && key != "id" && key != "resourceType"){
+            if (typeof(inputObj[key]) == "object" && key !== "id" && key !== "resourceType"){
               console.log("recursive---------------",inputObj[key], "---------", key);
                this.renderObject(inputObj[key])
 
@@ -362,7 +362,7 @@ export default class CoverageDetermination extends Component {
 
   // }
   renderClaimSubmit() {
-    const status_opts = config.status_options;
+//    const status_opts = config.status_options;
     // const validationResult = this.validateState();
     const validationResult = this.validateState();
     const total = Object.keys(validationResult).reduce((previous, current) => {
@@ -371,7 +371,7 @@ export default class CoverageDetermination extends Component {
     const files = this.state.files.map(file => (
       // console.log(file,'is it the same file')
       <div className='file-block' key={file.name}>
-        <a onClick={() => this.onRemove(file)} className="close-thik"></a>
+        <button onClick={() => this.onRemove(file)} className="close-thik"></button>
         {file.name}
       </div>
     ))
@@ -456,14 +456,14 @@ export default class CoverageDetermination extends Component {
   
   
   async getJson() {
-    var patientId = null;
-    var practitionerId = null;
-    var coverageId = null;
-    var encounterId = '';
+//    var patientId = null;
+  //  var practitionerId = null;
+   // var coverageId = null;
+    //var encounterId = '';
     var patient_details='';
     var practitioner_details='';
     var procedure_details='';
-    var gender = null;
+   // var gender = null;
     var fileInputData = {
       "resourceType": "Communication",
       "id": "376",
@@ -483,13 +483,13 @@ export default class CoverageDetermination extends Component {
     if(this.state.resourceJson.length>0){
       for(var x=0;x<this.state.resourceJson.length;x++){
         if(this.state.resourceJson[x].hasOwnProperty('resourceType')){
-          if(this.state.resourceJson[x].resourceType=='Patient'){
+          if(this.state.resourceJson[x].resourceType==='Patient'){
             patient_details = this.state.resourceJson[x]
           }
-          else if(this.state.resourceJson[x].resourceType=='Practitioner'){
+          else if(this.state.resourceJson[x].resourceType==='Practitioner'){
             practitioner_details=this.state.resourceJson[x]
           }
-          else if(this.state.resourceJson[x].resourceType=='Procedure'){
+          else if(this.state.resourceJson[x].resourceType==='Procedure'){
             procedure_details=this.state.resourceJson[x]
           }
         }
