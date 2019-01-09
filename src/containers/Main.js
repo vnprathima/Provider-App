@@ -142,7 +142,7 @@ async createFhirResource() {
             authorizePath: authorizeUrl.pathname,
         },
     });
-    const options = {code : this.state.code, redirect_uri : "http://localhost:3000/index", client_id : "app-login"};
+    const options = {code : this.state.code, redirect_uri : `${window.location.protocol}//${window.location.host}/index`, client_id : "app-login"};
     try {
         const result = await oauth2.authorizationCode.getToken(options);
         const { token } = oauth2.accessToken.create(result);
@@ -200,7 +200,7 @@ async createFhirResource() {
         authorizePath: authorizeUrl.pathname,
         },
     });
-    const options = {code : this.state.code, redirect_uri : "http://localhost:3000/index", client_id : "app-login"};
+    const options = {code : this.state.code, redirect_uri : `${window.location.protocol}//${window.location.host}/index`, client_id : "app-login"};
     try {
         const result = await oauth2.authorizationCode.getToken(options);
         const { token } = oauth2.accessToken.create(result);

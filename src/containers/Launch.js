@@ -56,15 +56,16 @@ export default class Review extends Component {
           },
       });
 
+      console.log("Current URL--",`${window.location.protocol}//${window.location.host}/index`);
       // Authorization uri definition
       const authorizationUri = oauth2.authorizationCode.authorizeURL({
-          redirect_uri: 'http://localhost:3000/index',
+          redirect_uri: `${window.location.protocol}//${window.location.host}/index`,
           aud: settings.api_server_uri,
           scope: settings.scope,
           state: '3(#0/!~',
       });
 
-        window.location = authorizationUri;
+      window.location = authorizationUri;
   }
 
   render() {
