@@ -16,6 +16,9 @@ import DatePicker from "react-datepicker";
 import {DateInput} from 'semantic-ui-calendar-react';
 import Cookies from 'universal-cookie';
 import { withRouter } from 'react-router-dom';
+import jsonData from "../example.json";
+import orderReview from "../Order-Review.json";
+import liverTransplant from "../liver-transplant.json";
 
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -117,7 +120,39 @@ class ProviderRequest extends Component {
 
     updateStateElement = (elementName, text) => {
       console.log("Element---",elementName,"value--",text);
+      if(elementName=="hook")
+      {
+       // hookData(text);
+         console.log("First hook value");
+      console.log(text);
+      for(const key in orderReview){
+        if(key == text)
+        {
+           text = "order-review";
+           this.setState({ [elementName]: text});
+            console.log("Text");
+            console.log(text);
+        }
+        else{
+            for(const key in liverTransplant){
+        if(key == text)
+        {
+           text = "liver-transplant";
+           this.setState({ [elementName]: text});
+            console.log("Text");
+            console.log(text);
+        }
+        }
+    }
+      //  this.setState({ [elementName]: result});
+        
+        
+      }
+      }
+      else{
       this.setState({ [elementName]: text});
+      }
+      //this.setState({ [elementName]: text});
     }
 
     startLoading(){
@@ -126,6 +161,8 @@ class ProviderRequest extends Component {
       });
     }
     
+    
+   
     async getPrefetchData() {
       console.log(this.state.hook);
       if(this.state.hook === "patient-view" || this.state.hook === "liver-transplant" ){
@@ -380,7 +417,7 @@ class ProviderRequest extends Component {
                           Patient's ID
                   </div>
                   <div >
-                      <Input className='ui fluid   input' type="text" name="patient" fuild value={this.state.patientId} onChange={this.onPatientChange}></Input>
+                      <Input className='ui fluid   input' type="text" name="patient" fluid value={this.state.patientId} onChange={this.onPatientChange}></Input>
                     </div>
                   {/* <div className="dropdown">
                   <DropdownPatient

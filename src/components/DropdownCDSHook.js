@@ -1,13 +1,16 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
+import jsonData from "../example.json";
 
-export const cdsOptions = [
-  { key: 'order-review', value: 'order-review', text: 'Order Review' },
-  { key: 'medication-prescribe', value: 'medication-prescribe', text: 'Medication Prescribe' },
-  { key: 'patient-view', value: 'patient-view', text: 'Patient View' },
-  { key: 'liver-transplant', value: 'liver-transplant', text: 'Liver Transplant' },
-]
 
+let allCdsOptions=[];
+function icd10Map(object) {
+    for(const key in object){
+        allCdsOptions.push({'key':key,'value':key,'text':key +  object[key]})
+    }
+    return allCdsOptions;
+   }
+export const cdsOptions = icd10Map(jsonData);
 let blackBorder = "blackBorder";
 
 export default class DropdownResourceType extends Component {
