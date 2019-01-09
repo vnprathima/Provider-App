@@ -297,12 +297,7 @@ async createFhirResource() {
                 {file.name}
             </div>
         ))
-<<<<<<< HEAD
         const resourceData = this.state.resourceJson.map((res, index) => {
-=======
-        console.log(this.state.resourceJson,'this is resource json')
-        const resourceData = this.state.resourceJson.forEach((res, index) => {
->>>>>>> 58ecbf7eb5b5b15a428a581c8065c946169a03f6
             if(res.hasOwnProperty('resourceType')){
                 return (
                     <div key={index}>
