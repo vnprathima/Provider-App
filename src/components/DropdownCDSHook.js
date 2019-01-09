@@ -6,7 +6,7 @@ import jsonData from "../example.json";
 let allCdsOptions=[];
 function icd10Map(object) {
     for(const key in object){
-        allCdsOptions.push({'key':key,'value':key,'text':key +  object[key]})
+        allCdsOptions.push({'key':key,'value':key,'text':key + ' - '+ object[key]})
     }
     return allCdsOptions;
    }
@@ -38,7 +38,7 @@ export default class DropdownResourceType extends Component {
       <Dropdown
       className={blackBorder}
         options={cdsOptions}
-        placeholder='Diagnosis or Nature of illness or Injury'
+        placeholder='ICD 10 codes'
         search
         selection
         fluid

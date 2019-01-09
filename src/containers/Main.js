@@ -20,6 +20,7 @@ export default class Review extends Component {
         resourceJson : [],
         files : [],
         docs : [],
+        prior_authorization : ''
     }
     this.authorize();
     this.searchFHIR = this.searchFHIR.bind(this);
@@ -139,7 +140,7 @@ async createFhirResource() {
             authorizePath: authorizeUrl.pathname,
         },
     });
-    const options = {code : this.state.code};
+    const options = {code : this.state.code, redirect_uri : "http://localhost:3000/index", client_id : "app-login"};
     try {
         const result = await oauth2.authorizationCode.getToken(options);
         const { token } = oauth2.accessToken.create(result);
@@ -194,7 +195,7 @@ async createFhirResource() {
         authorizePath: authorizeUrl.pathname,
         },
     });
-    const options = {code : this.state.code};
+    const options = {code : this.state.code, redirect_uri : "http://localhost:3000/index", client_id : "app-login"};
     try {
         const result = await oauth2.authorizationCode.getToken(options);
         const { token } = oauth2.accessToken.create(result);
@@ -222,7 +223,6 @@ async createFhirResource() {
                 console.log("Key-----",key,"value---",val);
                 if (key === 'patientId'){
                     key = 'Patient'
-                    // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
                 }
                 if (val !== ''){
                     self.readFHIR(fhirClient,key,val);
@@ -230,20 +230,26 @@ async createFhirResource() {
             });
             var docs = [];
             response[0].requirements.map((i,req)=>{
-                console.log("Requirement-----",req);
-                if (req == 0){
-                    Object.keys(response[0].requirements[req]).forEach(function(res_type) {
-                        var code = response[0].requirements[req][res_type]['codes'][0]['code'];
-                        if (res_type !== 'EpisodeOfCare' && res_type !== 'Location'){
-                            self.searchFHIR(fhirClient,res_type,"code="+code);
-                        }
-                    });
-                } else {
-                    docs.push(response[0].requirements[req]);
-                    this.setState({docs:docs});
-                }
-                
+                // if (req == 0){
+                    if (Object.prototype.toString.call(response[0].requirements[req]) !== '[object Array]' && typeof response[0].requirements[req] != "string") {
+                        Object.keys(response[0].requirements[req]).forEach(function(res_type) {
+                            console.log("Requirement-----",response[0].requirements[req]);
+                            var code = response[0].requirements[req][res_type]['codes'][0]['code'];
+                            if (res_type !== 'EpisodeOfCare' && res_type !== 'Location'){
+                                self.searchFHIR(fhirClient,res_type,"code="+code);
+                            }
+                        });
+                    }
+                    if (typeof response[0].requirements[req] === "string"){
+                        docs.push(response[0].requirements[req]);
+                        this.setState({docs:docs});
+                    }
             })
+            if(response[0].requirements.hook === 'order-review'){
+                this.setState({prior_authorization:"Required"})
+            } else {
+                this.setState({prior_authorization:"Not Required"})
+            }
             
         })
     } catch (error) {
@@ -291,7 +297,6 @@ async createFhirResource() {
                 {file.name}
             </div>
         ))
-        console.log(this.state.resourceJson,'this is resource json')
         const resourceData = this.state.resourceJson.map((res, index) => {
             if(res.hasOwnProperty('resourceType')){
                 return (
@@ -322,6 +327,9 @@ async createFhirResource() {
                         {resourceData}  
                         </div>
                         <div className="right-form">
+                        <div className="header">
+                           Prior Authorization - {this.state.prior_authorization}
+                        </div>
                         <div className="header">
                             Upload Required/Additional Documentation
                             </div>

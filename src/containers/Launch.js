@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import queryString from 'query-string';
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
-import config from '../properties.json';
 
 export default class Review extends Component {
   constructor(props){
@@ -14,7 +13,7 @@ export default class Review extends Component {
     this.initialize = this.initialize.bind(this);   
        
     this.initialize({
-          client_id: config.client_id,
+          client_id: "app-token",
           scope: "patient/* openid profile"
         });
   }
@@ -30,9 +29,10 @@ export default class Review extends Component {
     return JSON.parse(data);
   }
   async initialize(settings) {
+      sessionStorage.removeItem('app-settings');
       this.setSettings({
-          client_id     : settings.client_id,
-          secret        : settings.secret,
+          client_id     : "app-login",
+          secret        : "7e5e0e32-0dcd-4f6f-9b72-d0021e08c0e",
           scope         : settings.scope + " launch",
           launch_id     : this.state.launch,
           api_server_uri: this.state.iss
@@ -64,7 +64,7 @@ export default class Review extends Component {
           state: '3(#0/!~',
       });
 
-      window.location = authorizationUri;
+        window.location = authorizationUri;
   }
 
   render() {
