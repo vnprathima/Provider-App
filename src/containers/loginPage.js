@@ -15,7 +15,6 @@ class LoginPage extends React.Component {
       login_load: false,
       login_error_msg: '',
     }
-    this.handleUrl = this.handleUrl.bind(this);
     this.handleName = this.handleName.bind(this);
     this.handlepassword = this.handlepassword.bind(this);
     this.handleDataBase = this.handleDataBase.bind(this);
@@ -43,12 +42,6 @@ class LoginPage extends React.Component {
     this.setState({dataBase: event.target.value});
   }
 
-  handleUrl(event){
-    // console.log(event.target.value,'yyayyayya url');
-    // cookies.set('fhir_url', event.target.value);
-    // config.fhir_url=sessionStorage.getItem('fhir_url');
-    this.setState({fhir_url: event.target.value});
-  }
 
   submit(){
     if (this.props.isLoggedIn && this.props.sessionID){
@@ -65,7 +58,6 @@ class LoginPage extends React.Component {
         sessionStorage.setItem('username', this.state.name);
         sessionStorage.setItem('password', this.state.password);
         sessionStorage.setItem('isLoggedIn', true);
-        sessionStorage.setItem('fhir_url', this.state.fhir_url);
         this.props.history.push('/provider_request');
     }
     this.setState({login_load: false, login_error_msg: "Unable to login! Please try again."});
@@ -123,20 +115,7 @@ class LoginPage extends React.Component {
                 maxLength: 50,
                 }}
             />
-            </div>
-            <div className="col-12 padding-top-10px">
-            <Input
-                // id="full-width"
-                label="URL"
-                type="text"
-                className='ui fluid   input'
-                // className = {classes.textField}
-                onChange={this.handleUrl.bind(this)}
-                defaultValue={this.state.fhir_url}
-                fluid
-            />
-            </div>
-         
+            </div>         
             <div className="row col-12 padding-top-10px" style={{'paddingRight': '0px'}}>
               <div className="col-8 errorMsg padding-top-10px">
                 {this.state.login_error_msg}

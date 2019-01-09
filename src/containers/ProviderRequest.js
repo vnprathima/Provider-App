@@ -19,6 +19,8 @@ import { withRouter } from 'react-router-dom';
 //import jsonData from "../example.json";
 import orderReview from "../Order-Review.json";
 import liverTransplant from "../liver-transplant.json";
+import Client from 'fhir-kit-client';
+
 
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -53,6 +55,9 @@ class ProviderRequest extends Component {
     super(props);
     this.state = {
         patient:null,
+        fhirUrl:'',
+        acessToken:'',
+        scope:'',
         patientId:'',
         practitionerId:'',
         resourceType:null,
@@ -92,6 +97,9 @@ class ProviderRequest extends Component {
     this.startLoading = this.startLoading.bind(this);
     this.submit_info = this.submit_info.bind(this);
     // this.submit_prior_auth = this.submit_prior_auth.bind(this);
+    this.onFhirUrlChange = this.onFhirUrlChange.bind(this);
+    this.onAccessTokenChange = this.onAccessTokenChange.bind(this);
+    this.onScopeChange = this.onScopeChange.bind(this);
     this.onEncounterChange = this.onEncounterChange.bind(this);
     this.onPatientChange = this.onPatientChange.bind(this);
     this.onPractitionerChange = this.onPractitionerChange.bind(this);
@@ -156,11 +164,20 @@ class ProviderRequest extends Component {
           this.submit_info();
       });
     }
-    
-    
+    getSettings() {
+      var data = sessionStorage.getItem("app-settings");
+      console.log(data,'whats dataaa')
+      return JSON.parse(data);
+    }
    
     async getPrefetchData() {
       console.log(this.state.hook);
+      var settings = this.getSettings();
+      console.log(settings,'settingss')
+      const fhirClient = new Client({ baseUrl: settings.api_server_uri });
+      // let token = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
+      fhirClient.bearerToken = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
+      var docs=[];
       if(this.state.hook === "patient-view" || this.state.hook === "liver-transplant" ){
         var prefectInput = {"Patient":this.state.patient};
       }
@@ -177,7 +194,23 @@ class ProviderRequest extends Component {
                               "Practitioner":this.state.practitionerId
                             };
       }
-      let tokenResponse = await createToken(config.username,config.password);
+       docs.push(prefectInput)
+       console.log(docs,'docs---')
+
+      // Object.keys(response[0].appData).forEach(function(key) {
+      //   var val = response[0].appData[key]
+      //   console.log("Key-----",key,"value---",val);
+      //   if (key === 'patientId'){
+      //       key = 'Patient'
+      //       // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
+      //   }
+      //   if (val !== ''){
+      //       self.readFHIR(fhirClient,key,val);
+      //   }
+      // });
+
+
+      let tokenResponse = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
       await this.getResourceData( tokenResponse,prefectInput);
       // return prefetchData;
     }
@@ -218,7 +251,15 @@ class ProviderRequest extends Component {
       this.setState({auth_active:"active"});
       this.setState({req_active:""});
     }
-
+    onFhirUrlChange (event){
+      this.setState({ fhirUrl: event.target.value });
+    }
+    onAccessTokenChange (event){
+      this.setState({ accessToken: event.target.value });
+    }
+    onScopeChange (event){
+      this.setState({ scope: event.target.value });
+    }
     onEncounterChange (event){
       this.setState({ encounterId: event.target.value });
     }
@@ -336,16 +377,40 @@ class ProviderRequest extends Component {
                 
                 {this.state.auth_active !=='active' && 
                   <div>
+                    <div>
+                      <div className="header">
+                            Fhir URL
+                    </div>
+                    <div className="dropdown">
+                        <Input className='ui fluid   input' type="text" name="fhirUrl" fluid value={this.state.fhirUrl} onChange={this.onFhirUrlChange}></Input>
+                      </div>
+                    </div>
                   <div>
-                  <div className="header">
-                              ICD 10 Codes
+                    <div className="header">
+                            Access Token
+                    </div>
+                    <div className="dropdown">
+                        <Input className='ui fluid   input' type="text" name="accessToken" fluid value={this.state.accessToken} onChange={this.onAccessTokenChange}></Input>
+                    </div>
                   </div>
-                  <div className="dropdown">
-                  <DropdownCDSHook
-                      elementName="hook"
-                      updateCB={this.updateStateElement}
-                    />
-                  </div>
+                  {/* <div>
+                    <div className="header">
+                            Scope
+                    </div>
+                    <div className="dropdown">
+                        <Input className='ui fluid   input' type="text" name="scope" fluid value={this.state.scope} onChange={this.onScopeChange}></Input>
+                    </div>
+                  </div> */}
+                  <div>
+                    <div className="header">
+                                ICD 10 Codes
+                    </div>
+                    <div className="dropdown">
+                    <DropdownCDSHook
+                        elementName="hook"
+                        updateCB={this.updateStateElement}
+                      />
+                    </div>
                   </div>
                   <div>
                     <div className="header">
@@ -355,7 +420,7 @@ class ProviderRequest extends Component {
                       <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
                     </div>
                   </div>
-                  </div>
+                </div>
                 }
                 
                 <div>
@@ -642,10 +707,11 @@ class ProviderRequest extends Component {
       };
       let request = {
         hookInstance: config.provider_hook_instance,
-        fhirServer: sessionStorage.getItem('fhir_url'),
+        // fhirServer: sessionStorage.getItem('fhir_url'),
+        fhirServer:this.state.fhirUrl,
         hook:this.state.hook,
         fhirAuthorization : {
-          "access_token" : auth_token,
+          "access_token" : this.state.acessToken,
           "token_type" : config.token_type, // json
           "expires_in" : config.expires_in, // json
           "scope" : config.fhir_auth_scope,
