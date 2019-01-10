@@ -422,3 +422,8 @@ pre {background: white; padding: 5px; margin: 5px; height: 250px;}
 .boolean { color: blue; }
 .null { color: magenta; }
 .key { color: red; }
+
+.simple-text{
+  font-size: 16px;
+  color: black;
+}

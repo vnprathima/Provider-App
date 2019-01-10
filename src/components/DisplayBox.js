@@ -319,12 +319,12 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           // console.log('............')
           // console.log(this.props.response ,this.props.req_type)
           // console.log(this.props.respons.opo.ssse)
-          if(this.props.req_type === "coverage_determination" && this.props.response != null && this.props.response.hasOwnProperty("Coverage")){
-            if(this.props.response.Coverage){
-                return <div className='decision-card alert-info'><strong>Coverage : </strong> Eligible</div>
+          if(this.props.req_type === "coverage_decision" && this.props.response != null && this.props.response.hasOwnProperty("success")){
+            if(this.props.response.success){
+                return <div className='decision-card alert-info'><strong>Success : </strong> {this.props.response.message}</div>
             }
             else{
-              return <div className='decision-card alert-warning'><strong> Coverage : </strong> Not Eligible</div>
+              return <div className='decision-card alert-warning'><strong> Failed : </strong> {this.props.response.message}</div>
             }
           }
           else if(this.props.req_type === "prior-authorization" && this.props.response != null && this.props.response.hasOwnProperty("PriorAuthorization")){
@@ -334,8 +334,6 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
             else{
               return <div className='decision-card alert-warning'><strong>Prior Authorization : </strong> No</div>
             }
-
-
           }
           else if (renderedCards.length === 0) { return <div><div className='decision-card alert-warning'>No Cards</div></div>; }
           else{

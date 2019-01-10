@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import Dropzone from 'react-dropzone';
 import deepIterator from 'deep-iterator';
+import {createToken} from '../components/Authentication';
 
 export default class Review extends Component {
   constructor(props){
@@ -20,7 +21,8 @@ export default class Review extends Component {
         resourceJson : [],
         files : [],
         docs : [],
-        prior_authorization : ''
+        prior_authorization : '',
+        claimResponse : ''
     }
     this.authorize();
     this.searchFHIR = this.searchFHIR.bind(this);
@@ -75,20 +77,16 @@ export default class Review extends Component {
         }
       }
     }
+    var contained = this.state.resourceJson;
     let request = {
       resourceType:'Claim',
       status:'draft',
-      contained: [this.state.resourceJson
-        
-      ],
+      contained: this.state.resourceJson,
       patient: {
         reference: patient_details.resourceType+"/"+patient_details.id
       },
-      provider:{
-        reference: practitioner_details+"/"+practitioner_details.id
-      },
       procedure: procedure_details,
-      use:"claim",
+      use:{code:'claim'},
       type:{
         coding: [
           {
@@ -97,7 +95,13 @@ export default class Review extends Component {
           }
         ]
       },
-    };    
+    }; 
+    console.log("practioner claim submit----"+practitioner_details);
+    if(practitioner_details !== '' && practitioner_details.id !== undefined && practitioner_details.id !== null){
+        request['provider'] = {
+                reference: practitioner_details.resourceType+"/"+practitioner_details.id
+            }
+    }    
     if(this.state.files !=null){
       for(var i=0;i<this.state.files.length;i++){
         (function(file) {
@@ -118,43 +122,54 @@ export default class Review extends Component {
         })(this.state.files[i])
       }
     }
-
-    request.contained[0].push(fileInputData)
+    console.log("Resource Json before communication--",this.state.resourceJson);
+    request.contained.push(fileInputData);
+    console.log("Resource Json after communication--",this.state.resourceJson);
     return request;
   }
 
 async createFhirResource() {
+    
     let claim_json = await this.getClaimJson();
     var settings = this.getSettings();
-    const fhirClient = new Client({ baseUrl: "http://54.227.173.76:8280/payer_fhir/baseDstu3/" });
+    const fhirClient = new Client({ baseUrl: "http://54.227.173.76:8280/fhir/baseDstu3/" });
     var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
     authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
     tokenUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
-    const oauth2 = simpleOauthModule.create({
-        client: {
-            id: config.client
-        },
-        auth: {
-            // tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
-            tokenHost: "https://54.227.173.76:8443/",
-            tokenPath: tokenUrl.pathname,
-            authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
-            authorizePath: authorizeUrl.pathname,
-        },
-    });
-    const options = {code : this.state.code, redirect_uri : `${window.location.protocol}//${window.location.host}/index`, client_id : "app-login"};
+    // const oauth2 = simpleOauthModule.create({
+    //     client: {
+    //         id: config.client
+    //     },
+    //     auth: {
+    //         // tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+    //         tokenHost: "https://54.227.173.76:8443/",
+    //         tokenPath: tokenUrl.pathname,
+    //         authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
+    //         authorizePath: authorizeUrl.pathname,
+    //     },
+    // });
+    // const options = {code : this.state.code, redirect_uri : `${window.location.protocol}//${window.location.host}/index`, client_id : "app-login"};
     try {
-        const result = await oauth2.authorizationCode.getToken(options);
-        const { token } = oauth2.accessToken.create(result);
-        console.log('The token is : ', token);
-        fhirClient.bearerToken = token.access_token;
+        // const result = await oauth2.authorizationCode.getToken(options);
+        // const { token } = oauth2.accessToken.create(result);
+        const token = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
+        // console.log('The token is : ', token);
+        fhirClient.bearerToken = token;
         fhirClient.create({
             resourceType: 'Claim',
             body: claim_json,
-        }).then((data) => { console.log(data); });
+            headers: {"Content-Type":"application/fhir+json"}
+        }).then((data) => { 
+            console.log(data);
+            this.setState({claimResponse:{success:true,"message":"Your claim has been submitted successfully with Reference Id - Claim/"+ data.id}});
+         }).catch((err) => {
+             console.log(err);
+             this.setState({claimResponse:{success:false,"message":"Failed to create claim."}});
+         })
     } catch (error) {
         console.error('Unable to create claim', error.message);
         console.log('Claim Creation failed');
+        this.setState({claimResponse:{success:false,"message":"Failed to create claim."}});
     }
     
   }
@@ -351,7 +366,7 @@ async createFhirResource() {
                         </div>
                         <div className="right-form">
                         <div className="header">
-                           Prior Authorization - {this.state.prior_authorization}
+                           Prior Authorization - <span className="simple-text">{this.state.prior_authorization}</span>
                         </div>
                         <div className="header">
                             Upload Required/Additional Documentation
@@ -402,7 +417,7 @@ async createFhirResource() {
                         </button>
                         <div >
                                     <DisplayBox
-                                    response = {this.state.response} req_type="coverage_determination" />
+                                    response = {this.state.claimResponse} req_type="coverage_decision" />
                                 </div>
                         </div>
 
