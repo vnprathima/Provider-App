@@ -61,7 +61,7 @@ export default class CoverageDetermination extends Component {
     this.submit_prior_auth = this.submit_prior_auth.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
     this.onNotesChange=this.onNotesChange.bind(this);
-    // this.onRemove=this.onRemove.bind(this);
+    this.onRemove=this.onRemove.bind(this);
     // this.uploadFile = this.uploadFile.bind(this);
 
     this.getResourceRecords = this.getResourceRecords.bind(this);

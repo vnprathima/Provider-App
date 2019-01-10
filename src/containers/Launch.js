@@ -42,14 +42,19 @@ export default class Review extends Component {
       this.clearAuthToken();
       const fhirClient = new Client({ baseUrl: settings.api_server_uri });
       var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-      authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
-      tokenUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+      
+      if(settings.api_server_uri.search('54.227.173.76') > 0){
+        authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
+        tokenUrl = {protocol:"https:",host:"54.227.173.76:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+      }
       const oauth2 = simpleOauthModule.create({
           client: {
-          id: settings.client_id
+          id: settings.client_id,
+          secret:settings.secret
           },
           auth: {
           tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+          // tokenHost:tokenUrl.host,
           tokenPath: tokenUrl.pathname,
           authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
           authorizePath: authorizeUrl.pathname,

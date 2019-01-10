@@ -29,6 +29,8 @@ export default class Review extends Component {
         }
         this.authorize();
         this.searchFHIR = this.searchFHIR.bind(this);
+        this.onRemove=this.onRemove.bind(this);
+
         this.createFhirResource = this.createFhirResource.bind(this);
     }
 
@@ -40,6 +42,15 @@ export default class Review extends Component {
             files: []
         });
     }
+    onRemove(file){
+        var new_files=this.state.files;
+        for( var i = 0; i < new_files.length; i++){ 
+          if ( new_files[i] === file) {
+            new_files.splice(i, 1); 
+          }
+       }
+        this.setState({files:new_files})
+      }
     getSettings() {
         var data = sessionStorage.getItem("app-settings");
         return JSON.parse(data);
@@ -206,15 +217,18 @@ export default class Review extends Component {
         var settings = this.getSettings();
         const fhirClient = new Client({ baseUrl: settings.api_server_uri });
         var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-        authorizeUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/auth" };
-        tokenUrl = { protocol: "https://", host: "", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/token" };
+        if(settings.api_server_uri.search('54.227.173.76') > 0){
+            authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
+            tokenUrl = {protocol:"https:",host:"54.227.173.76:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+    
+        }
         const oauth2 = simpleOauthModule.create({
             client: {
                 id: settings.client_id
             },
             auth: {
-                // tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
-                tokenHost: "https://54.227.173.76:8443/",
+                tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+                // tokenHost: "https://54.227.173.76:8443/",
                 tokenPath: tokenUrl.pathname,
                 authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
                 authorizePath: authorizeUrl.pathname,

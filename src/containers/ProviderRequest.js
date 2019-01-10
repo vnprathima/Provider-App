@@ -111,6 +111,8 @@ class ProviderRequest extends Component {
     this.onClickLogout = this.onClickLogout.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
     this.getPrefetchData = this.getPrefetchData.bind(this);
+    this.readFHIR = this.readFHIR.bind(this);
+    this.loopPrefetchInput=this.loopPrefetchInput.bind(this);
   }
   consoleLog(content, type){
     let jsonContent = {
@@ -149,8 +151,6 @@ class ProviderRequest extends Component {
         }
     }
       //  this.setState({ [elementName]: result});
-        
-        
       }
       }
       else{
@@ -164,22 +164,45 @@ class ProviderRequest extends Component {
           this.submit_info();
       });
     }
-    getSettings() {
-      var data = sessionStorage.getItem("app-settings");
-      console.log(data,'whats dataaa')
-      return JSON.parse(data);
+
+    async readFHIR(resourceType, resourceId) {
+      console.log(resourceType,resourceId)
+    
+      const fhirClient = new Client({ baseUrl: this.state.fhirUrl });
+      fhirClient.bearerToken = this.state.accessToken;
+      let readResponse = await fhirClient.read({ resourceType: resourceType, id: resourceId });
+      // prefetchData= readResponse;
+      console.log('REad Rsponse',readResponse )
+      return readResponse;
+      // this.setState({prefetchData: readResponse});
+      // console.log("Resource json---",this.state.prefetchData);
     }
-   
+    async loopPrefetchInput(input){
+      var prefetchData=[];
+      var self=this;
+      Object.keys(input).forEach( function(key) {
+        var val = input[key]
+        console.log("Key-----",key,"value---",val);
+        if (key === 'patientId'){
+            key = 'Patient'
+            // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
+        }
+        if (val !== ''){
+          return self.readFHIR(key,val);
+
+        }
+      });
+     
+    }
+
     async getPrefetchData() {
       console.log(this.state.hook);
-      var settings = this.getSettings();
-      console.log(settings,'settingss')
-      const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-      // let token = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
-      fhirClient.bearerToken = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
       var docs=[];
       if(this.state.hook === "patient-view" || this.state.hook === "liver-transplant" ){
-        var prefectInput = {"Patient":this.state.patient};
+        var prefectInput = {"Patient":this.state.patientId};
+      }
+      else if(this.state.hook === "liver-transplant"){
+        prefectInput ={"Practitioner":this.state.practitionerId}
       }
       else if(this.state.hook === "order-review"){
         prefectInput = {
@@ -190,29 +213,22 @@ class ProviderRequest extends Component {
                             };
       } else if(this.state.hook === "medication-prescribe"){
         prefectInput = {
-                              "Patient":this.state.patient,
+                              "Patient":this.state.patientId,
                               "Practitioner":this.state.practitionerId
                             };
       }
-       docs.push(prefectInput)
-       console.log(docs,'docs---')
-
-      // Object.keys(response[0].appData).forEach(function(key) {
-      //   var val = response[0].appData[key]
-      //   console.log("Key-----",key,"value---",val);
-      //   if (key === 'patientId'){
-      //       key = 'Patient'
-      //       // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
-      //   }
-      //   if (val !== ''){
-      //       self.readFHIR(fhirClient,key,val);
-      //   }
-      // });
-
-
-      let tokenResponse = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
-      await this.getResourceData( tokenResponse,prefectInput);
+      var self = this;
+      docs.push(prefectInput);
+      
+      console.log('docs:',docs);
+      var prefetchData=[];
+      
+      // console.log(prefetchData,'preeee');
+      await this.loopPrefetchInput(docs[0]);
+      // let tokenResponse = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
+      // await this.getResourceData( tokenResponse,prefectInput);
       // return prefetchData;
+      // console.log('prefetchData in get:',this.state.prefetchData)
     }
 
     async getResourceData( token,prefectInput) {
@@ -310,7 +326,6 @@ class ProviderRequest extends Component {
 
     async submit_info(){
         this.consoleLog("Initiating form submission",this.state.prefetch);
-        
         let token = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
         token = "Bearer " + token;
         var myHeaders = new Headers({
@@ -751,8 +766,9 @@ class ProviderRequest extends Component {
         request.context.orders.entry.push(medicationJson);
       }
       if (this.state.prefetch) {
-         // var prefetchData = await this.getPrefetchData();
-          console.log("Prefetch data---",this.state.prefetchData);
+         var prefetchData = await this.getPrefetchData()
+         this.setState({prefetchData:prefetchData})         
+         console.log("Prefetch data---",this.state.prefetchData);
             request.prefetch =  this.state.prefetchData;
         }
       return request;
