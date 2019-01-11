@@ -10,6 +10,7 @@
     "debug": "debugClass",
     "warning": "warningClass"
   },
+  "payer_fhir": "http://54.227.173.76:8280/payer_fhir/baseDstu3/",
   "provider_login_params": {
     "grant_type":"password",
     "username":"john",

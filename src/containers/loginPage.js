@@ -4,6 +4,7 @@ import { createToken } from '../components/Authentication';
 import config from '../properties.json';
 import {Input,Button} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
+import Loader from 'react-loader-spinner';
 
 class LoginPage extends React.Component {
   constructor(props){
@@ -12,8 +13,8 @@ class LoginPage extends React.Component {
       name: '',
       password: '',
       fhir_url: '',
-      login_load: false,
       login_error_msg: '',
+      loading: false,
     }
     this.handleName = this.handleName.bind(this);
     this.handlepassword = this.handlepassword.bind(this);
@@ -50,7 +51,7 @@ class LoginPage extends React.Component {
   }
 
   async onClickLoginSubmit(){
-    this.setState({login_load: true, login_error_msg: ''});
+    this.setState({loading: true, login_error_msg: ''});
     console.log('in if and token is---',this.state.name,this.state.password,config.username,config.password)
     let tokenResponse = await createToken(this.state.name,this.state.password);
     if(tokenResponse !==null && tokenResponse !==undefined){
@@ -60,7 +61,7 @@ class LoginPage extends React.Component {
         sessionStorage.setItem('isLoggedIn', true);
         this.props.history.push('/provider_request');
     }
-    this.setState({login_load: false, login_error_msg: "Unable to login! Please try again."});
+    this.setState({loading: false, login_error_msg: "Unable to login! Please try again."});
   }
   handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -89,7 +90,7 @@ class LoginPage extends React.Component {
           <div className="col-12 padding-top-10px">
             <Input
                 // id="full-width"
-                label="Username/Email Id"
+                label="User Name"
                 type='text'
                 // className = {classes.textField}
                 className='ui fluid   input'
@@ -122,10 +123,17 @@ class LoginPage extends React.Component {
               </div>
               <div className="col-4" style={{'paddingRight': '0px','textAlign':'right'}}>
                 <Button primary onClick={this.onClickLoginSubmit }>
-                  Login 
+                  <span className="login-text">Login</span>  
+                  <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
+                      <Loader
+                          type="Oval"
+                          color="#fff"
+                          height="15"
+                          width="15"
+                      />
+                  </div>
                 </Button>
                 <div style={{'minHeight': '30px'}}>
-                {/* {this.state.login_load && <img src={logo} alt="Loading.."/>} */}
                 </div>
               </div>
           </div>

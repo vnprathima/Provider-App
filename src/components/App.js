@@ -13,10 +13,6 @@ import Main from '../containers/Main';
 import { library } from '@fortawesome/fontawesome-svg-core'
 //import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faIgloo,faNotesMedical } from '@fortawesome/free-solid-svg-icons';
-import Cookies from 'universal-cookie';
-
-const cookies = new Cookies();
-console.log(cookies.get('isLoggedIn'))
 
 library.add(faIgloo,faNotesMedical)
 export default class App extends Component {

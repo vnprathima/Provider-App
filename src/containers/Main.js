@@ -27,12 +27,17 @@ export default class Review extends Component {
             show_res: false,
             claimResponse: '',
             searchResponse:'',
+            resourceDataJson:[],
+            loading: false,
+            token_error: false,
+            claim_type : 'Claim'
         }
         this.authorize();
         this.searchFHIR = this.searchFHIR.bind(this);
         this.onRemove=this.onRemove.bind(this);
 
         this.createFhirResource = this.createFhirResource.bind(this);
+        this.reLaunch = this.reLaunch.bind(this);
     }
 
     onDrop(files) {
@@ -112,6 +117,9 @@ export default class Review extends Component {
                 ]
             },
         };
+        if(this.state.prior_authorization){
+            request.use.code = 'preauthorization';
+        }
         console.log("practioner claim submit----" + practitioner_details);
         if (practitioner_details !== '' && practitioner_details.id !== undefined && practitioner_details.id !== null) {
             request['provider'] = {
@@ -146,10 +154,10 @@ export default class Review extends Component {
     }
 
     async createFhirResource() {
-
+        this.setState({loading:true});
         let claim_json = await this.getClaimJson();
-        var settings = this.getSettings();
-        const fhirClient = new Client({ baseUrl: "http://54.227.173.76:8280/payer_fhir/baseDstu3/" });
+        
+        const fhirClient = new Client({ baseUrl: config.payer_fhir });
         var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
         authorizeUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/auth" }
         tokenUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/token" }
@@ -179,15 +187,18 @@ export default class Review extends Component {
             }).then((data) => {
                 console.log(data);
                 this.setState({claim_id : data.id});
-                this.setState({ claimResponse: { success: true, "message": "Your claim has been submitted successfully with Reference Id - Claim/" + data.id } });
+                this.setState({ claimResponse: { success: true, "message": "Your " + this.state.claim_type + " has been submitted successfully with Reference Id - Claim/" + data.id } });
+                this.setState({loading:false});
             }).catch((err) => {
                 console.log(err);
-                this.setState({ claimResponse: { success: false, "message": "Failed to create claim." } });
+                this.setState({ claimResponse: { success: false, "message": "Failed to create " + this.state.claim_type + "." } });
+                this.setState({loading:false});
             })
         } catch (error) {
             console.error('Unable to create claim', error.message);
             console.log('Claim Creation failed');
-            this.setState({ claimResponse: { success: false, "message": "Failed to create claim." } });
+            this.setState({ claimResponse: { success: false, "message": "Failed to create " + this.state.claim_type + "." } });
+            this.setState({loading:false});
         }
 
     }
@@ -205,23 +216,26 @@ export default class Review extends Component {
                     this.setState({ resourceJson: resourceJson });
                 }
                 else if(type == 'payer'){
-                    this.setState({claimResponseJson:resrc})
+                    this.setState({claimResponseJson:resrc});
+                    this.setState({show_res : true});
                 }
                 console.log("Resource json---", this.state.resourceJson);
             });
             this.setState({searchResponse:''});
         }
-        else if(searchResponse['total'] == 0){
-            this.setState({searchResponse:"It Seems like the Claim  has not been processed yet. Please try agian after some time !!"})
+        else if(searchResponse['total'] == 0 && type === 'payer'){
+            console.log("claimresjson---",this.state.claimResponseJson.length);
+            this.setState({show_res : true});
+            this.setState({searchResponse:"It Seems like the " + this.state.claim_type + "  has not been processed yet. Please try agian after some time !!"})
         }
     }
 
     async readFHIR(fhirClient, resourceType, resourceId) {
-        var resourceJson = this.state.resourceJson;
+        var resourceDataJson = this.state.resourceDataJson;
         let readResponse = await fhirClient.read({ resourceType: resourceType, id: resourceId });
-        resourceJson.push(readResponse)
-        this.setState({ resourceJson: resourceJson });
-        console.log("Resource json---", this.state.resourceJson);
+        resourceDataJson.push(readResponse)
+        this.setState({ resourceDataJson: resourceDataJson });
+        console.log("Resource json---", this.state.resourceDataJson);
     }
 
     async authorize() {
@@ -231,7 +245,6 @@ export default class Review extends Component {
         if(settings.api_server_uri.search('54.227.173.76') > 0){
             authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
             tokenUrl = {protocol:"https:",host:"54.227.173.76:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
-    
         }
         const oauth2 = simpleOauthModule.create({
             client: {
@@ -266,11 +279,8 @@ export default class Review extends Component {
             }, Promise.resolve()).then((response) => {
                 return response.json();
             }).then((response) => {
-                //            var resourceJson = [];
-                console.log("appData-----", response[0].appData);
                 Object.keys(response[0].appData).forEach(function (key) {
                     var val = response[0].appData[key]
-                    console.log("Key-----", key, "value---", val);
                     if (key === 'patientId') {
                         key = 'Patient'
                     }
@@ -280,10 +290,8 @@ export default class Review extends Component {
                 });
                 var docs = [];
                 response[0].requirements.map((i, req) => {
-                    // if (req == 0){
                     if (Object.prototype.toString.call(response[0].requirements[req]) !== '[object Array]' && typeof response[0].requirements[req] != "string") {
                         Object.keys(response[0].requirements[req]).forEach(function (res_type) {
-                            console.log("Requirement-----", response[0].requirements[req]);
                             var code = response[0].requirements[req][res_type]['codes'][0]['code'];
                             if (res_type !== 'EpisodeOfCare' && res_type !== 'Location') {
                                 self.searchFHIR(fhirClient, res_type, "code=" + code,'provider');
@@ -295,19 +303,26 @@ export default class Review extends Component {
                         this.setState({ docs: docs });
                     }
                 })
-                if (response[0].requirements.hook === 'order-review') {
-                    this.setState({ prior_authorization: "Required" })
+                if (response[0].hasOwnProperty("prior_authorization") && response[0].prior_authorization) {
+                    this.setState({ prior_authorization: true })
+                    this.setState({claim_type: 'Prior Authorization'});
                 } else {
-                    this.setState({ prior_authorization: "Not Required" })
+                    this.setState({ prior_authorization: false });
                 }
-
             })
         } catch (error) {
             console.error('Access Token Error', error.message);
             console.log('Authentication failed');
+            this.setState({token_error : true}); 
         }
     }
-
+    reLaunch(){
+        var settings = this.getSettings();
+        if(settings.hasOwnProperty('launch_id') && settings.hasOwnProperty('api_server_uri')){
+            var launchUrl = window.location.protocol+"//" + window.location.host +"/launch?launch="+settings.launch_id+"&iss="+settings.api_server_uri;
+            window.location = launchUrl;
+        }
+    }
     hasAuthToken() {
         return sessionStorage.getItem("tokenResponse") !== undefined;
     }
@@ -315,60 +330,11 @@ export default class Review extends Component {
         withRouter(({ history }) => (history.push('/')))
     }
     async getClaimResponse(claim_id){
-        const fhirClient = new Client({ baseUrl: 'http://54.227.173.76:8280/payer_fhir/baseDstu3/' });
+        const fhirClient = new Client({ baseUrl: config.payer_fhir });
         const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
         fhirClient.bearerToken = token;
-        var self = this;
         this.searchFHIR(fhirClient,'ClaimResponse','request='+claim_id,'payer')
-        console.log('in responsess')
-        let crj = {"resourceType": "ClaimResponse",
-                    "id": "R3500",
-                    "text": {
-                        "status": "generated",
-                        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A human-readable rendering of the ClaimResponse</div>"
-                    },
-                    "identifier": [
-                        {
-                        "system": "http://www.BenefitsInc.com/fhir/remittance",
-                        "value": "R3500"
-                        }
-                    ],
-                    "status": "active",
-                    "type": {
-                        "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/CodeSystem/claim-type",
-                            "code": "institutional"
-                        }
-                        ]
-                    },
-                    "use": {"code":"claim"},
-                    "patient": {
-                        "reference": "Patient/1"
-                    },
-                    "created": "2014-08-16",
-                    "insurer": {
-                        "identifier": {
-                        "system": "http://www.jurisdiction.org/insurers",
-                        "value": "555123"
-                        }
-                    },
-                    "requestor": {
-                        "reference": "Organization/1"
-                    },
-                    "request": {
-                        "identifier": {
-                        "system": "http://happyvalley.com/claim",
-                        "value": "12346"
-                        }
-                    },
-                    "outcome": {"code":"queued"},
-                    "disposition": "Claim settled as per contract.",
-                    
-                    }
-        crj['request']['identifier']['value'] = claim_id;
-        // this.setState({claimResponseJson:crj})
-        this.setState({show_res : true});
+        
     }
     syntaxHighlight(json) {
         json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -421,6 +387,15 @@ export default class Review extends Component {
                 {file.name}
             </div>
         ))
+        const resourceMainData = this.state.resourceDataJson.map((res, index) => {
+            if (res.hasOwnProperty('resourceType')) {
+                return (
+                    <div key={index}>
+                        <div className="header">{res.resourceType}</div>
+                        {this.renderObject(res)}
+                    </div>);
+            }
+        });
         const resourceData = this.state.resourceJson.map((res, index) => {
             if (res.hasOwnProperty('resourceType')) {
                 return (
@@ -445,20 +420,22 @@ export default class Review extends Component {
             return (
                 <React.Fragment>
                     <div>
-                        <div className="main_heading">HEALTH INSURANCE CLAIM SUBMIT</div>
+                        <div className="main_heading">HEALTH INSURANCE SUBMIT - { this.state.claim_type }</div>
                         <div className="content">
-                            {this.state.claimResponse === '' &&
+                            {this.state.claimResponse === '' && !this.state.token_error &&
                                 <div>
                                     <div className="left-form">
+                                        {resourceMainData}
                                         {resourceData}
                                     </div>
                                     <div className="right-form">
                                         <div className="header">
-                                            Prior Authorization - <span className="simple-text">{this.state.prior_authorization}</span>
+                                            Prior Authorization - <span className="simple-text">{this.state.prior_authorization && <span>Required</span>}
+                                            {!this.state.prior_authorization && <span>Not Required</span>}</span>
                                         </div>
                                         <div className="header">
                                             Upload Required/Additional Documentation
-                            </div>
+                                        </div>
                                         <span>
                                         </span>
                                         <div className="">
@@ -493,7 +470,8 @@ export default class Review extends Component {
                                             <textarea name="myNotes" value={this.state.additionalNotes} onChange={this.onNotesChange} rows="10" cols="83" />
                                         </div>
 
-                                        <button className="submit-btn btn btn-class button-ready" onClick={this.createFhirResource}>Submit
+                                        <button className="submit-btn btn btn-class button-ready" onClick={this.createFhirResource}> 
+                                        Submit {this.state.claim_type}
                         <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
                                                 <Loader
                                                     type="Oval"
@@ -506,7 +484,13 @@ export default class Review extends Component {
                                     </div>
                                 </div>
                                     }
+                                    {this.state.token_error && 
+                                    <div className="container token_expired">Your Token has expired !!
+                                        <div><button className="btn button-ready" onClick={this.reLaunch}>Refresh Token</button></div>
+                                    </div>}
                         {this.state.claimResponse !== '' &&
+                            <div>
+                            {this.state.claimResponse.success &&
                                         <div className="claim_res_div">
                                             <div className='decision-card alert-info'>
                                                 <div>
@@ -516,12 +500,14 @@ export default class Review extends Component {
                                                     Checking with the CDS service.
                                                 </div>
                                                 <div>
-                                                    Check for the claim status <button onClick={() => this.getClaimResponse(this.state.claim_id)}>Get Claim Status</button>
+                                                    Check for the {this.state.claim_type} status <button onClick={() => this.getClaimResponse(this.state.claim_id)}>Get {this.state.claim_type} Status</button>
                                                 </div>
-                                                {this.state.show_res && 
-                                                <div>Claim Response:
-                                                    {(this.state.searchResponse===''||this.state.searchResponse===null) &&
-                                                        <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre>
+                                                {this.state.show_res  && 
+                                                <div>
+                                                    {this.state.claimResponseJson.length !== undefined &&
+                                                        <div>{this.state.claim_type} Response:
+                                                            <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre>
+                                                        </div>
                                                     }
                                                     {(this.state.searchResponse!==''||this.state.searchResponse!==null) &&
                                                         <div className='claimResponse'>{this.state.searchResponse}</div>
@@ -530,6 +516,11 @@ export default class Review extends Component {
                                                 }
                                             </div>
                                         </div>
+                            }
+                            {!this.state.claimResponse.success &&
+                                <div className='decision-card alert-warning'><strong> Failed : </strong> {this.state.claimResponse.message}</div>
+                            }
+                            </div>
                                     }
                     </div>
                     </div>

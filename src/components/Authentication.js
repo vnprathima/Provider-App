@@ -9,7 +9,7 @@ export async function createToken(username,password){
     debug: "debugClass",
     warning: "warningClass"
   };
-    const tokenUrl = "https://54.227.173.76:8443/auth/realms/"+config.realm+"/protocol/openid-connect/token";
+    const tokenUrl = config.provider_token_url;
     console.log("Retrieving OAuth token from "+tokenUrl,types.info);
     let params = {
         grant_type:"password",

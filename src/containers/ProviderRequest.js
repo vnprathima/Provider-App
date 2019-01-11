@@ -450,7 +450,7 @@ class ProviderRequest extends Component {
                   </div> */}
                   <div>
                     <div className="header">
-                                ICD 10 Codes
+                                ICD 10 / HCPCS Codes
                     </div>
                     <div className="dropdown">
                     <DropdownCDSHook
@@ -632,9 +632,9 @@ class ProviderRequest extends Component {
                     <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
                     <Loader
                       type="Oval"
-                      color="#ffffff"
-                      height="16"
-                      width="16"
+                      color="#fff"
+                      height="15"
+                      width="15"
                     />
                     </div>
                       </button>

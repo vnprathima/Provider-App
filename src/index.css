@@ -261,18 +261,20 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 
 
 .visible{
-  opacity:1;
+  /* opacity:1; */
+  display: inline-block;
 }
 .invisible{
-  /* display:none; */
-  opacity:0;
+  display:none;
+  /* opacity:0; */
 }
 .spinner{
-  display:inline-block;
+  /* display:inline-block; */
   transition:all 0.5s;
   margin-left:15px;
   margin-top: 2px;
   line-height:2em;
+  opacity: 1;
 }
 
 .rightStateInput{
@@ -433,4 +435,14 @@ pre {background: white; padding: 5px; margin: 5px; height: 250px;}
 .claimResponse{
   color:#c16620;
   padding:10px 0px;
+}
+.login-text{
+  color: white;
+  font-size: 16px;
+}
+.token_expired{
+    text-align: center;
+    font-size: 22px;
+    color: indianred;
+    margin-top: 170px;
 }
