@@ -116,7 +116,6 @@ class ProviderRequest extends Component {
     this.consoleLog = this.consoleLog.bind(this);
     this.getPrefetchData = this.getPrefetchData.bind(this);
     this.readFHIR = this.readFHIR.bind(this);
-    this.loopPrefetchInput=this.loopPrefetchInput.bind(this);
   }
   consoleLog(content, type){
     let jsonContent = {
@@ -204,32 +203,18 @@ class ProviderRequest extends Component {
       // this.setState({prefetchData: readResponse});
       // console.log("Resource json---",this.state.prefetchData);
     }
-    async loopPrefetchInput(input){
-      var prefetchData=[];
-      var self=this;
-      Object.keys(input).forEach( function(key) {
-        var val = input[key]
-        console.log("Key-----",key,"value---",val);
-        if (key === 'patientId'){
-            key = 'Patient'
-            // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
-        }
-        if (val !== ''){
-          return self.readFHIR(key,val);
-
-        }
-      });
-     
-    }
+  
 
     async getPrefetchData() {
       console.log(this.state.hook);
       var docs=[];
-      if(this.state.hook === "patient-view" || this.state.hook === "liver-transplant" ){
+      if(this.state.hook === "patient-view" ){
         var prefectInput = {"Patient":this.state.patientId};
       }
       else if(this.state.hook === "liver-transplant"){
-        prefectInput ={"Practitioner":this.state.practitionerId}
+        prefectInput ={"Patient":this.state.patientId,
+          "Practitioner":this.state.practitionerId
+        }
       }
       else if(this.state.hook === "order-review"){
         prefectInput = {
@@ -251,7 +236,19 @@ class ProviderRequest extends Component {
       var prefetchData=[];
       
       // console.log(prefetchData,'pr');
-      await this.loopPrefetchInput(docs[0]);
+      for(var key in docs[0]){
+        var val = docs[0][key]
+        console.log("Key-----",key,"value---",val);
+        if (key === 'patientId'){
+            key = 'Patient'
+            // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
+        }
+        if (val !== ''){
+          prefetchData.push(await self.readFHIR(key,val));
+
+        }
+      }
+      return prefetchData;
       // let tokenResponse = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
       // await this.getResourceData( tokenResponse,prefectInput);
       // return prefetchData;
@@ -491,7 +488,7 @@ class ProviderRequest extends Component {
                   </div> */}
                   <div>
                     <div className="header">
-                                ICD 10 / HCPCS Codes
+                                ICD 10 / HCPCS Codes*
                     </div>
                     <div className="dropdown">
                     <DropdownCDSHook
