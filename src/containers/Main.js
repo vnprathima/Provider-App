@@ -383,7 +383,7 @@ export default class Review extends Component {
     renderPage() {
         const files = this.state.files.map(file => (
             <div className='file-block' key={file.name}>
-                <button onClick={() => this.onRemove(file)} className="close-thik"></button>
+                <a onClick={() => this.onRemove(file)} className="close-thik"></a>
                 {file.name}
             </div>
         ))

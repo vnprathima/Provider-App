@@ -327,6 +327,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   top: 1px;
   right: 3px;
   color: grey;
+  cursor: pointer;
 }
 .drag-drop-box{
   height:70px;
@@ -413,6 +414,8 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 .errorMsg {
   color: indianred;
+  font-size: 10px;
+  float:right;
 }
 .logout{
   float:right;

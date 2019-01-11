@@ -83,6 +83,10 @@ class ProviderRequest extends Component {
         prior_auth:false,
         dosageAmount:null,
         color:'grey',
+        validatePatient:false,
+        validateFhirUrl:false,
+        validateAccessToken:false,
+        validateIcdCode:false,
         req_active:'active',
         auth_active:'',
         prefetchData:{},
@@ -128,6 +132,7 @@ class ProviderRequest extends Component {
       console.log("Element---",elementName,"value--",text);
       if(elementName==="hook")
       {
+        this.setState({validateIcdCode:false})
        // hookData(text);
          console.log("First hook value");
       console.log(text);
@@ -155,14 +160,36 @@ class ProviderRequest extends Component {
       }
       else{
       this.setState({ [elementName]: text});
+      this.setState({validateIcdCode:false})
       }
       //this.setState({ [elementName]: text});
     }
-
+    validateForm(){
+      let formValidate=true;
+      if(this.state.patientId==''){
+        formValidate=false;
+        this.setState({validatePatient:true});
+      }
+      if(this.state.hook==''||this.state.hook==null){
+        formValidate=false;
+        this.setState({validateIcdCode:true});
+      }
+      if(this.state.fhirUrl==''||this.state.fhirUrl==null){
+        formValidate=false;
+        this.setState({validateFhirUrl:true});
+      }
+      if(this.state.accessToken==''||this.state.accessToken==null){
+        formValidate=false;
+        this.setState({validateAccessToken:true});
+      }
+      return formValidate;
+    }
     startLoading(){
-      this.setState({loading:true}, ()=>{
-          this.submit_info();
-      });
+      if(this.validateForm()){
+        this.setState({loading:true}, ()=>{
+            this.submit_info();
+        })
+      }
     }
 
     async readFHIR(resourceType, resourceId) {
@@ -223,7 +250,7 @@ class ProviderRequest extends Component {
       console.log('docs:',docs);
       var prefetchData=[];
       
-      // console.log(prefetchData,'preeee');
+      // console.log(prefetchData,'pr');
       await this.loopPrefetchInput(docs[0]);
       // let tokenResponse = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
       // await this.getResourceData( tokenResponse,prefectInput);
@@ -277,9 +304,13 @@ class ProviderRequest extends Component {
     }
     onFhirUrlChange (event){
       this.setState({ fhirUrl: event.target.value });
+      this.setState({validateFhirUrl:false});
     }
     onAccessTokenChange (event){
       this.setState({ accessToken: event.target.value });
+      console.log(this.state.accessToken)
+
+      this.setState({validateAccessToken:false});
     }
     onScopeChange (event){
       this.setState({ scope: event.target.value });
@@ -289,6 +320,7 @@ class ProviderRequest extends Component {
     }
     onPatientChange (event){
       this.setState({ patientId: event.target.value });
+      this.setState({validatePatient:false});
     }
     onPractitionerChange (event){
       this.setState({ practitionerId: event.target.value });
@@ -323,7 +355,7 @@ class ProviderRequest extends Component {
       sessionStorage.removeItem('fhir_url');
       this.props.history.push('/login');
     }
-
+   
     async submit_info(){
         this.consoleLog("Initiating form submission",this.state.prefetch);
         let token = await createToken(sessionStorage.getItem('username'),sessionStorage.getItem('password'));
@@ -401,26 +433,35 @@ class ProviderRequest extends Component {
                 <div>
                   <div>
                       <div className="header">
-                            Your Fhir URL
+                            Your Fhir URL*
                     </div>
                     <div className="dropdown">
                         <Input className='ui fluid input' type="text" name="fhirUrl" fluid value={this.state.fhirUrl} onChange={this.onFhirUrlChange}></Input>
                       </div>
+                      {this.state.validateFhirUrl === true  &&
+                      <div className='errorMsg dropdown'>{config.errorMsg}</div>
+                    }
                     </div>
                   <div>
                     <div className="header">
-                            Bearer Access Token
+                            Bearer Access Token*
                     </div>
                     <div className="dropdown">
-                        <Input className='ui fluid   input' type="text" name="accessToken" fluid value={this.state.accessToken} onChange={this.onAccessTokenChange}></Input>
+                        <Input className='ui fluid input' type="text" name="accessToken" fluid value={this.state.accessToken} onChange={this.onAccessTokenChange}></Input>
                     </div>
+                    {this.state.validateAccessToken === true  &&
+                      <div className='errorMsg dropdown'>{config.errorMsg}</div>
+                    }
                   </div>
                   <div className="header">
-                          Patient's ID
+                          Patient's ID*
                   </div>
                   <div className="dropdown">
                       <Input className='ui fluid   input' type="text" name="patient" fluid value={this.state.patientId} onChange={this.onPatientChange}></Input>
                     </div>
+                    {this.state.validatePatient === true  &&
+                      <div className='errorMsg dropdown'>{config.errorMsg}</div>
+                    }
                   {/* <div className="dropdown">
                   <DropdownPatient
                     elementName="patient"
@@ -458,6 +499,9 @@ class ProviderRequest extends Component {
                         updateCB={this.updateStateElement}
                       />
                     </div>
+                    {this.state.validateIcdCode === true &&
+                      <div className='errorMsg dropdown'>{config.errorMsg}</div>
+                    }
                   </div>
                   <div>
                     <div className="header">
@@ -744,7 +788,9 @@ class ProviderRequest extends Component {
         patientId: patientId ,
         context: {
           userId : this.state.practitionerId,
-          patientId: patientId ,  // select
+          patientId: patientId ,
+          coverageId:this.state.coverageId,
+          encounterId:this.state.encounterId,
           orders: {
             resourceType: "Bundle",
             entry: [

@@ -34,6 +34,7 @@
       "value":"open"
     }
   },
+  "errorMsg":"Required!!",
   "provider_hook_instance":"d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
   "fhir_auth_scope":"patient/Patient.read patient/Observation.read",
   "fhir_auth_subject":"cds-service4",
