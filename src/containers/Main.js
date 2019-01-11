@@ -25,7 +25,8 @@ export default class Review extends Component {
             claim_id: '',
             claimResponseJson:{},
             show_res: false,
-            claimResponse: ''
+            claimResponse: '',
+            searchResponse:'',
         }
         this.authorize();
         this.searchFHIR = this.searchFHIR.bind(this);
@@ -88,6 +89,7 @@ export default class Review extends Component {
                     else if (this.state.resourceJson[x].resourceType === 'Procedure') {
                         procedure_details = this.state.resourceJson[x]
                     }
+
                 }
             }
         }
@@ -97,7 +99,7 @@ export default class Review extends Component {
             status: 'draft',
             contained: this.state.resourceJson,
             patient: {
-                reference: patient_details.resourceType + "/" + patient_details.id
+                reference: "#" + patient_details.id
             },
             procedure: procedure_details,
             use: { code: 'claim' },
@@ -113,7 +115,7 @@ export default class Review extends Component {
         console.log("practioner claim submit----" + practitioner_details);
         if (practitioner_details !== '' && practitioner_details.id !== undefined && practitioner_details.id !== null) {
             request['provider'] = {
-                reference: practitioner_details.resourceType + "/" + practitioner_details.id
+                reference:"#" + practitioner_details.id
             }
         }
         if (this.state.files != null) {
@@ -147,7 +149,7 @@ export default class Review extends Component {
 
         let claim_json = await this.getClaimJson();
         var settings = this.getSettings();
-        const fhirClient = new Client({ baseUrl: "http://54.227.173.76:8280/fhir/baseDstu3/" });
+        const fhirClient = new Client({ baseUrl: "http://54.227.173.76:8280/payer_fhir/baseDstu3/" });
         var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
         authorizeUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/auth" }
         tokenUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/token" }
@@ -190,18 +192,26 @@ export default class Review extends Component {
 
     }
 
-    async searchFHIR(fhirClient, resourceType, searchStr) {
+    async searchFHIR(fhirClient, resourceType, searchStr,type) {
+        console.log(resourceType,searchStr)
         var resourceJson = this.state.resourceJson;
         let searchResponse = await fhirClient.search({ resourceType: resourceType, searchParams: searchStr })
-        console.log(searchResponse);
 
         if (searchResponse['total'] > 0) {
             searchResponse.entry.map((resrc, j) => {
                 console.log("Search response --- ", resrc, j);
-                resourceJson.push(resrc['resource']);
-                this.setState({ resourceJson: resourceJson });
+                if(type =='provider'){
+                    resourceJson.push(resrc['resource']);
+                    this.setState({ resourceJson: resourceJson });
+                }
+                else if(type == 'payer'){
+                    this.setState({claimResponseJson:resrc})
+                }
                 console.log("Resource json---", this.state.resourceJson);
             });
+        }
+        else if(searchResponse['total'] == 0){
+            this.setState({searchResponse:"It Seems like the Claim  has not been processed yet. Please try agian after some time !!"})
         }
     }
 
@@ -275,7 +285,7 @@ export default class Review extends Component {
                             console.log("Requirement-----", response[0].requirements[req]);
                             var code = response[0].requirements[req][res_type]['codes'][0]['code'];
                             if (res_type !== 'EpisodeOfCare' && res_type !== 'Location') {
-                                self.searchFHIR(fhirClient, res_type, "code=" + code);
+                                self.searchFHIR(fhirClient, res_type, "code=" + code,'provider');
                             }
                         });
                     }
@@ -303,8 +313,13 @@ export default class Review extends Component {
     refreshApp() {
         withRouter(({ history }) => (history.push('/')))
     }
-    getClaimResponse(claim_id){
-
+    async getClaimResponse(claim_id){
+        const fhirClient = new Client({ baseUrl: 'http://54.227.173.76:8280/payer_fhir/baseDstu3/' });
+        const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
+        fhirClient.bearerToken = token;
+        var self = this;
+        this.searchFHIR(fhirClient,'ClaimResponse','request='+claim_id,'payer')
+        console.log('in responsess')
         let crj = {"resourceType": "ClaimResponse",
                     "id": "R3500",
                     "text": {
@@ -351,7 +366,7 @@ export default class Review extends Component {
                     
                     }
         crj['request']['identifier']['value'] = claim_id;
-        this.setState({claimResponseJson:crj})
+        // this.setState({claimResponseJson:crj})
         this.setState({show_res : true});
     }
     syntaxHighlight(json) {
@@ -504,7 +519,12 @@ export default class Review extends Component {
                                                 </div>
                                                 {this.state.show_res && 
                                                 <div>Claim Response:
-                                                    <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre>
+                                                    {(this.state.searchResponse===''||this.state.searchResponse===null) &&
+                                                        <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre>
+                                                    }
+                                                    {(this.state.searchResponse!==''||this.state.searchResponse!==null) &&
+                                                        <div className='claimResponse'>{this.state.searchResponse}</div>
+                                                    }
                                                 </div>
                                                 }
                                             </div>

@@ -499,6 +499,7 @@ export default class CoverageDetermination extends Component {
     let request = {
       resourceType:'Claim',
       status:'draft',
+      
       contained: [this.state.resourceJson
         
       ],

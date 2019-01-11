@@ -364,6 +364,8 @@ class ProviderRequest extends Component {
               this.setState({response: res_json});
             }
         this.setState({loading:false});
+        window.scrollTo(0, 0)
+        console.log('after scroll')
         }catch(error){
             this.setState({loading:false});
             this.consoleLog("Unexpected error occured",types.error)

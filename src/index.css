@@ -430,3 +430,7 @@ pre {background: white; padding: 5px; margin: 5px; height: 250px;}
 .claim_res_div{
   margin-top: 80px;
 }
+.claimResponse{
+  color:#c16620;
+  padding:10px 0px;
+}
