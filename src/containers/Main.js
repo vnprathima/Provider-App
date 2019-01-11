@@ -209,6 +209,7 @@ export default class Review extends Component {
                 }
                 console.log("Resource json---", this.state.resourceJson);
             });
+            this.setState({searchResponse:''});
         }
         else if(searchResponse['total'] == 0){
             this.setState({searchResponse:"It Seems like the Claim  has not been processed yet. Please try agian after some time !!"})
