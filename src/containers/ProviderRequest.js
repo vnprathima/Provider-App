@@ -178,8 +178,8 @@ class ProviderRequest extends Component {
         this.setState({validateFhirUrl:true});
       }
       if(this.state.accessToken==''||this.state.accessToken==null){
-        formValidate=false;
-        this.setState({validateAccessToken:true});
+        //formValidate=false;
+        this.setState({validateAccessToken:false});
       }
       return formValidate;
     }
@@ -195,7 +195,9 @@ class ProviderRequest extends Component {
       console.log(resourceType,resourceId)
     
       const fhirClient = new Client({ baseUrl: this.state.fhirUrl });
-      fhirClient.bearerToken = this.state.accessToken;
+      if(config.authorized_fhir){
+	      fhirClient.bearerToken = this.state.accessToken;
+	}
       let readResponse = await fhirClient.read({ resourceType: resourceType, id: resourceId });
       // prefetchData= readResponse;
       console.log('REad Rsponse',readResponse )
@@ -233,19 +235,17 @@ class ProviderRequest extends Component {
       docs.push(prefectInput);
       
       console.log('docs:',docs);
-      var prefetchData=[];
+      var prefetchData={};
       
       // console.log(prefetchData,'pr');
       for(var key in docs[0]){
         var val = docs[0][key]
         console.log("Key-----",key,"value---",val);
         if (key === 'patientId'){
-            key = 'Patient'
-            // val = 'c8e705a6-2a35-4d63-82ec-59301842d79d'
+            key = 'Patient';
         }
         if (val !== ''){
-          prefetchData.push(await self.readFHIR(key,val));
-
+          prefetchData[key.toLowerCase()] = await self.readFHIR(key,val);
         }
       }
       return prefetchData;

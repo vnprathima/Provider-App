@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import queryString from 'query-string';
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
+import config from '../properties.json';
 
 export default class Review extends Component {
   constructor(props){
@@ -41,13 +42,14 @@ export default class Review extends Component {
       var settings = this.getSettings();
       this.clearAuthToken();
       const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-      var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+      if (config.authorized_fhir === true){
+         var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
       
-      if(settings.api_server_uri.search('54.227.173.76') > 0){
-        authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
-        tokenUrl = {protocol:"https:",host:"54.227.173.76:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
-      }
-      const oauth2 = simpleOauthModule.create({
+         if(settings.api_server_uri.search('18.222.7.99') > 0){
+           authorizeUrl = {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
+           tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+         }
+         const oauth2 = simpleOauthModule.create({
           client: {
           id: settings.client_id,
           secret:settings.secret
@@ -59,18 +61,22 @@ export default class Review extends Component {
           authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
           authorizePath: authorizeUrl.pathname,
           },
-      });
+         });
 
-      console.log("Current URL--",`${window.location.protocol}//${window.location.host}/index`);
-      // Authorization uri definition
-      const authorizationUri = oauth2.authorizationCode.authorizeURL({
-          redirect_uri: `${window.location.protocol}//${window.location.host}/index`,
-          aud: settings.api_server_uri,
-          scope: settings.scope,
-          state: '3(#0/!~',
-      });
+         console.log("Current URL--",`${window.location.protocol}//${window.location.host}/index`);
+         // Authorization uri definition
+         const authorizationUri = oauth2.authorizationCode.authorizeURL({
+             redirect_uri: `${window.location.protocol}//${window.location.host}/index`,
+             aud: settings.api_server_uri,
+             scope: settings.scope,
+             state: '3(#0/!~',
+         });
 
-      window.location = authorizationUri;
+         window.location = authorizationUri;
+	}
+        if (!config.authorized_fhir){
+        	window.location = `${window.location.protocol}//${window.location.host}/index`;
+      	}
   }
 
   render() {

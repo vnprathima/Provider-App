@@ -156,11 +156,13 @@ export default class Review extends Component {
     async createFhirResource() {
         this.setState({loading:true});
         let claim_json = await this.getClaimJson();
-        
-        const fhirClient = new Client({ baseUrl: config.payer_fhir });
-        var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-        authorizeUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/auth" }
-        tokenUrl = { protocol: "https://", host: "54.227.173.76:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/token" }
+        try {	
+	        const fhirClient = new Client({ baseUrl: config.payer_fhir });
+	console.log("config authorized---",config.authorized_fhir);
+        //if (config.authorized_fhir){
+        	var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+	        authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/auth" }
+        	tokenUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/token" }
         // const oauth2 = simpleOauthModule.create({
         //     client: {
         //         id: config.client
@@ -174,12 +176,13 @@ export default class Review extends Component {
         //     },
         // });
         // const options = {code : this.state.code, redirect_uri : `${window.location.protocol}//${window.location.host}/index`, client_id : "app-login"};
-        try {
+        
             // const result = await oauth2.authorizationCode.getToken(options);
             // const { token } = oauth2.accessToken.create(result);
             const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
             // console.log('The token is : ', token);
             fhirClient.bearerToken = token;
+	//}
             fhirClient.create({
                 resourceType: 'Claim',
                 body: claim_json,
@@ -240,31 +243,34 @@ export default class Review extends Component {
 
     async authorize() {
         var settings = this.getSettings();
-        const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-        var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-        if(settings.api_server_uri.search('54.227.173.76') > 0){
-            authorizeUrl = {protocol:"https://",host:"54.227.173.76:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
-            tokenUrl = {protocol:"https:",host:"54.227.173.76:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
-        }
-        const oauth2 = simpleOauthModule.create({
-            client: {
-                id: settings.client_id
-            },
-            auth: {
-                tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
-                // tokenHost: "https://54.227.173.76:8443/",
-                tokenPath: tokenUrl.pathname,
-                authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
-                authorizePath: authorizeUrl.pathname,
-            },
-        });
-        const options = { code: this.state.code, redirect_uri: `${window.location.protocol}//${window.location.host}/index`, client_id: "app-login" };
         try {
+		const fhirClient = new Client({ baseUrl: settings.api_server_uri });
+	if (config.authorized_fhir){	
+	        var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+        	if(settings.api_server_uri.search('18.222.7.99') > 0){
+	            authorizeUrl = {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
+        	    tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+	        }
+        	const oauth2 = simpleOauthModule.create({
+            	client: {
+                	id: settings.client_id
+	            },
+        	    auth: {
+                	tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
+	                // tokenHost: "https://54.227.173.76:8443/",
+	                tokenPath: tokenUrl.pathname,
+        	        authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
+                	authorizePath: authorizeUrl.pathname,
+	            },
+        	});
+	        const options = { code: this.state.code, redirect_uri: `${window.location.protocol}//${window.location.host}/index`, client_id: "app-login" };
+        
             const result = await oauth2.authorizationCode.getToken(options);
             const { token } = oauth2.accessToken.create(result);
             sessionStorage.getItem("tokenResponse", token.access_token);
             console.log('The token is : ', token);
             fhirClient.bearerToken = token.access_token;
+	}
             const url = config.crd_url + "smart_app";
             console.log("fetching data from " + url)
             var self = this;
