@@ -40,7 +40,6 @@ import config from '../properties.json';
 import {KEYUTIL} from 'jsrsasign';
 import {createToken} from '../components/Authentication';
 // import Cookies from 'universal-cookie';
-
 // const cookies = new Cookies();
 
 const types = {
@@ -56,7 +55,7 @@ class ProviderRequest extends Component {
     super(props);
     this.state = {
         patient:null,
-        fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
+        fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'http://launch.smarthealthit.org/v/r3/fhir ',
         accessToken:'',
         scope:'',
         payer:'',

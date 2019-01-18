@@ -30,7 +30,7 @@ export default class Review extends Component {
             resourceDataJson:[],
             loading: false,
             token_error: false,
-            claim_type : 'Claim'
+            claim_type : 'Claim',
         }
         this.authorize();
         this.searchFHIR = this.searchFHIR.bind(this);
@@ -274,6 +274,7 @@ export default class Review extends Component {
             const url = config.crd_url + "smart_app";
             console.log("fetching data from " + url)
             var self = this;
+            var patientId='';
             fetch(url, {
                 method: "POST",
                 headers: {
@@ -290,6 +291,7 @@ export default class Review extends Component {
                     console.log(response[0].appData,'heres the value',response[0].appData[key],key)
                     if (key === 'patientId') {
                         key = 'Patient'
+                        patientId= val
                     }
                     else if(key === 'Practitioner'){
                         self.searchFHIR(fhirClient,key,'identifier='+val,'provider')
@@ -300,11 +302,12 @@ export default class Review extends Component {
                 });
                 var docs = [];
                 response[0].requirements.map((i, req) => {
+                    
                     if (Object.prototype.toString.call(response[0].requirements[req]) !== '[object Array]' && typeof response[0].requirements[req] != "string") {
                         Object.keys(response[0].requirements[req]).forEach(function (res_type) {
                             var code = response[0].requirements[req][res_type]['codes'][0]['code'];
                             if (res_type !== 'EpisodeOfCare' && res_type !== 'Location') {
-                                self.searchFHIR(fhirClient, res_type, "code=" + code,'provider');
+                                self.searchFHIR(fhirClient, res_type, "code=" + code+"&patient="+patientId,'provider');
                             }
                         });
                     }
