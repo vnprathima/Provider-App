@@ -404,7 +404,7 @@ class ProviderRequest extends Component {
       return (
         <React.Fragment>
           <div>
-            <div className="main_heading">HEALTH INSURANCE REQUEST FORM <Button className={'logout'} onClick={this.onClickLogout}>Logout</Button></div>
+            <div className="main_heading">HEALTH INSURANCE REQUEST FORM <p className={'logout'}>User: <span>{sessionStorage.getItem('username')}</span> <Button  onClick={this.onClickLogout}>Logout</Button></p></div>
             <div className="content">
               <div className="left-form">
               <div>
@@ -800,12 +800,7 @@ class ProviderRequest extends Component {
           orders: {
             resourceType: "Bundle",
             entry: [
-              {
-                resource:{
-                  resourceType:"Patient",
-                  id:patientId
-                }
-              },
+        
             ]
           }
         }

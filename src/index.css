@@ -449,3 +449,6 @@ pre {background: white; padding: 5px; margin: 5px; height: 250px;}
     color: indianred;
     margin-top: 170px;
 }
+.LoggedInUser{
+  color:black;
+}
