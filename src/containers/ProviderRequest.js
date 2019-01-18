@@ -59,7 +59,7 @@ class ProviderRequest extends Component {
         fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
         accessToken:'',
         scope:'',
-        payer:'medicare-fee-for-service',
+        payer:'',
         patientId:'',
         practitionerId:'',
         resourceType:null,
@@ -431,7 +431,6 @@ class ProviderRequest extends Component {
                     <div className="dropdown">
                       <DropdownPayer
                           elementName='payer'
-                          value={this.state.payer}
                           updateCB={this.updateStateElement}
                           />
                   </div>

@@ -219,7 +219,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
         if (!this.props.isDemoCard) {
           return (
             <div className={styles['card-source']}>
-              Source: <a className={styles['source-link']} href={source.url || '#'} onClick={e => this.launchSource(e)}>{source.label}</a>
+              Source: <a className={styles['source-link']} href={source.url || '#'} target="_blank">{source.label}</a>
               {icon}
             </div>
           );

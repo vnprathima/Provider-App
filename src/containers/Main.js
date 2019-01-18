@@ -287,8 +287,12 @@ export default class Review extends Component {
             }).then((response) => {
                 Object.keys(response[0].appData).forEach(function (key) {
                     var val = response[0].appData[key]
+                    console.log(response[0].appData,'heres the value',response[0].appData[key],key)
                     if (key === 'patientId') {
                         key = 'Patient'
+                    }
+                    else if(key === 'Practitioner'){
+                        self.searchFHIR(fhirClient,key,'identifier='+val,'provider')
                     }
                     if (val !== '') {
                         self.readFHIR(fhirClient, key, val);
