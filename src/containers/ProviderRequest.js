@@ -9,6 +9,7 @@ import DropdownCDSHook from '../components/DropdownCDSHook';
 import DropdownFrequency from '../components/DropdownFrequency';
 //import DropdownMedicationList from '../components/DropdownMedicationList';
 import DropdownTreating from '../components/DropdownTreating';
+import DropdownPayer from '../components/DropdownPayer';
 import {Input,Button} from 'semantic-ui-react';
 //import rxnorm from '../medication-list';
 //import NumericInput from 'react-numeric-input';
@@ -55,9 +56,10 @@ class ProviderRequest extends Component {
     super(props);
     this.state = {
         patient:null,
-        fhirUrl:'',
+        fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
         accessToken:'',
         scope:'',
+        payer:'medicare-fee-for-service',
         patientId:'',
         practitionerId:'',
         resourceType:null,
@@ -94,6 +96,8 @@ class ProviderRequest extends Component {
         frequency:null,
       errors: {},
     }
+    
+    
     this.validateMap={
         status:(foo=>{return foo!=="draft" && foo!=="open"}),
         code:(foo=>{return !foo.match(/^[a-z0-9]+$/i)})
@@ -172,14 +176,6 @@ class ProviderRequest extends Component {
       if(this.state.hook==''||this.state.hook==null){
         formValidate=false;
         this.setState({validateIcdCode:true});
-      }
-      if(this.state.fhirUrl==''||this.state.fhirUrl==null){
-        formValidate=false;
-        this.setState({validateFhirUrl:true});
-      }
-      if(this.state.accessToken==''||this.state.accessToken==null){
-        //formValidate=false;
-        this.setState({validateAccessToken:false});
       }
       return formValidate;
     }
@@ -429,6 +425,18 @@ class ProviderRequest extends Component {
                 </div>
                 <div>
                   <div>
+                  <div className="header">
+                          Payer
+                      </div>
+                    <div className="dropdown">
+                      <DropdownPayer
+                          elementName='payer'
+                          value={this.state.payer}
+                          updateCB={this.updateStateElement}
+                          />
+                  </div>
+                  </div>
+                  {/* <div>
                       <div className="header">
                             Your Fhir URL*
                     </div>
@@ -449,9 +457,9 @@ class ProviderRequest extends Component {
                     {this.state.validateAccessToken === true  &&
                       <div className='errorMsg dropdown'>{config.errorMsg}</div>
                     }
-                  </div>
+                  </div> */}
                   <div className="header">
-                          Patient's ID*
+                          Beneficiary ID*
                   </div>
                   <div className="dropdown">
                       <Input className='ui fluid   input' type="text" name="patient" fluid value={this.state.patientId} onChange={this.onPatientChange}></Input>
@@ -502,7 +510,7 @@ class ProviderRequest extends Component {
                   </div>
                   <div>
                     <div className="header">
-                            Practitioner ID
+                            NPI
                     </div>
                     <div className="dropdown">
                       <Input className='ui  fluid input' type="text" name="practitioner" fluid value={this.state.practitionerId} onChange={this.onPractitionerChange}></Input>
@@ -523,7 +531,7 @@ class ProviderRequest extends Component {
                       />
                       </div>
                   </div> */}
-                  <div>
+                  {/* <div>
                     <div className="header">
                             Encounter ID
                     </div>
@@ -539,7 +547,7 @@ class ProviderRequest extends Component {
                     <div className="dropdown">
                       <Input className='ui fluid  input' type="text" name="coverage" fluid value={this.state.coverageId} onChange={this.onCoverageChange}></Input>
                     </div>
-                  </div>
+                  </div> */}
                   {/* <div>
                     <div className="header">
                         SNOMED/HCPCS Code
@@ -665,9 +673,9 @@ class ProviderRequest extends Component {
                 
                 </div>
                 }
-                {this.state.request === 'coverage-requirement' && this.state.auth_active !== 'active' &&
+                {/* {this.state.request === 'coverage-requirement' && this.state.auth_active !== 'active' &&
                       <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
-                      }
+                      } */}
 
                 <button className="submit-btn btn btn-class button-ready" onClick={this.startLoading}>Submit
                     <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
@@ -769,6 +777,8 @@ class ProviderRequest extends Component {
         }
 
       };
+        console.log(this.state.fhirUrl,'fhirUrl');
+
       let request = {
         hookInstance: config.provider_hook_instance,
         // fhirServer: sessionStorage.getItem('fhir_url'),
