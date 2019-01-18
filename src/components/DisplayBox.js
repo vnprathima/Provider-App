@@ -229,7 +229,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
             Source:
             <a // eslint-disable-line jsx-a11y/anchor-is-valid
               className={styles['source-link']}
-              href="#"
+              href={source.url || '#'}
               onClick={e => this.launchSource(e)}
             >
               {source.label}

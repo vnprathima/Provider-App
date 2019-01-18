@@ -13,10 +13,17 @@ export default class Review extends Component {
     }
     this.initialize = this.initialize.bind(this);   
        
-    this.initialize({
-          client_id: "app-token",
+    if (sessionStorage.getItem('username') === 'john'){
+      this.initialize({
+          client_id: "app-login",
           scope: "patient/* openid profile"
         });
+    } else {
+        this.initialize({
+          client_id: "385b8e12-722f-4c43-9ab1-7c2aed14004e",
+          scope: "patient/* openid profile"
+        });
+    }
   }
   setSettings(data) {
     sessionStorage.setItem("app-settings", JSON.stringify(data));
@@ -32,7 +39,7 @@ export default class Review extends Component {
   async initialize(settings) {
       sessionStorage.removeItem('app-settings');
       this.setSettings({
-          client_id     : "app-login",
+          client_id     :  settings.client_id,
           secret        : "7e5e0e32-0dcd-4f6f-9b72-d0021e08c0e",
           scope         : settings.scope + " launch",
           launch_id     : this.state.launch,
