@@ -409,6 +409,12 @@ export default class Review extends Component {
                     </div>);
             }
         });
+        const documents = this.state.docs.map((res, index) => {
+                return (
+                    <div key={index}>
+                        <div><span>{index+1}. </span>{res}</div>
+                    </div>);
+        });
         const resourceData = this.state.resourceJson.map((res, index) => {
             if (res.hasOwnProperty('resourceType')) {
                 return (
@@ -453,7 +459,7 @@ export default class Review extends Component {
                                         </span>
                                         <div className="">
                                             <div className="left-col">Required Documents</div>
-                                            <div className="right-col">{this.state.docs.join(', ')}</div>
+                                            <div className="right-col">{documents}</div>
                                         </div>
                                         <div className="drop-box">
                                             <section>
