@@ -293,10 +293,10 @@ export default class Review extends Component {
                         key = 'Patient'
                         patientId= val
                     }
-                    else if(key === 'Practitioner'){
+                    if(key === 'Practitioner' && val !== ''){
                         self.searchFHIR(fhirClient,key,'identifier='+val,'provider')
                     }
-                    if (val !== '') {
+                    if (val !== '' && key !== 'Practitioner') {
                         self.readFHIR(fhirClient, key, val);
                     }
                 });
