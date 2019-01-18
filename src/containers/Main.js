@@ -161,8 +161,8 @@ export default class Review extends Component {
 	console.log("config authorized---",config.authorized_fhir);
         //if (config.authorized_fhir){
         	var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-	        authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/auth" }
-        	tokenUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ClientFhirServer/protocol/openid-connect/token" }
+	        authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
+        	tokenUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
         // const oauth2 = simpleOauthModule.create({
         //     client: {
         //         id: config.client
@@ -248,8 +248,8 @@ export default class Review extends Component {
 	if (config.authorized_fhir){	
 	        var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
         	if(settings.api_server_uri.search('18.222.7.99') > 0){
-	            authorizeUrl = {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/auth"}
-        	    tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ClientFhirServer/protocol/openid-connect/token"}
+	            authorizeUrl = {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/auth"}
+        	    tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/token"}
 	        }
         	const oauth2 = simpleOauthModule.create({
             	client: {
