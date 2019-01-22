@@ -336,7 +336,7 @@ export default class Review extends Component {
                     else if(key === 'Practitioner'){
                         self.searchFHIR(fhirClient,key,'identifier='+ val,'provider')
                     }
-                    if (val !== '') {
+                    if (val !== '' && key !== 'Practitioner') {
                         self.readFHIR(fhirClient, key, val);
                     }
                 });
@@ -459,6 +459,12 @@ export default class Review extends Component {
                     </div>);
                     
         });
+        const documents = this.state.docs.map((res, index) => {
+                return (
+                    <div key={index}>
+                        <div><span>{index+1}. </span>{res}</div>
+                    </div>);
+        });
         const resourceData = this.state.resourceJson.map((res, index) => {
             delete res.id;
                 return (
@@ -512,7 +518,7 @@ export default class Review extends Component {
                                         </span>
                                         <div className="">
                                             <div className="left-col">Required Documents</div>
-                                            <div className="right-col">{this.state.docs.join(', ')}</div>
+                                            <div className="right-col">{documents}</div>
                                         </div>
                                         <div className="drop-box">
                                             <section>
