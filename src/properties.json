@@ -10,6 +10,18 @@
     "debug": "debugClass",
     "warning": "warningClass"
   },
+  "user_profiles":[{
+    "username":"john",
+    "name":"John",
+    "npi":"1932102951"
+    },
+    {
+      "username":"mary",
+      "name":"Mary",
+      "npi":"1932102952"
+
+    }
+  ],
   "authorized_fhir": true,
   "payer_fhir": "http://18.222.7.99:8280/payer_fhir/baseDstu3/",
   "provider_login_params": {

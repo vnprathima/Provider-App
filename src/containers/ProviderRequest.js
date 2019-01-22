@@ -21,6 +21,8 @@ import { withRouter } from 'react-router-dom';
 import orderReview from "../Order-Review.json";
 import liverTransplant from "../liver-transplant.json";
 import Client from 'fhir-kit-client';
+import JSONTree from 'react-json-tree';
+import ReactJson from 'react-json-view'
 
 
 
@@ -60,7 +62,7 @@ class ProviderRequest extends Component {
         scope:'',
         payer:'',
         patientId:'',
-        practitionerId:'',
+        practitionerId:sessionStorage.getItem('npi'),
         resourceType:null,
         resourceTypeLT:null,
         encounterId:'',
@@ -200,10 +202,9 @@ class ProviderRequest extends Component {
       // this.setState({prefetchData: readResponse});
       // console.log("Resource json---",this.state.prefetchData);
     }
-  
 
     async getPrefetchData() {
-      console.log(this.state.hook);
+      console.log(this.state.hook);   
       var docs=[];
       if(this.state.hook === "patient-view" ){
         var prefectInput = {"Patient":this.state.patientId};
@@ -403,7 +404,7 @@ class ProviderRequest extends Component {
       return (
         <React.Fragment>
           <div>
-            <div className="main_heading">HEALTH INSURANCE REQUEST FORM <p className={'logout'}>User: <span>{sessionStorage.getItem('username')}</span> <Button  onClick={this.onClickLogout}>Logout</Button></p></div>
+            <div className="main_heading">HEALTH INSURANCE REQUEST FORM <p className={'logout'}>User: <span>{sessionStorage.getItem('name')}</span> <Button  onClick={this.onClickLogout}>Logout</Button></p></div>
             <div className="content">
               <div className="left-form">
               <div>
@@ -685,7 +686,6 @@ class ProviderRequest extends Component {
                     />
                     </div>
                       </button>
-                      
               </div>
               {this.state.request === 'coverage-requirement' &&
                 <div className="right-form">

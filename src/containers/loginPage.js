@@ -5,6 +5,7 @@ import config from '../properties.json';
 import {Input,Button} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import Loader from 'react-loader-spinner';
+var humps = require('humps');
 
 class LoginPage extends React.Component {
   constructor(props){
@@ -56,8 +57,15 @@ class LoginPage extends React.Component {
     let tokenResponse = await createToken(this.state.name,this.state.password);
     if(tokenResponse !==null && tokenResponse !==undefined){
         console.log('in if and token is---',tokenResponse) 
+        
         sessionStorage.setItem('username', this.state.name);
         sessionStorage.setItem('password', this.state.password);
+        for(var key in config.user_profiles){
+          if(this.state.name===config.user_profiles[key].username){
+            sessionStorage.setItem('npi',config.user_profiles[key].npi);
+            sessionStorage.setItem('name',config.user_profiles[key].name);
+          }
+        }
         sessionStorage.setItem('isLoggedIn', true);
         this.props.history.push('/provider_request');
     }

@@ -12,6 +12,9 @@ import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import Dropzone from 'react-dropzone';
 import deepIterator from 'deep-iterator';
 import { createToken } from '../components/Authentication';
+import ReactJson from 'react-json-view'
+
+var pascalcaseKeys = require('pascalcase-keys');
 
 export default class Review extends Component {
     constructor(props) {
@@ -38,14 +41,51 @@ export default class Review extends Component {
 
         this.createFhirResource = this.createFhirResource.bind(this);
         this.reLaunch = this.reLaunch.bind(this);
+        this.indexOfFile = this.indexOfFile.bind(this);
+    }
+    indexOfFile(file){
+        for (var i = 0; i < this.state.files.length; i++) {
+            console.log(this.state.files[i].name,file.name,'lets check')
+            if (this.state.files[i].name == file.name ) {
+                return i;
+            }
+
+        }
+        return -1;
+        
     }
 
     onDrop(files) {
-        this.setState({ files });
+
+        let new_files= [];
+
+        new_files=this.state.files;
+        // new_files.concat(this.state.files);
+        // let old_files= this.state.files;
+        for( var i = 0; i < files.length; i++){ 
+            console.log(files[i],'what file', JSON.stringify(this.state.files).indexOf(JSON.stringify(files[i])), this.state.files)
+            if ( this.indexOfFile(files[i]) == - 1 ) {
+                console.log(this.indexOfFile(files[i]),i)
+                new_files=this.state.files.concat(files);
+            }
+         }
+        // if( this.state.files.every((value, index) => value !== files[index])){
+        //     new_files= this.state.files.concat(files);
+        //     console.log('includes')
+        // }
+        this.setState({ files:new_files });
+        console.log(new_files,'oooo')
+        
     }
-    onCancel() {
+    onCancel(file) {
+        let new_files = this.state.files;
+        for( var i = 0; i < new_files.length; i++){ 
+            if ( new_files[i] === file) {
+                new_files.splice(i, 1); 
+            }
+         }
         this.setState({
-            files: []
+            files: new_files
         });
     }
     onRemove(file){
@@ -294,7 +334,7 @@ export default class Review extends Component {
                         patientId= val
                     }
                     else if(key === 'Practitioner'){
-                        self.searchFHIR(fhirClient,key,'identifier='+val,'provider')
+                        self.searchFHIR(fhirClient,key,'identifier='+ val,'provider')
                     }
                     if (val !== '') {
                         self.readFHIR(fhirClient, key, val);
@@ -401,22 +441,41 @@ export default class Review extends Component {
             </div>
         ))
         const resourceMainData = this.state.resourceDataJson.map((res, index) => {
-            if (res.hasOwnProperty('resourceType')) {
+                delete res.id;
                 return (
                     <div key={index}>
                         <div className="header">{res.resourceType}</div>
-                        {this.renderObject(res)}
+                        {/* {this.renderObject(res)} */}
+                        <ReactJson  className="dropdown"
+                            enableClipboard={false} 
+                            collapsed={1} 
+                            indentWidth={4}
+                            theme="shapeshifter:inverted"
+                            name= {false}
+                            iconStyle="triangle"
+                            displayObjectSize={false}
+                            displayDataTypes={false}
+                            src={pascalcaseKeys(res)} />
                     </div>);
-            }
+                    
         });
         const resourceData = this.state.resourceJson.map((res, index) => {
-            if (res.hasOwnProperty('resourceType')) {
+            delete res.id;
                 return (
                     <div key={index}>
                         <div className="header">{res.resourceType}</div>
-                        {this.renderObject(res)}
+                        {/* {this.renderObject(res)} */}
+                        <ReactJson  
+                            enableClipboard={false} 
+                            collapsed={1} 
+                            indentWidth={4}
+                            theme="shapeshifter:inverted"
+                            name= {false}
+                            iconStyle="triangle"
+                            displayObjectSize={false}
+                            displayDataTypes={false}
+                            src={pascalcaseKeys(res)} />
                     </div>);
-            }
         });
         if (!this.hasAuthToken()) {
             if (this.state.code) {
