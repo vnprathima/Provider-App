@@ -198,31 +198,9 @@ export default class Review extends Component {
         let claim_json = await this.getClaimJson();
         try {	
 	        const fhirClient = new Client({ baseUrl: config.payer_fhir });
-	console.log("config authorized---",config.authorized_fhir);
-        //if (config.authorized_fhir){
-        	var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-	        authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
-        	tokenUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
-        // const oauth2 = simpleOauthModule.create({
-        //     client: {
-        //         id: config.client
-        //     },
-        //     auth: {
-        //         // tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
-        //         tokenHost: "https://54.227.173.76:8443/",
-        //         tokenPath: tokenUrl.pathname,
-        //         authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
-        //         authorizePath: authorizeUrl.pathname,
-        //     },
-        // });
-        // const options = {code : this.state.code, redirect_uri : `${window.location.protocol}//${window.location.host}/index`, client_id : "app-login"};
-        
-            // const result = await oauth2.authorizationCode.getToken(options);
-            // const { token } = oauth2.accessToken.create(result);
             const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
-            // console.log('The token is : ', token);
+            console.log('The token is : ', token);
             fhirClient.bearerToken = token;
-	//}
             fhirClient.create({
                 resourceType: 'Claim',
                 body: claim_json,
@@ -574,9 +552,9 @@ export default class Review extends Component {
                                                 <div>
                                                     <strong>Success:</strong>{this.state.claimResponse.message}
                                                 </div>
-                                                <div>
+                                                {/* <div>
                                                     Checking with the CDS service.
-                                                </div>
+                                                </div> */}
                                                 <div>
                                                     Check for the {this.state.claim_type} status <button onClick={() => this.getClaimResponse(this.state.claim_id)}>Get {this.state.claim_type} Status</button>
                                                 </div>
