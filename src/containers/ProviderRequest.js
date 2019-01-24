@@ -57,7 +57,7 @@ class ProviderRequest extends Component {
     super(props);
     this.state = {
         patient:null,
-        fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'http://launch.smarthealthit.org/v/r3/fhir ',
+        fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
         accessToken:'',
         scope:'',
         payer:'',

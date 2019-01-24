@@ -35,6 +35,7 @@ export default class Review extends Component {
             token_error: false,
             claim_type : 'Claim',
         }
+        console.log(this.state.code,'code',this.props.location.search)
         this.authorize();
         this.searchFHIR = this.searchFHIR.bind(this);
         this.onRemove=this.onRemove.bind(this);
@@ -74,7 +75,6 @@ export default class Review extends Component {
         //     console.log('includes')
         // }
         this.setState({ files:new_files });
-        console.log(new_files,'oooo')
         
     }
     onCancel(file) {
@@ -105,7 +105,8 @@ export default class Review extends Component {
     async getClaimJson() {
         var patient_details = '';
         var practitioner_details = '';
-        var procedure_details = '';
+        var procedure_details = [];
+        var condition_details=[];
         var fileInputData = {
             "resourceType": "Communication",
             "id": "376",
@@ -132,7 +133,10 @@ export default class Review extends Component {
                         practitioner_details = this.state.resourceJson[x]
                     }
                     else if (this.state.resourceJson[x].resourceType === 'Procedure') {
-                        procedure_details = this.state.resourceJson[x]
+                        procedure_details.push(this.state.resourceJson[x])
+                    }
+                    else if (this.state.resourceJson[x].resourceType === 'Condition') {
+                        condition_details.push(this.state.resourceJson[x])
                     }
 
                 }
@@ -147,6 +151,18 @@ export default class Review extends Component {
                 }
             }
         }
+        let procedure_sequence = 1;
+        for(var key in procedure_details){
+            procedure_details[key].sequence = procedure_sequence;
+            procedure_sequence++;
+        }
+        let condition_sequence = 1;
+        for(var key in condition_details){
+            condition_details[key].sequence = condition_sequence;
+            condition_sequence++;
+        }
+        console.log(condition_details,procedure_details,'condition_Details')
+        
         var contained = this.state.resourceJson.concat(this.state.resourceDataJson);
         console.log("Contained--",contained);
         let request = {
@@ -157,6 +173,7 @@ export default class Review extends Component {
                 reference: "#" + patient_details.id
             },
             procedure: procedure_details,
+            diagnosis: condition_details,
             use: { code: 'claim' },
             type: {
                 coding: [
@@ -199,6 +216,7 @@ export default class Review extends Component {
         }
         console.log("Resource Json before communication--", this.state.resourceJson);
         request.contained.push(fileInputData);
+        console.log('request:',request)
         console.log("Resource Json after communication--", this.state.resourceJson);
         return request;
     }
@@ -274,9 +292,11 @@ export default class Review extends Component {
     async authorize() {
         var settings = this.getSettings();
         try {
+        console.log(settings.api_server_uri,'server uri')
 		const fhirClient = new Client({ baseUrl: settings.api_server_uri });
 	if (config.authorized_fhir){	
-	        var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+            var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
+            console.log(authorizeUrl,tokenUrl,'here')
         	if(settings.api_server_uri.search('18.222.7.99') > 0){
 	            authorizeUrl = {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/auth"}
         	    tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/token"}
@@ -292,9 +312,9 @@ export default class Review extends Component {
         	        authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
                 	authorizePath: authorizeUrl.pathname,
 	            },
-        	});
+            });
 	        const options = { code: this.state.code, redirect_uri: `${window.location.protocol}//${window.location.host}/index`, client_id: settings.client_id };
-        
+            console.log(oauth2,'oauth2',options)
             const result = await oauth2.authorizationCode.getToken(options);
             const { token } = oauth2.accessToken.create(result);
             sessionStorage.getItem("tokenResponse", token.access_token);
@@ -473,6 +493,7 @@ export default class Review extends Component {
                             src={pascalcaseKeys(res)} />
                     </div>);
         });
+        console.log(this.state.code,'sss',this.hasAuthToken());
         if (!this.hasAuthToken()) {
             if (this.state.code) {
                 this.authorize();
