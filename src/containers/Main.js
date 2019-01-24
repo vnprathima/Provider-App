@@ -138,11 +138,21 @@ export default class Review extends Component {
                 }
             }
         }
-        var contained = this.state.resourceJson;
+        if (this.state.resourceDataJson.length > 0) {
+            for (var x = 0; x < this.state.resourceDataJson.length; x++) {
+                if (this.state.resourceDataJson[x].hasOwnProperty('resourceType')) {
+                    if (this.state.resourceDataJson[x].resourceType === 'Patient') {
+                        patient_details = this.state.resourceDataJson[x]
+                    }
+                }
+            }
+        }
+        var contained = this.state.resourceJson.concat(this.state.resourceDataJson);
+        console.log("Contained--",contained);
         let request = {
             resourceType: 'Claim',
             status: 'draft',
-            contained: this.state.resourceJson,
+            contained: contained,
             patient: {
                 reference: "#" + patient_details.id
             },
@@ -254,6 +264,8 @@ export default class Review extends Component {
     async readFHIR(fhirClient, resourceType, resourceId) {
         var resourceDataJson = this.state.resourceDataJson;
         let readResponse = await fhirClient.read({ resourceType: resourceType, id: resourceId });
+        readResponse.id = resourceId;
+        console.log("patient read---",readResponse);
         resourceDataJson.push(readResponse)
         this.setState({ resourceDataJson: resourceDataJson });
         console.log("Resource json---", this.state.resourceDataJson);
@@ -419,7 +431,7 @@ export default class Review extends Component {
             </div>
         ))
         const resourceMainData = this.state.resourceDataJson.map((res, index) => {
-                delete res.id;
+                // delete res.id;
                 return (
                     <div key={index}>
                         <div className="header">{res.resourceType}</div>
@@ -444,7 +456,7 @@ export default class Review extends Component {
                     </div>);
         });
         const resourceData = this.state.resourceJson.map((res, index) => {
-            delete res.id;
+            // delete res.id;
                 return (
                     <div key={index}>
                         <div className="header">{res.resourceType}</div>

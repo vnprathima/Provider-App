@@ -205,15 +205,7 @@ export default class CoverageDetermination extends Component {
         "Content-Type": "application/json",
         "authorization": token,
     });
-    // let url = '';
-    // if (this.state.prior_auth) {
-    //   url = config.provider_prior_authorization_url;
-    // }
-    // else {
-    //   console.log(this.state.prior_auth, '----------')
-    //   url = config.provider_coverage_decision_url;
-    // }
-    let url = config.provider_coverage_decision_url
+    let url = config.crd_url + '' + config.provider_coverage_decision_url
     console.log("Fetching response from " + url + ",types.info")
     this.consoleLog("Fetching response from " + url + ",types.info")
     try {

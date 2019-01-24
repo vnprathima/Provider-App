@@ -218,7 +218,7 @@ export default class RequestBuilder extends Component{
       });
             this.consoleLog("Fetching response from"+config.provider_order_review_url+",types.info")
           try{
-            const fhirResponse= await fetch(config.provider_order_review_url,{
+            const fhirResponse= await fetch(config.crr_url + '' + config.provider_order_review_url,{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)

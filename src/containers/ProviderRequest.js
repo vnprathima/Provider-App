@@ -362,10 +362,10 @@ class ProviderRequest extends Component {
         console.log("Req: ",json_request);
         let url='';
         if(this.state.request === 'coverage-requirement' && this.state.hook !== 'patient-view'){
-            url = config.provider_coverage_requirement_url;
+            url = config.crd_url +''+config.provider_coverage_requirement_url;
         }
         if(this.state.hook === 'patient-view'){
-          url = config.provider_patient_view_url;
+          url = config.crd_url + '' + config.provider_patient_view_url;
         }
         console.log("Fetching response from "+url+",types.info")
         this.consoleLog("Fetching response from "+url+",types.info")
