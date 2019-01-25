@@ -154,11 +154,13 @@ export default class Review extends Component {
         let procedure_sequence = 1;
         for(var key in procedure_details){
             procedure_details[key].sequence = procedure_sequence;
+            procedure_details[key].procedureCodeableConcept = procedure_details[key].code;
             procedure_sequence++;
         }
         let condition_sequence = 1;
         for(var key in condition_details){
             condition_details[key].sequence = condition_sequence;
+            condition_details[key].diagnosisCodeableConcept = condition_details[key].code;
             condition_sequence++;
         }
         console.log(condition_details,procedure_details,'condition_Details')
@@ -174,7 +176,7 @@ export default class Review extends Component {
             },
             procedure: procedure_details,
             diagnosis: condition_details,
-            use: { code: 'claim' },
+            use: {code:'claim'},
             type: {
                 coding: [
                     {
