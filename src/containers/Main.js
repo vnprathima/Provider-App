@@ -323,7 +323,7 @@ export default class Review extends Component {
             })
         }
         if (pa_reqs.hasOwnProperty("DocumentsFromFHIR")) {
-            var FormInputs = [];
+            var FormInputs = this.state.FormInputs;
             let patient_resource = {};
             this.state.resourceDataJson.map((resource, i) => {
                 if (resource.resourceType === "Patient") {
@@ -353,11 +353,13 @@ export default class Review extends Component {
             this.setState({FormInputs : FormInputs});
         }
         if(pa_reqs.hasOwnProperty("InfoFromForm")){
+            var FormInputs = this.state.FormInputs;
             pa_reqs.InfoFromForm.map((input,i)=>{
                 Object.keys(input['FormRequest']).forEach(function (input_type) {
                     FormInputs.push({'input_type':input_type,'input_key':input_type + "_" + i,'label':input['FormRequest'][input_type]})
                 });
             })
+            this.setState({FormInputs : FormInputs});
         }
     }
 
