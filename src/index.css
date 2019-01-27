@@ -24,6 +24,10 @@ body {
   margin-left: 25px;
 }
 
+.FormInputs{
+  padding-top: 10px;
+  margin-left: 25px;
+}
 .floating-label {
   position: absolute;
   pointer-events: none;
@@ -192,6 +196,11 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   padding: 20px 10px 0px 15px;
   color: #8a6d3b;
   /* border-bottom: 1px solid lightgrey; */
+}
+.FormInputsHeader{
+  color: #8a6d3b;
+  font-size: 18px;
+
 }
 .main_heading{
   text-align: left;

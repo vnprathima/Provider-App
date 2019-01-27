@@ -12,7 +12,9 @@ import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import Dropzone from 'react-dropzone';
 import deepIterator from 'deep-iterator';
 import { createToken } from '../components/Authentication';
-import ReactJson from 'react-json-view'
+import ReactJson from 'react-json-view';
+import {Input} from 'semantic-ui-react';
+
 
 var pascalcaseKeys = require('pascalcase-keys');
 
@@ -662,6 +664,37 @@ export default class Review extends Component {
                                             </section>
                                             <div  >{files}</div>
                                         </div>
+                                        {(this.state.pa_option && this.state.FormInputs.length>0) &&
+                                            <div>
+                                                {this.state.FormInputs.map(function(formInput,index){
+                                                    console.log('forminputs------',formInput)
+                                                    if(formInput['input_type']==='text'){
+                                                        return (<div >
+                                                        <div className="header">
+                                                            {formInput['label']}    
+                                                        </div>
+                                                        <div className="FormInputs"><Input className='ui fluid input' type="text" name={formInput['label']} fluid value={''}></Input></div>
+                                                        </div>)
+                                                    }
+                                                    if(formInput['input_type']==='checkbox'){
+                                                        return (
+                                                        <div className="header">
+                                                            <div><input
+                                                                name={formInput['label']}
+                                                                type="checkbox"
+                                                                value={''}
+                                                                checked={false}
+                                                                />
+                                                                {formInput['label']} 
+                                                                </div>
+                                                            </div>
+                                                       )
+                                                    }
+                                                })}
+                                                
+                                            </div>
+                                        }
+
                                         <div className="header">
                                             Additional Notes
                         </div>
