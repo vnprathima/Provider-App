@@ -496,6 +496,7 @@ export default class Review extends Component {
                     </div>);
         });
         console.log(this.state.code,'sss',this.hasAuthToken());
+        console.log('state res:',this.state.show_res,"claim json",this.state.claimResponseJson.length,this.state.claimResponseJson)
         if (!this.hasAuthToken()) {
             if (this.state.code) {
                 this.authorize();
@@ -595,9 +596,20 @@ export default class Review extends Component {
                                                 </div>
                                                 {this.state.show_res  && 
                                                 <div>
-                                                    {this.state.claimResponseJson.length !== undefined &&
+                                                    
+                                                    {Object.keys(this.state.claimResponseJson).length > 0 &&
                                                         <div>{this.state.claim_type} Response:
-                                                            <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre>
+                                                            {/* <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre> */}
+                                                            <ReactJson  
+                                                            enableClipboard={false} 
+                                                            collapsed={1} 
+                                                            indentWidth={4}
+                                                            theme="shapeshifter:inverted"
+                                                            name= {false}
+                                                            iconStyle="triangle"
+                                                            displayObjectSize={false}
+                                                            displayDataTypes={false}
+                                                            src={pascalcaseKeys(this.state.claimResponseJson)} />
                                                         </div>
                                                     }
                                                     {(this.state.searchResponse!==''||this.state.searchResponse!==null) &&
