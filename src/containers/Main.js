@@ -40,7 +40,8 @@ export default class Review extends Component {
             claim_type: 'Claim',
             fhirClient: '',
             patientId: '',
-            FormInputs: []
+            FormInputs: [],
+            pa_loading: false
         }
         console.log(this.state.code, 'code', this.props.location.search)
         this.authorize();
@@ -276,7 +277,7 @@ export default class Review extends Component {
                     this.setState({ resourceJson: resourceJson });
                 }
                 else if (type == 'payer') {
-                    this.setState({ claimResponseJson: resrc });
+                    this.setState({ claimResponseJson: resrc['resource'] });
                     this.setState({ show_res: true });
                 } else if (type == 'provider_doc') {
                     console.log("In provider_doc---",resrc['resource']);
@@ -308,7 +309,7 @@ export default class Review extends Component {
         console.log("Resource json---", this.state.resourceDataJson);
     }
 
-    getPARequirements() {
+    async getPARequirements() {
         console.log("FHIR---", this.state.pa_requirements);
         let pa_reqs = this.state.pa_requirements;
         if (pa_reqs.hasOwnProperty('Codes')) {
@@ -346,7 +347,12 @@ export default class Review extends Component {
                             });
                         } else {
                             console.log("In else not matched--", resource);
-                            self.searchFHIR(self.state.fhirClient, res_type, "patient=" + self.state.patientId , 'provider_doc', fhir_doc[res_type]);
+                            if(res_type === 'Organization'){
+                                var id = patient_resource['managingOrganization']['reference'].split('/')[1];
+                                console.log("Organization id",id);
+                                self.readFHIR(self.state.fhirClient, res_type, id);
+                                // self.searchFHIR(self.state.fhirClient, res_type, "patient=" + patient_resource.ManagingOrganization , 'provider_doc', fhir_doc[res_type]);
+                            }
                         }
                     });
                 });
@@ -363,9 +369,11 @@ export default class Review extends Component {
             })
             this.setState({FormInputs : FormInputs});
         }
+        return true;
+        
     }
 
-    handlePAChange(event) {
+    async handlePAChange(event) {
         console.log("PA----", event.target.value);
         if (event.target.value === "true") {
             this.setState({ prior_authorization: false });
@@ -374,12 +382,16 @@ export default class Review extends Component {
         } else if (event.target.value === "false") {
             this.setState({ prior_authorization: true });
             this.setState({ claim_type: "Prior Authorization" });
-            this.getPARequirements();
+            this.setState({pa_loading: true});
+            await this.getPARequirements();
+            this.setState({pa_loading: false});
+
         }
         console.log("state-", this.state.prior_authorization);
     }
 
     async authorize() {
+        this.setState({loading:true});
         var settings = this.getSettings();
         try {
             console.log(settings.api_server_uri, 'server uri')
@@ -427,6 +439,7 @@ export default class Review extends Component {
             }, Promise.resolve()).then((response) => {
                 return response.json();
             }).then((response) => {
+                this.setState({loading:false});
                 Object.keys(response[0].appData).forEach(function (key) {
                     var val = response[0].appData[key]
                     console.log(response[0].appData, 'heres the value', response[0].appData[key], key)
@@ -468,6 +481,8 @@ export default class Review extends Component {
                     this.setState({ prior_authorization: true })
                     this.setState({ claim_type: 'Prior Authorization' });
                     this.setState({ pa_option: false });
+                    this.setState({loading:true});
+                    this.getPARequirements();
                 } else {
                     this.setState({ prior_authorization: false });
                     this.setState({ pa_option: false });
@@ -612,7 +627,10 @@ export default class Review extends Component {
                     <div>
                         <div className="main_heading">HEALTH INSURANCE SUBMIT - {this.state.claim_type}</div>
                         <div className="content">
-                            {this.state.claimResponse === '' && !this.state.token_error &&
+                            {this.state.loading &&
+                                <div>Loading FHIR data ...</div>
+                            }
+                            {this.state.claimResponse === '' && !this.state.token_error && !this.state.loading &&
                                 <div>
                                     <div className="left-form">
                                         {resourceMainData}
@@ -626,7 +644,17 @@ export default class Review extends Component {
                                                 value={this.state.prior_authorization}
                                                 checked={this.state.prior_authorization}
                                                 onChange={this.handlePAChange} />
-                                                Prior Authorization - <span className="simple-text">Optional</span>
+                                                  Prior Authorization - <span className="simple-text">Optional</span>
+                                                  <div className="note">Tick box above to submit Prior Authorization</div>
+                                                  {this.state.pa_loading && <div className="pa_loading_text">
+                                                      <div id="fse" className={"spinner " + (this.state.pa_loading ? "visible" : "invisible")}>
+                                                        <Loader
+                                                            type="Oval"
+                                                            color="#000000"
+                                                            height="16"
+                                                            width="16"
+                                                        />
+                                                    </div>  Loading Prior Authorization Data...</div>}
                                             </div>}
                                             {!this.state.pa_option &&
                                                 <div>
@@ -736,13 +764,12 @@ export default class Review extends Component {
                                                 </div>
                                                 {this.state.show_res &&
                                                     <div>
-
                                                         {Object.keys(this.state.claimResponseJson).length > 0 &&
                                                             <div>{this.state.claim_type} Response:
                                                             {/* <pre>{JSON.stringify(this.state.claimResponseJson, null, 2)}</pre> */}
                                                                 <ReactJson
                                                                     enableClipboard={false}
-                                                                    collapsed={1}
+                                                                    collapsed={4}
                                                                     indentWidth={4}
                                                                     theme="shapeshifter:inverted"
                                                                     name={false}

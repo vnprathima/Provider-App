@@ -429,14 +429,20 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 .logout{
   float:right;
 }
-
+.pa_loading_text{
+  color: #000000;
+  font-size: 15px;
+}
 pre {background: white; padding: 5px; margin: 5px; height: 250px;}
 .string { color: green; }
 .number { color: darkorange; }
 .boolean { color: blue; }
 .null { color: magenta; }
 .key { color: red; }
-
+.note{
+  font-size:13px;
+  color: gray;
+}
 .simple-text{
   font-size: 16px;
   color: black;
