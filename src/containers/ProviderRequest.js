@@ -58,6 +58,8 @@ class ProviderRequest extends Component {
     this.state = {
         patient:null,
         fhirUrl:(sessionStorage.getItem('username') === 'john')?'http://18.222.7.99:8280/fhir/baseDstu3/':'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
+        // fhirUrl:'http://localhost:8080/fhir/baseDstu3/',
+        
         accessToken:'',
         scope:'',
         payer:'',
@@ -782,6 +784,7 @@ class ProviderRequest extends Component {
         // fhirServer: sessionStorage.getItem('fhir_url'),
         fhirServer:this.state.fhirUrl,
         hook:this.state.hook,
+        payerName:this.state.payer,
         fhirAuthorization : {
           "access_token" : this.state.accessToken,
           "token_type" : config.token_type, // json

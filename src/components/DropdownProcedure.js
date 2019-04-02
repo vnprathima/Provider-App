@@ -1,16 +1,19 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react';
+import jsonData from "../procedure_codes.json";
 
-export const payerOptions = [
-  { key: 'medicare-fee-for-service', value: 'medicare-fee-for-service', text: 'Medicare Fee for service' },
-  { key: 'humana', value: 'humana', text: ' Humana' },
-  { key: 'cigna', value: 'cigna', text: 'Cigna' },
-  { key: 'uhc', value: 'uhc', text: 'UHC' },
-]
 
+let codesList=[];
+function icd10Map(object) {
+    for(const key in object){
+        codesList.push({'key':key,'value':{name:object[key],code:key},'text':key + ' - '+ object[key]})
+    }
+    return codesList;
+   }
+export const options = icd10Map(jsonData);
 let blackBorder = "blackBorder";
 
-export default class DropdownPayer extends Component {
+export default class DropdownProcedure extends Component {
   constructor(props){
     super(props);
     this.state = { currentValue: ""}
@@ -19,7 +22,9 @@ export default class DropdownPayer extends Component {
   };
 
   handleChange = (e, { value }) => {
-    console.log(this.props);
+    // console.log(this.props);
+    // console.log(options);
+    // console.log(value);
     this.props.updateCB(this.props.elementName, value)
     this.setState({ currentValue: value })
   }
@@ -34,13 +39,10 @@ export default class DropdownPayer extends Component {
     return (
       <Dropdown
       className={blackBorder}
-        options={payerOptions}
-        placeholder='Payer'
-        // value={'medicare-fee-for-service'}
+        options={options}
+        placeholder='Procedure codes'
         search
         selection
-        fluid
-        
         onChange={this.handleChange}
       />
     )

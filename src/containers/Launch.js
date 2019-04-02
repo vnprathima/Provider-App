@@ -58,6 +58,13 @@ export default class Review extends Component {
             = {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/auth"}
            tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/token"}
          }
+
+         // //////////////
+
+         //  authorizeUrl= {protocol:"https://",host:"18.222.7.99:8443/",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/auth"}
+         //  tokenUrl = {protocol:"https:",host:"18.222.7.99:8443",pathname:"auth/realms/ProviderCredentials/protocol/openid-connect/token"}
+
+         // //////////////
          const oauth2 = simpleOauthModule.create({
           client: {
           id: settings.client_id,

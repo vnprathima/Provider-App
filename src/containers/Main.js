@@ -14,6 +14,7 @@ import deepIterator from 'deep-iterator';
 import { createToken } from '../components/Authentication';
 import ReactJson from 'react-json-view';
 import {Input} from 'semantic-ui-react';
+import DropdownProcedure from '../components/DropdownProcedure';
 
 
 var pascalcaseKeys = require('pascalcase-keys');
@@ -41,7 +42,8 @@ export default class Review extends Component {
             fhirClient: '',
             patientId: '',
             FormInputs: [],
-            pa_loading: false
+            pa_loading: false,
+            procedure_code:{}
         }
         console.log(this.state.code, 'code', this.props.location.search)
         this.authorize();
@@ -111,6 +113,26 @@ export default class Review extends Component {
         return JSON.parse(data);
     }
 
+    updateStateElement = (elementName, text) => {
+        this.setState({ [elementName]: text});
+    }
+
+    async convertJsonToX12Request(claim_json) {
+        var tempURL = config.xmlx12_url + "xmlx12";
+        console.log("x12 URL", tempURL);
+        fetch(tempURL, {
+            method: 'POST',
+            // mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ claim_json })
+        }).then(res => {
+            console.log("X12 response", res);
+        }).catch(err => err);
+
+    }
+
 
     async getClaimJson() {
         var patient_details = '';
@@ -176,7 +198,7 @@ export default class Review extends Component {
         console.log(condition_details, procedure_details, 'condition_Details')
 
         var contained = this.state.resourceJson.concat(this.state.resourceDataJson);
-        console.log("Contained--", contained);
+        // console.log("Contained--", contained);
         let request = {
             resourceType: 'Claim',
             status: 'draft',
@@ -196,6 +218,9 @@ export default class Review extends Component {
                 ]
             },
         };
+        if (this.state.procedure_code){
+            request.healthCareService = this.state.procedure_code
+        }
         if (this.state.prior_authorization) {
             request.use.code = 'preauthorization';
         }
@@ -234,8 +259,13 @@ export default class Review extends Component {
     }
 
     async createFhirResource() {
+        //  console.log("this.state.procedure_code")
+        // console.log(this.state.procedure_code)
         this.setState({ loading: true });
         let claim_json = await this.getClaimJson();
+        this.convertJsonToX12Request(claim_json)
+        console.log("Claim JSON")
+        console.log(claim_json)
         try {
             const fhirClient = new Client({ baseUrl: config.payer_fhir });
             const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
@@ -403,6 +433,11 @@ export default class Review extends Component {
                     authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
                     tokenUrl = { protocol: "https:", host: "18.222.7.99:8443", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
                 }
+                // ///////
+                // authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
+                // tokenUrl = { protocol: "https:", host: "18.222.7.99:8443", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
+                // ////////
+
                 const oauth2 = simpleOauthModule.create({
                     client: {
                         id: settings.client_id
@@ -722,10 +757,20 @@ export default class Review extends Component {
                                                 
                                             </div>
                                         }
-
+                                        <div>
+                                            <div className="header">
+                                                        Procedure Codes*
+                                            </div>
+                                            <div className="docs">
+                                                <DropdownProcedure
+                                                    elementName="procedure_code"
+                                                    updateCB={this.updateStateElement}
+                                                  />
+                                            </div>
+                                        </div>
                                         <div className="header">
                                             Additional Notes
-                        </div>
+                                        </div>
                                         <div className="docs">
                                             <textarea name="myNotes" value={this.state.additionalNotes} onChange={this.onNotesChange} rows="10" cols="83" />
                                         </div>
