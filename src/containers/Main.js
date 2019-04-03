@@ -263,7 +263,7 @@ export default class Review extends Component {
         // console.log(this.state.procedure_code)
         this.setState({ loading: true });
         let claim_json = await this.getClaimJson();
-        this.convertJsonToX12Request(claim_json)
+        let x12_data = await this.convertJsonToX12Request(claim_json)
         console.log("Claim JSON")
         console.log(claim_json)
         try {
