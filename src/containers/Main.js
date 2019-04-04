@@ -120,17 +120,22 @@ export default class Review extends Component {
     async convertJsonToX12Request(claim_json) {
         var tempURL = config.xmlx12_url + "xmlx12";
         console.log("x12 URL", tempURL);
-        fetch(tempURL, {
+        let req = await fetch(tempURL, {
             method: 'POST',
             // mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ claim_json })
-        }).then(res => {
-            console.log("X12 response", res);
+        }).then((response) => {
+            // console.log("X12 response before----", response);
+            return response.json();
+        }).then((response) => {
+            // console.log("X12 res after---", response);
+            return response;
         }).catch(err => err);
-
+        // console.log("==============",req)
+        return req;
     }
 
 
