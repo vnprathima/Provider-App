@@ -1,21 +1,18 @@
 import React, { Component } from 'react';
 import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
-//import $ from 'jquery'; 
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
 import config from '../properties.json';
-import DisplayBox from '../components/DisplayBox';
 import Loader from 'react-loader-spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import Dropzone from 'react-dropzone';
-import deepIterator from 'deep-iterator';
 import { createToken } from '../components/Authentication';
 import ReactJson from 'react-json-view';
 import {Input} from 'semantic-ui-react';
 import DropdownProcedure from '../components/DropdownProcedure';
-
+import ReadMoreAndLess from 'react-read-more-less';
 
 var pascalcaseKeys = require('pascalcase-keys');
 
@@ -23,6 +20,7 @@ export default class Review extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            npi: queryString.parse(this.props.location.search, { ignoreQueryPrefix: true }).npi,
             code: queryString.parse(this.props.location.search, { ignoreQueryPrefix: true }).code,
             resourceJson: [],
             files: [],
@@ -38,15 +36,24 @@ export default class Review extends Component {
             resourceDataJson: [],
             loading: false,
             token_error: false,
-            claim_type: 'Claim',
+            claim_type: 'Prior Authorization',
             fhirClient: '',
             patientId: '',
             FormInputs: [],
             pa_loading: false,
-            procedure_code:{}
+            procedure_code:{},
+            wait: 5,
+            fhir_resources: 0,
+            pa_submit: false,
+            fhir_errors: 0,
+            documents: 0,
+            requirements:config.requirements,
+            res_json:[],
         }
         console.log(this.state.code, 'code', this.props.location.search)
         this.authorize();
+        this.UpdateRequirementStatus();
+//        this.loadRequirements(0);
         this.searchFHIR = this.searchFHIR.bind(this);
         this.onRemove = this.onRemove.bind(this);
 
@@ -55,6 +62,11 @@ export default class Review extends Component {
         this.indexOfFile = this.indexOfFile.bind(this);
         this.handlePAChange = this.handlePAChange.bind(this);
     }
+    UpdateRequirementStatus() {
+        this.state.requirements.map((req, j) => {
+           req['status'] = 'not_started';
+        });
+     }
     indexOfFile(file) {
         for (var i = 0; i < this.state.files.length; i++) {
             console.log(this.state.files[i].name, file.name, 'lets check')
@@ -300,7 +312,6 @@ export default class Review extends Component {
     }
 
     async searchFHIR(fhirClient, resourceType, searchStr, type, fhir_doc_attr = {}) {
-        console.log(resourceType, searchStr)
         var resourceJson = this.state.resourceJson;
         let searchResponse = await fhirClient.search({ resourceType: resourceType, searchParams: searchStr })
 
@@ -310,6 +321,7 @@ export default class Review extends Component {
                 if (type == 'provider') {
                     resourceJson.push(resrc['resource']);
                     this.setState({ resourceJson: resourceJson });
+                    return resrc['resource'];
                 }
                 else if (type == 'payer') {
                     this.setState({ claimResponseJson: resrc['resource'] });
@@ -407,22 +419,128 @@ export default class Review extends Component {
         return true;
         
     }
+    async loadRequirements(index,fhirClient,patientId) {
+        var steps = this.state.requirements;
+        console.log("in load reqs-----totalsteps-",steps.length,'- current step index-  ',index);
+        if (index <= steps.length) {
+            console.log("in index <= steps.length");
+           var self = this;
+            if (index != 0) {
+                console.log("Type---", steps[index - 1].type);
+                var fhir_resources = self.state.fhir_resources;
+                self.setState({ fhir_resources: fhir_resources + 1 });
+                var data = {};
+                var data1={};
+                var z=0;
+                // steps[index - 1]['status'] = "loading";
+                steps[index - 1]['fhir_resources'] = await Promise.all(steps[index - 1].fhir_data.map(async (dat, i)=>{
+            //    steps[index - 1].fhir_data.map((dat, i)=>{
+                console.log(dat,'dataaaaaaa')
+                if(i === 0){
+                console.log("fhir---" + dat[0]);
+                var code = ''
+                for(var res_type in dat){
+                    var code_obj=dat[res_type]
+                    for(var c in code_obj){
+                        console.log(c,'llll',code_obj[c])
+                        if(code_obj[c].hasOwnProperty('codes')){
+                        code =code_obj[c].codes[0].code
+                        }
+                    }
+                 }
+                var res_type = Object.keys(dat)[0]
+                steps[index]['status'] = "loading";
+                let searchStr='code' + "=" + code + "&patient="+patientId
+                if((res_type !== 'Encounter')&&(res_type !== 'Claim')&&(res_type !== 'Bundle')&&(res_type !== 'Patient')){
+                    console.log(res_type,'why heteee')
+                    let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
+                    if(searchResponse.hasOwnProperty('entry')){
+                        data = searchResponse.entry[0].resource;
+                    }
+                    steps[index]['status'] = "done";
+                }
+                
 
+                // data = await this.searchFHIR(fhirClient, res_type, 'code' + "=" + code + "&patient="+patientId, 'provider');
+                // =fhirClient.search({ resourceType: resourceType, searchParams: searchStr })
+               if((res_type === 'Encounter')&& (res_type ==='Claim')  ){
+                steps[index]['status'] = "loading";
+                let searchStr = "patient="+patientId;
+                let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
+                if(searchResponse.hasOwnProperty('entry')){
+                    data = searchResponse.entry[0].resource;
+                }
+                // data= this.searchFHIR(fhirClient, res_type, "&patient="+patientId, 'provider');
+                steps[index]['status'] = "done";
+               }
+               if(res_type==='Bundle'){
+                   data={};
+               }
+                if (res_type === 'Patient') 
+                {   
+                    data = await fhirClient.read({ resourceType: res_type, id: patientId });
+                }
+                return (
+                        <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
+                            enableClipboard={false}
+                            collapsed={true}
+                            indentWidth={4}
+                            theme="shapeshifter:inverted"
+                            name={false}
+                            iconStyle="triangle"
+                            displayObjectSize={false}
+                            displayDataTypes={false}
+                            src={pascalcaseKeys(data)} /></div>
+                        )
+                    }
+            }));
+            // steps[index - 1]['fhir_resources'] = this.state.res_json.map(function(res){
+            //     return (
+            //             <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
+            //                 enableClipboard={false}
+            //                 collapsed={true}
+            //                 indentWidth={4}
+            //                 theme="shapeshifter:inverted"
+            //                 name={false}
+            //                 iconStyle="triangle"
+            //                 displayObjectSize={false}
+            //                 displayDataTypes={false}
+            //                 src={pascalcaseKeys(res)} /></div>
+            //             )
+            // })
+
+            }
+            // if (index != steps.length) {
+            //     steps[index]['status'] = "loading"
+            //  }
+            self.setState({ requirements: steps });
+            if (index < steps.length) {
+                console.log("in index < steps.length");
+                self.loadRequirements(index + 1,fhirClient,patientId);
+            }
+            console.log("Last I:", index)
+        }
+     }
     async handlePAChange(event) {
         console.log("PA----", event.target.value);
         if (event.target.value === "true") {
-            this.setState({ prior_authorization: false });
-            this.setState({ claim_type: "Claim" });
-
+           this.setState({ pa_submit: false });
         } else if (event.target.value === "false") {
-            this.setState({ prior_authorization: true });
-            this.setState({ claim_type: "Prior Authorization" });
-            this.setState({pa_loading: true});
-            await this.getPARequirements();
-            this.setState({pa_loading: false});
-
+           this.setState({ pa_submit: true });
         }
-        console.log("state-", this.state.prior_authorization);
+        console.log("state-", this.state.pa_submit);
+        // if (event.target.value === "true") {
+        //     this.setState({ prior_authorization: false });
+        //     this.setState({ claim_type: "Claim" });
+
+        // } else if (event.target.value === "false") {
+        //     this.setState({ prior_authorization: true });
+        //     this.setState({ claim_type: "Prior Authorization" });
+        //     this.setState({pa_loading: true});
+        //     await this.getPARequirements();
+        //     this.setState({pa_loading: false})
+        // }
+        // console.log("state-", this.state.prior_authorization);
     }
 
     async authorize() {
@@ -433,14 +551,13 @@ export default class Review extends Component {
             const fhirClient = new Client({ baseUrl: settings.api_server_uri });
             if (config.authorized_fhir) {
                 var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
-                console.log(authorizeUrl, tokenUrl, 'here')
-                if (settings.api_server_uri.search('18.222.7.99') > 0) {
-                    authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
-                    tokenUrl = { protocol: "https:", host: "18.222.7.99:8443", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
+                if (settings.api_server_uri.search('3.92.187.150') > 0) {
+                    authorizeUrl = { protocol: "https://", host: "3.92.187.150:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
+                    tokenUrl = { protocol: "https:", host: "3.92.187.150:8443", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
                 }
                 // ///////
-                // authorizeUrl = { protocol: "https://", host: "18.222.7.99:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
-                // tokenUrl = { protocol: "https:", host: "18.222.7.99:8443", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
+                // authorizeUrl = { protocol: "https://", host: "3.92.187.150:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
+                // tokenUrl = { protocol: "https:", host: "3.92.187.150:8443", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/token" }
                 // ////////
 
                 const oauth2 = simpleOauthModule.create({
@@ -449,7 +566,6 @@ export default class Review extends Component {
                     },
                     auth: {
                         tokenHost: `${tokenUrl.protocol}//${tokenUrl.host}`,
-                        // tokenHost: "https://54.227.173.76:8443/",
                         tokenPath: tokenUrl.pathname,
                         authorizeHost: `${authorizeUrl.protocol}//${authorizeUrl.host}`,
                         authorizePath: authorizeUrl.pathname,
@@ -458,6 +574,7 @@ export default class Review extends Component {
                 const options = { code: this.state.code, redirect_uri: `${window.location.protocol}//${window.location.host}/index`, client_id: settings.client_id };
                 console.log(oauth2, 'oauth2', options)
                 const result = await oauth2.authorizationCode.getToken(options);
+                console.log('oooo')
                 const { token } = oauth2.accessToken.create(result);
                 sessionStorage.getItem("tokenResponse", token.access_token);
                 console.log('The token is : ', token);
@@ -480,6 +597,7 @@ export default class Review extends Component {
                 return response.json();
             }).then((response) => {
                 this.setState({loading:false});
+                
                 Object.keys(response[0].appData).forEach(function (key) {
                     var val = response[0].appData[key]
                     console.log(response[0].appData, 'heres the value', response[0].appData[key], key)
@@ -495,19 +613,20 @@ export default class Review extends Component {
                         self.readFHIR(fhirClient, key, val);
                     }
                 });
+                this.loadRequirements(0,fhirClient,this.state.patientId)
                 var reqs = response[0].requirements;
-                reqs.Codes.map((req, icon) => {
-                    if (Object.prototype.toString.call(req) !== '[object Array]') {
-                        Object.keys(req).forEach(function (res_type) {
-                            Object.keys(req[res_type]).forEach(function (res_attr) {
-                                var code = req[res_type][res_attr]['codes'][0]['code'];
-                                // if (res_type !== 'EpisodeOfCare' && res_type !== 'Location') {
-                                self.searchFHIR(fhirClient, res_type, res_attr + "=" + code + "&patient=" + patientId, 'provider');
-                                // }
-                            });
-                        });
-                    }
-                });
+                // reqs.Codes.map((req, icon) => {
+                //     if (Object.prototype.toString.call(req) !== '[object Array]') {
+                //         Object.keys(req).forEach(function (res_type) {
+                //             Object.keys(req[res_type]).forEach(function (res_attr) {
+                //                 var code = req[res_type][res_attr]['codes'][0]['code'];
+                //                 // if (res_type !== 'EpisodeOfCare' && res_type !== 'Location') {
+                //                 self.searchFHIR(fhirClient, res_type, res_attr + "=" + code + "&patient=" + patientId, 'provider');
+                //                 // }
+                //             });
+                //         });
+                //     }
+                // });
                 if (reqs.hasOwnProperty('DocumentsToAttach')) {
                     this.setState({ docs: reqs.DocumentsToAttach[0] });
                 }
@@ -605,6 +724,44 @@ export default class Review extends Component {
                 {file.name}
             </div>
         ))
+        var requirements = this.state.requirements.map((requirement, index) => {
+            console.log("FHIR view---",requirement.fhir_resources)
+            return (
+               <div key={index}>
+                  <div className={requirement.status}>
+                  <ReadMoreAndLess
+                  //  ref={this.ReadMore}
+                   className="read-more-content"
+                   charLimit={80}
+                   readMoreText=" read more"
+                   readLessText=" read less"
+               >
+                   {(index + 1) + ". " + requirement.rule}
+               </ReadMoreAndLess>
+                     {requirement.status === 'loading' && <div id="fse" className="visible">
+                        <Loader
+                           type="ThreeDots"
+                           color="brown"
+                           height="6"
+                           width="30"
+                        />
+                     </div>}
+                     {requirement.type === 'FHIR' &&
+                        
+                        <div>{requirement.fhir_resources}</div>
+                     }
+                     {requirement.type === 'Supplier' &&
+                        
+                        <div>{requirement.fhir_resources}</div>
+                     }
+                   {requirement.type === 'FormInput' &&
+                        <div>{requirement.form}</div>}
+                     {requirement.type === 'Attachable Document' &&
+                        <div className="padding-left-25 simple-data">{requirement.document}</div>}
+                  </div>
+               </div>
+            )
+         });
         const resourceMainData = this.state.resourceDataJson.map((res, index) => {
             // delete res.id;
             return (
@@ -665,7 +822,7 @@ export default class Review extends Component {
             return (
                 <React.Fragment>
                     <div>
-                        <div className="main_heading">HEALTH INSURANCE SUBMIT - {this.state.claim_type}</div>
+                        <div className="main_heading">PILOT INCUBATOR - {this.state.claim_type}</div>
                         <div className="content">
                             {this.state.loading &&
                                 <div>Loading FHIR data ...</div>
@@ -673,40 +830,42 @@ export default class Review extends Component {
                             {this.state.claimResponse === '' && !this.state.token_error && !this.state.loading &&
                                 <div>
                                     <div className="left-form">
+                                    <div className="header1"> Prior Authorization Requirements - Submit <input
+                                                            name="prior_authorization"
+                                                            type="checkbox"
+                                                            value={this.state.pa_submit}
+                                                            checked={this.state.pa_submit}
+                                                            onChange={this.handlePAChange} /></div>
+                                    <div>{requirements}</div>
+                                    </div>
+                                    {/* <div className="left-form">
                                         {resourceMainData}
                                         {resourceData}
-                                    </div>
+                                    </div> */}
                                     <div className="right-form">
-                                        <div className="header">
-                                            {this.state.pa_option && <div><input
-                                                name="prior_authorization"
-                                                type="checkbox"
-                                                value={this.state.prior_authorization}
-                                                checked={this.state.prior_authorization}
-                                                onChange={this.handlePAChange} />
-                                                  Prior Authorization - <span className="simple-text">Optional</span>
-                                                  <div className="note">Tick box above to submit Prior Authorization</div>
-                                                  {this.state.pa_loading && <div className="pa_loading_text">
-                                                      <div id="fse" className={"spinner " + (this.state.pa_loading ? "visible" : "invisible")}>
-                                                        <Loader
-                                                            type="Oval"
-                                                            color="#000000"
-                                                            height="16"
-                                                            width="16"
-                                                        />
-                                                    </div>  Loading Prior Authorization Data...</div>}
-                                            </div>}
-                                            {!this.state.pa_option &&
-                                                <div>
-                                                    Prior Authorization - <span className="simple-text">{this.state.prior_authorization && <span>Required</span>}
-                                                        {!this.state.prior_authorization && <span>Not Required</span>}</span>
-                                                </div>}
+                                    <div className="summary_heading">
+                                        <div className="summary_block">
+                                            <div className="summary_head">Total</div>
+                                            <div className="summary_val">{this.state.requirements.length}</div>
                                         </div>
+                                        <div className="summary_block">
+                                            <div className="summary_head">Reterived</div>
+                                            <div className="summary_val">{this.state.fhir_resources}</div>
+                                        </div>
+                                        <div className="summary_block">
+                                            <div className="summary_head">Unfetched</div>
+                                            <div className="summary_val">{this.state.fhir_errors}</div>
+                                        </div>
+                                        <div className="summary_block">
+                                            <div className="summary_head">Documents</div>
+                                            <div className="summary_val">{this.state.documents}</div>
+                                        </div>
+                                    </div>
+                                    {this.state.pa_submit &&
+                                     <div className="margin-top-10px">
                                         <div className="header">
                                             Upload Required/Additional Documentation
                                         </div>
-                                        <span>
-                                        </span>
                                         <div className="">
                                             <div className="left-col">Required Documents</div>
                                             <div className="right-col">{documents}</div>
@@ -759,7 +918,6 @@ export default class Review extends Component {
                                                        )
                                                     }
                                                 })}
-                                                
                                             </div>
                                         }
                                         <div>
@@ -792,7 +950,9 @@ export default class Review extends Component {
                                             </div>
                                         </button>
                                     </div>
+                                    }
                                 </div>
+                            </div>
                             }
                             {this.state.token_error &&
                                 <div className="container token_expired">Your Token has expired !!
@@ -854,3 +1014,4 @@ export default class Review extends Component {
             </div>)
     }
 }
+

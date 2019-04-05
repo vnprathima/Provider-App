@@ -9,7 +9,7 @@ body {
   float: left;
   /* border-right: 1px solid lightgray; */
   padding: 15px 0px;
-
+	padding-left: 20px;
 }
 .btn:focus,.btn:active {
   outline: none !important;
@@ -194,6 +194,13 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   text-align: left;
   font-size: 18px;
   padding: 20px 10px 0px 15px;
+  color: #8a6d3b;
+  /* border-bottom: 1px solid lightgrey; */
+}
+.header1{
+  text-align: left;
+  font-size: 22px;
+  padding: 0px 20px 10px 0px;
   color: #8a6d3b;
   /* border-bottom: 1px solid lightgrey; */
 }
@@ -418,8 +425,29 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   font-size: 30px;
   padding-top: 20px;
 }
+.padding-left-25{
+    padding-left: 25px;
+    padding-bottom: 35px;
+    padding-top: 5px;
+}
 .padding-top-10px {
   padding-top: 10px;
+}
+.simple-data{
+    color: #8a6d3b;
+    width: 30%;
+    float: left;
+    font-size: 16px;
+}
+.simple-data1{
+    color: #8a6d3b;
+    float: left;
+    font-size: 16px;
+}
+.simple-json {
+  width: 70%;
+  float:left;
+  min-height: 25px;
 }
 .errorMsg {
   color: indianred;
@@ -466,4 +494,91 @@ pre {background: white; padding: 5px; margin: 5px; height: 250px;}
 }
 .LoggedInUser{
   color:black;
+}
+
+.header-child{
+  text-align: left;
+  font-size: 14px;
+  padding: 20px 10px 0px 15px;
+  color: #8a6d3b;
+  /* border-bottom: 1px solid lightgrey; */
+}
+
+.loading{
+color: brown;
+}
+.not_started{
+color: gray;
+}
+.done{
+color: green;
+}
+.error{
+  color:red;
+}
+.margin-top-10px{
+  margin-top:188px;
+}
+.summary_heading{
+  margin-left: 15%;
+  margin-right: -45px;
+}
+.summary_block{
+  width:40%;
+  border: 5px solid darkgray;
+  padding: 10px;
+  float: left;
+  margin:3px;
+}
+.summary_head{
+  color: darkgrey;
+  font-size : 22px;
+  text-align: center
+
+}
+.summary_val {
+  color: lightseagreen;
+  text-align: center;
+  font-size: 18px;
+}
+
+.menu {
+  float: right;
+  overflow: hidden;
+}
+
+.menu .menubtn {
+  border: none;
+  outline: none;
+  color: white;
+  padding: 7px 16px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+
+.menu_conf{
+  float:right;
+  cursor: pointer;
+  padding: 5px;
+}
+.menu-content {
+    display: none;
+    position: fixed;
+    min-width: 101px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.menu-content a {
+  color: white;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    padding: 15px;
+    background-color: lightseagreen;
+    border-top: 5px solid white;
+}
+
+.menu:hover .menu-content {
+  display: block;
 }
