@@ -428,9 +428,9 @@ export default class Review extends Component {
             if (index != 0) {
                 console.log("Type---", steps[index - 1].type);
                 var fhir_resources = self.state.fhir_resources;
-                self.setState({ fhir_resources: fhir_resources + 1 });
+                 var fhir_errors = self.state.fhir_errors;
+                
                 var data = {};
-                var data1={};
                 var z=0;
                 // steps[index - 1]['status'] = "loading";
                 steps[index - 1]['fhir_resources'] = await Promise.all(steps[index - 1].fhir_data.map(async (dat, i)=>{
@@ -449,13 +449,19 @@ export default class Review extends Component {
                     }
                  }
                 var res_type = Object.keys(dat)[0]
-                steps[index]['status'] = "loading";
+                // steps[index-1]['status'] = "done";
                 let searchStr='code' + "=" + code + "&patient="+patientId
-                if((res_type !== 'Encounter')&&(res_type !== 'Claim')&&(res_type !== 'Bundle')&&(res_type !== 'Patient')){
+                if((res_type !== 'SupplyRequest')&&(res_type !== 'Encounter')&&(res_type !== 'Claim')&&(res_type !== 'Bundle')&&(res_type !== 'Patient')){
                     console.log(res_type,'why heteee')
                     let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
                     if(searchResponse.hasOwnProperty('entry')){
                         data = searchResponse.entry[0].resource;
+                        console.log("resource length--",Object.keys(data).length);
+                        if(Object.keys(data).length>0){
+                            self.setState({ fhir_resources: fhir_resources + 1 });
+                        }  else{
+                                self.setState({ fhir_errors: fhir_errors + 1 });
+                            }
                     }
                     steps[index]['status'] = "done";
                 }
@@ -464,21 +470,37 @@ export default class Review extends Component {
                 // data = await this.searchFHIR(fhirClient, res_type, 'code' + "=" + code + "&patient="+patientId, 'provider');
                 // =fhirClient.search({ resourceType: resourceType, searchParams: searchStr })
                if((res_type === 'Encounter')&& (res_type ==='Claim')  ){
-                steps[index]['status'] = "loading";
+                // steps[index-1]['status'] = "loading";
                 let searchStr = "patient="+patientId;
                 let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
                 if(searchResponse.hasOwnProperty('entry')){
                     data = searchResponse.entry[0].resource;
+                    if(Object.keys(data).length>0){
+                        self.setState({ fhir_resources: fhir_resources + 1 });
+                    } else{
+                        self.setState({ fhir_errors: fhir_errors + 1 });
+                    }
                 }
                 // data= this.searchFHIR(fhirClient, res_type, "&patient="+patientId, 'provider');
                 steps[index]['status'] = "done";
                }
                if(res_type==='Bundle'){
                    data={};
+                   if(Object.keys(data).length>0){
+                        self.setState({ fhir_resources: fhir_resources + 1 });
+                    } else{
+                        self.setState({ fhir_errors: fhir_errors + 1 });
+                    }
                }
                 if (res_type === 'Patient') 
                 {   
                     data = await fhirClient.read({ resourceType: res_type, id: patientId });
+                    steps[index]['status'] = "done";
+                    if(Object.keys(data).length>0){
+                        self.setState({ fhir_resources: fhir_resources + 1 });
+                    } else{
+                        self.setState({ fhir_errors: fhir_errors + 1 });
+                    }
                 }
                 return (
                         <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"

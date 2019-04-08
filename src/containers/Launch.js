@@ -44,6 +44,7 @@ export default class Review extends Component {
           scope         : settings.scope + " launch",
           launch_id     : this.state.launch,
           api_server_uri: this.state.iss
+          // api_server_uri: "http://3.92.187.150:8280/fhir/baseDstu3/"
       });
       
       var settings = this.getSettings();

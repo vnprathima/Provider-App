@@ -22,7 +22,7 @@
       "npi": "1932102952"
     }
   ],
-  "authorized_fhir": false,
+  "authorized_fhir": true,
   "payer_fhir": "http://3.92.187.150:8280/payer_fhir/baseDstu3/",
   "provider_login_params": {
     "grant_type": "password",

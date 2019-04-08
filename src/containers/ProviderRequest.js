@@ -33,7 +33,7 @@ class ProviderRequest extends Component {
     super(props);
     this.state = {
       patient: null,
-      fhirUrl: (sessionStorage.getItem('username') === 'john') ? 'http://18.222.7.99:8280/fhir/baseDstu3/' : 'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
+      fhirUrl: (sessionStorage.getItem('username') === 'john') ? 'http://3.92.187.150:8280/fhir/baseDstu3/' : 'https://fhir-ehr.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca',
       accessToken: '',
       scope: '',
       payer: '',
@@ -973,8 +973,11 @@ class ProviderRequest extends Component {
         encounterId: this.state.encounterId,
         orders: {
           resourceType: "Bundle",
-          entry: [
-
+          entry: [{resource: {
+                    resourceType: "Patient",
+                    id: patientId,
+                      }
+          }
           ]
         }
       }
