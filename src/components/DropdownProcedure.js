@@ -44,6 +44,7 @@ export default class DropdownProcedure extends Component {
         search
         selection
         onChange={this.handleChange}
+        style={{"width" : "530px"}}
       />
     )
   }
