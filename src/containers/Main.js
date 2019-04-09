@@ -49,7 +49,9 @@ export default class Review extends Component {
             documents: 0,
             requirements: config.requirements,
             res_json: [],
-            x12_response: ""
+            x12_response: "",
+            organizationJson:{},
+            required_docs:[]
         }
         console.log(this.state.code, 'code', this.props.location.search)
         this.authorize();
@@ -173,6 +175,7 @@ export default class Review extends Component {
             "payload": [],
             "note": this.state.additionalNotes,
         }
+        var organizationJson = this.state.organizationJson.entry[0].resource;
         if (this.state.resourceJson.length > 0) {
             for (var x = 0; x < this.state.resourceJson.length; x++) {
                 if (this.state.resourceJson[x].hasOwnProperty('resourceType')) {
@@ -247,6 +250,9 @@ export default class Review extends Component {
             request['provider'] = {
                 reference: "#" + practitioner_details.id
             }
+            request['enterer'] = {
+                reference: "#" + practitioner_details.id
+            }
         }
         if (this.state.files != null) {
             for (var i = 0; i < this.state.files.length; i++) {
@@ -271,6 +277,10 @@ export default class Review extends Component {
         }
         console.log("Resource Json before communication--", this.state.resourceJson);
         request.contained.push(fileInputData);
+        request['insurer'] = {
+                                reference: "#" + organizationJson.id
+                                }
+        request.contained.push(organizationJson)
         console.log('request:', request)
         console.log("Resource Json after communication--", this.state.resourceJson);
         return request;
@@ -430,28 +440,26 @@ export default class Review extends Component {
             var fhir_resources = self.state.fhir_resources;
             var fhir_errors = self.state.fhir_errors;
             var data = {};
+            
             steps[index]['status'] = "loading";
             if (steps[index].type === 'FHIR') {
                 steps[index]['fhir_resources'] = await Promise.all(steps[index].fhir_data.map(async (dat, i) => {
-                    //    steps[index].fhir_data.map((dat, i)=>{
-                    // console.log(dat,'dataaaaaaa')
                     if (i === 0) {
+                        var resourceJson = this.state.resourceJson;
                         console.log("fhir response---" + dat);
                         var code = ''
                         for (var restype in dat) {
                             var code_obj = dat[restype]
                             for (var c in code_obj) {
-                                // console.log(c, 'llll', code_obj[c])
                                 if (code_obj[c].hasOwnProperty('codes')) {
                                     code = code_obj[c].codes[0].code
                                 }
                             }
                         }
                         var res_type = Object.keys(dat)[0]
-                        // steps[index-1]['status'] = "done";
                         let searchStr = 'code' + "=" + code + "&patient=" + patientId
                         if ((res_type !== 'SupplyRequest') && (res_type !== 'Encounter') && (res_type !== 'Claim') && (res_type !== 'Bundle') && (res_type !== 'Patient')) {
-                            // console.log(res_type,'why heteee')
+                            console.log(res_type,'why heteee')
                             let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
                             if (searchResponse.hasOwnProperty('entry')) {
                                 data = searchResponse.entry[0].resource;
@@ -464,12 +472,7 @@ export default class Review extends Component {
                             }
                             steps[index]['status'] = "done";
                         }
-
-
-                        // data = await this.searchFHIR(fhirClient, res_type, 'code' + "=" + code + "&patient="+patientId, 'provider');
-                        // =fhirClient.search({ resourceType: resourceType, searchParams: searchStr })
-                        if ((res_type === 'Encounter') && (res_type === 'Claim')) {
-                            // steps[index-1]['status'] = "loading";
+                        if ((res_type === 'Encounter') || (res_type === 'Claim')) {
                             let searchStr = "patient=" + patientId;
                             let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
                             if (searchResponse.hasOwnProperty('entry')) {
@@ -480,7 +483,6 @@ export default class Review extends Component {
                                     self.setState({ fhir_errors: fhir_errors + 1 });
                                 }
                             }
-                            // data= this.searchFHIR(fhirClient, res_type, "&patient="+patientId, 'provider');
                             steps[index]['status'] = "done";
                         }
                         if (res_type === 'Bundle') {
@@ -494,13 +496,20 @@ export default class Review extends Component {
                         }
                         if (res_type === 'Patient') {
                             data = await fhirClient.read({ resourceType: res_type, id: patientId });
-                            steps[index]['status'] = "done";
+                            if('managingOrganization' in data){
+                                var organization_id = data.managingOrganization.reference.substring(data.managingOrganization.reference.lastIndexOf("/") + 1)
+                                let searchStr='_id' + "=" + organization_id 
+                                this.state.organizationJson = await fhirClient.search({ resourceType: 'Organization', searchParams: searchStr })
+                            }
                             if (Object.keys(data).length > 0) {
                                 self.setState({ fhir_resources: fhir_resources + 1 });
                             } else {
                                 self.setState({ fhir_errors: fhir_errors + 1 });
                             }
+                             steps[index]['status'] = "done";
                         }
+                        resourceJson.push(data);
+                        this.setState({ resourceJson: resourceJson });
                         return (
                             <div className="padding-left-25" key={index}><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
                                 enableClipboard={false}
@@ -516,7 +525,24 @@ export default class Review extends Component {
                     }
                 }));
             }  else if (steps[index].type === 'Attachable Document'){
-                
+                steps[index]['status'] = "done";
+                steps[index]['document'] = '';
+                  steps[index].fhir_data.map((doc) => {
+                     var required_docs = self.state.required_docs;
+                     var documents = self.state.documents;
+                     self.setState({ documents: documents + 1 });
+                     Object.keys(doc).forEach(function (doc_name) {
+                        required_docs.push(doc[doc_name]);
+                        if(steps[index]['document'] === ''){
+                           steps[index]['document'] = doc[doc_name];
+                        } else{
+                           steps[index]['document'] = steps[index]['document'] +", " + doc[doc_name];
+                        }
+                     });   
+                     self.setState({required_docs : required_docs});
+                  });
+            } else if (steps[index].type === 'Supplier'){
+                steps[index]['status'] = "error";
             }
             // steps[index]['fhir_resources'] = this.state.res_json.map(function(res){
             //     return (
@@ -539,10 +565,8 @@ export default class Review extends Component {
             //  }
             self.setState({ requirements: steps });
             if (index < steps.length) {
-                // console.log("in index < steps.length");
                 self.loadRequirements(index + 1, fhirClient, patientId);
             }
-            // console.log("Last I:", index)
         }
     }
     async handlePAChange(event) {

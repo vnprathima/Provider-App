@@ -155,7 +155,7 @@
        "type": "FHIR",
        "fhir_data": [
           {
-             "Condition": {
+              "Condition": {
                 "code": {
                   "codes": [
                       {
@@ -817,63 +817,6 @@
                 "boolean": "Does the patient have dependent edema due to congestive heart failure?",
                 "boolean": "Does the patient have cor pulmonale or pulmonary hypertension documented by P pulmonale on an EKG or by an echocardiogram, gated blood pool scan or direct pulmonary artery pressure measurement?",
                 "boolean": "Does the patient have a hematocrit greater than 56%?"
-             }
-          }
-       ]
-    },
-    {
-       "rule": "CERTIFICATE OF MEDICAL NECESSITY(CMN) for Oxygen.The supplier completes Sections A and C of the CMN for Oxygen. You should include this information in these sections.",
-       "type": "Supplier",
-       "fhir_data": [
-          {
-             "Patient": {
-                "name": "Patient name",
-                "address": "Patient address",
-                "telecom": "Patient phone",
-                "identifier": "Patient identifier",
-                "birthDate": "Patient Date of Birth",
-                "gender": "Patient Gender"
-             }
-          },
-          {
-             "Observation": {
-                "category": {
-                   "vital-signs": "Patient Height and Weight"
-                }
-             }
-          },
-          {
-             "SupplyRequest": {
-                "supplier": {
-                   "name": "Supplier Name",
-                   "identifier": "Supplier National Provider Identification",
-                   "address": "Supplier Address",
-                   "telecom": "Supplier Phone Number"
-                },
-                "item": {
-                   "itemCodeableConcept": "Supply Item/Service Procedure Code"
-                }
-             }
-          },
-          {
-             "Practitioner": {
-                "name": "Physician Name",
-                "identifier": "Physician National Provider Identifier (NPI)",
-                "address": "Physician Address",
-                "telecom": "Physician phone"
-             }
-          },
-          {
-             "Organisation": {
-                "name": "Facility Name",
-                "address": "Facility Address"
-             }
-          },
-          {
-             "Form Request": {
-                "text": "Narrative description of all items, accessories and option ordered",
-                "text": "Suppliers charge",
-                "text": "The Medicare fee schedule allowance for each item(s),options,accessories,supplies and drugs,if applicable"
              }
           }
        ]
