@@ -71,7 +71,7 @@ export default class Review extends Component {
     indexOfFile(file) {
         for (var i = 0; i < this.state.files.length; i++) {
             console.log(this.state.files[i].name, file.name, 'lets check')
-            if (this.state.files[i].name == file.name) {
+            if (this.state.files[i].name === file.name) {
                 return i;
             }
 
@@ -89,7 +89,7 @@ export default class Review extends Component {
         // let old_files= this.state.files;
         for (var i = 0; i < files.length; i++) {
             console.log(files[i], 'what file', JSON.stringify(this.state.files).indexOf(JSON.stringify(files[i])), this.state.files)
-            if (this.indexOfFile(files[i]) == - 1) {
+            if (this.indexOfFile(files[i]) === - 1) {
                 console.log(this.indexOfFile(files[i]), i)
                 new_files = this.state.files.concat(files);
             }
@@ -193,10 +193,10 @@ export default class Review extends Component {
             }
         }
         if (this.state.resourceDataJson.length > 0) {
-            for (var x = 0; x < this.state.resourceDataJson.length; x++) {
-                if (this.state.resourceDataJson[x].hasOwnProperty('resourceType')) {
-                    if (this.state.resourceDataJson[x].resourceType === 'Patient') {
-                        patient_details = this.state.resourceDataJson[x]
+            for (var y = 0; y < this.state.resourceDataJson.length; y++) {
+                if (this.state.resourceDataJson[y].hasOwnProperty('resourceType')) {
+                    if (this.state.resourceDataJson[y].resourceType === 'Patient') {
+                        patient_details = this.state.resourceDataJson[y]
                     }
                 }
             }
@@ -208,9 +208,9 @@ export default class Review extends Component {
             procedure_sequence++;
         }
         let condition_sequence = 1;
-        for (var key in condition_details) {
-            condition_details[key].sequence = condition_sequence;
-            condition_details[key].diagnosisCodeableConcept = condition_details[key].code;
+        for (var key1 in condition_details) {
+            condition_details[key1].sequence = condition_sequence;
+            condition_details[key1].diagnosisCodeableConcept = condition_details[key1].code;
             condition_sequence++;
         }
         console.log(condition_details, procedure_details, 'condition_Details')
@@ -320,15 +320,15 @@ export default class Review extends Component {
         if (searchResponse['total'] > 0) {
             searchResponse.entry.map((resrc, j) => {
                 console.log("Search response --- ", resrc, j);
-                if (type == 'provider') {
+                if (type === 'provider') {
                     resourceJson.push(resrc['resource']);
                     this.setState({ resourceJson: resourceJson });
                     return resrc['resource'];
                 }
-                else if (type == 'payer') {
+                else if (type === 'payer') {
                     this.setState({ claimResponseJson: resrc['resource'] });
                     this.setState({ show_res: true });
-                } else if (type == 'provider_doc') {
+                } else if (type === 'provider_doc') {
                     console.log("In provider_doc---", resrc['resource']);
                     Object.keys(fhir_doc_attr).forEach((res_attr) => {
                         if (!resrc['resource'].hasOwnProperty(res_attr)) {
@@ -341,7 +341,7 @@ export default class Review extends Component {
             });
             this.setState({ searchResponse: '' });
         }
-        else if (searchResponse['total'] == 0 && type === 'payer') {
+        else if (searchResponse['total'] === 0 && type === 'payer') {
             console.log("claimresjson---", this.state.claimResponseJson.length);
             this.setState({ show_res: true });
             this.setState({ searchResponse: "It Seems like the " + this.state.claim_type + "  has not been processed yet. Please try agian after some time !!" })
@@ -410,7 +410,7 @@ export default class Review extends Component {
             this.setState({ FormInputs: FormInputs });
         }
         if (pa_reqs.hasOwnProperty("InfoFromForm")) {
-            var FormInputs = this.state.FormInputs;
+            // var FormInputs = this.state.FormInputs;
             pa_reqs.InfoFromForm.map((input, i) => {
                 Object.keys(input['FormRequest']).forEach(function (input_type) {
                     FormInputs.push({ 'input_type': input_type, 'input_key': input_type + "_" + i, 'label': input['FormRequest'][input_type] })
@@ -419,32 +419,29 @@ export default class Review extends Component {
             this.setState({ FormInputs: FormInputs });
         }
         return true;
-
     }
     async loadRequirements(index, fhirClient, patientId) {
         var steps = this.state.requirements;
-        console.log("in load reqs-----totalsteps-", steps.length, '- current step index-  ', index);
-        if (index <= steps.length) {
-            console.log("in index <= steps.length");
+        console.log(steps[index]);
+        console.log("in load reqs-----totalsteps-", steps.length, '- current step index-  ', index, "step----", steps[index]);
+        if (index < steps.length) {
             var self = this;
-            if (index != 0) {
-                console.log("Type---", steps[index - 1].type);
-                var fhir_resources = self.state.fhir_resources;
-                var fhir_errors = self.state.fhir_errors;
-
-                var data = {};
-                var z = 0;
-                // steps[index - 1]['status'] = "loading";
-                steps[index - 1]['fhir_resources'] = await Promise.all(steps[index - 1].fhir_data.map(async (dat, i) => {
-                    //    steps[index - 1].fhir_data.map((dat, i)=>{
-                    console.log(dat, 'dataaaaaaa')
+            console.log("Type---", steps[index].type);
+            var fhir_resources = self.state.fhir_resources;
+            var fhir_errors = self.state.fhir_errors;
+            var data = {};
+            steps[index]['status'] = "loading";
+            if (steps[index].type === 'FHIR') {
+                steps[index]['fhir_resources'] = await Promise.all(steps[index].fhir_data.map(async (dat, i) => {
+                    //    steps[index].fhir_data.map((dat, i)=>{
+                    // console.log(dat,'dataaaaaaa')
                     if (i === 0) {
-                        console.log("fhir---" + dat[0]);
+                        console.log("fhir response---" + dat);
                         var code = ''
-                        for (var res_type in dat) {
-                            var code_obj = dat[res_type]
+                        for (var restype in dat) {
+                            var code_obj = dat[restype]
                             for (var c in code_obj) {
-                                console.log(c, 'llll', code_obj[c])
+                                // console.log(c, 'llll', code_obj[c])
                                 if (code_obj[c].hasOwnProperty('codes')) {
                                     code = code_obj[c].codes[0].code
                                 }
@@ -454,11 +451,11 @@ export default class Review extends Component {
                         // steps[index-1]['status'] = "done";
                         let searchStr = 'code' + "=" + code + "&patient=" + patientId
                         if ((res_type !== 'SupplyRequest') && (res_type !== 'Encounter') && (res_type !== 'Claim') && (res_type !== 'Bundle') && (res_type !== 'Patient')) {
-                            console.log(res_type, 'why heteee')
+                            // console.log(res_type,'why heteee')
                             let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
                             if (searchResponse.hasOwnProperty('entry')) {
                                 data = searchResponse.entry[0].resource;
-                                console.log("resource length--", Object.keys(data).length);
+                                // console.log("resource length--",Object.keys(data).length);
                                 if (Object.keys(data).length > 0) {
                                     self.setState({ fhir_resources: fhir_resources + 1 });
                                 } else {
@@ -493,6 +490,7 @@ export default class Review extends Component {
                             } else {
                                 self.setState({ fhir_errors: fhir_errors + 1 });
                             }
+                            
                         }
                         if (res_type === 'Patient') {
                             data = await fhirClient.read({ resourceType: res_type, id: patientId });
@@ -504,7 +502,7 @@ export default class Review extends Component {
                             }
                         }
                         return (
-                            <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
+                            <div className="padding-left-25" key={index}><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
                                 enableClipboard={false}
                                 collapsed={true}
                                 indentWidth={4}
@@ -517,31 +515,34 @@ export default class Review extends Component {
                         )
                     }
                 }));
-                // steps[index - 1]['fhir_resources'] = this.state.res_json.map(function(res){
-                //     return (
-                //             <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
-                //                 enableClipboard={false}
-                //                 collapsed={true}
-                //                 indentWidth={4}
-                //                 theme="shapeshifter:inverted"
-                //                 name={false}
-                //                 iconStyle="triangle"
-                //                 displayObjectSize={false}
-                //                 displayDataTypes={false}
-                //                 src={pascalcaseKeys(res)} /></div>
-                //             )
-                // })
-
+            }  else if (steps[index].type === 'Attachable Document'){
+                
             }
+            // steps[index]['fhir_resources'] = this.state.res_json.map(function(res){
+            //     return (
+            //             <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
+            //                 enableClipboard={false}
+            //                 collapsed={true}
+            //                 indentWidth={4}
+            //                 theme="shapeshifter:inverted"
+            //                 name={false}
+            //                 iconStyle="triangle"
+            //                 displayObjectSize={false}
+            //                 displayDataTypes={false}
+            //                 src={pascalcaseKeys(res)} /></div>
+            //             )
+            // })
+
+
             // if (index != steps.length) {
             //     steps[index]['status'] = "loading"
             //  }
             self.setState({ requirements: steps });
             if (index < steps.length) {
-                console.log("in index < steps.length");
+                // console.log("in index < steps.length");
                 self.loadRequirements(index + 1, fhirClient, patientId);
             }
-            console.log("Last I:", index)
+            // console.log("Last I:", index)
         }
     }
     async handlePAChange(event) {
@@ -655,8 +656,8 @@ export default class Review extends Component {
                 }
                 if (response[0].hasOwnProperty("prior_authorization") && response[0].prior_authorization === "Optional") {
                     this.setState({ prior_authorization: false })
-                    this.setState({ claim_type: 'Claim' });
-                    this.setState({ pa_option: true });
+                    this.setState({ claim_type: 'Prior Authorization' });
+                    this.setState({ pa_option: false });
                     this.setState({ pa_requirements: response[0].pa_requirements });
                 }
                 else if (response[0].hasOwnProperty("prior_authorization") && response[0].prior_authorization) {
@@ -696,24 +697,24 @@ export default class Review extends Component {
         this.searchFHIR(fhirClient, 'ClaimResponse', 'request=' + claim_id, 'payer')
 
     }
-    syntaxHighlight(json) {
-        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-            var cls = 'number';
-            if (/^"/.test(match)) {
-                if (/:$/.test(match)) {
-                    cls = 'key';
-                } else {
-                    cls = 'string';
-                }
-            } else if (/true|false/.test(match)) {
-                cls = 'boolean';
-            } else if (/null/.test(match)) {
-                cls = 'null';
-            }
-            return '<span class="' + cls + '">' + match + '</span>';
-        });
-    }
+    // syntaxHighlight(json) {
+    //     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    //     return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+    //         var cls = 'number';
+    //         if (/^"/.test(match)) {
+    //             if (/:$/.test(match)) {
+    //                 cls = 'key';
+    //             } else {
+    //                 cls = 'string';
+    //             }
+    //         } else if (/true|false/.test(match)) {
+    //             cls = 'boolean';
+    //         } else if (/null/.test(match)) {
+    //             cls = 'null';
+    //         }
+    //         return '<span class="' + cls + '">' + match + '</span>';
+    //     });
+    // }
     renderObject(inputObj) {
         return (
             <div><pre>{JSON.stringify(inputObj, null, 2)}</pre></div>
@@ -743,12 +744,12 @@ export default class Review extends Component {
     renderPage() {
         const files = this.state.files.map(file => (
             <div className='file-block' key={file.name}>
-                <a onClick={() => this.onRemove(file)} className="close-thik"></a>
+                <a onClick={() => this.onRemove(file)} className="close-thik" />
                 {file.name}
             </div>
         ))
         var requirements = this.state.requirements.map((requirement, index) => {
-            console.log("FHIR view---", requirement.fhir_resources)
+            // console.log("FHIR view---", requirement.fhir_resources)
             return (
                 <div key={index}>
                     <div className={requirement.status}>
@@ -785,49 +786,49 @@ export default class Review extends Component {
                 </div>
             )
         });
-        const resourceMainData = this.state.resourceDataJson.map((res, index) => {
-            // delete res.id;
-            return (
-                <div key={index}>
-                    <div className="header">{res.resourceType}</div>
-                    {/* {this.renderObject(res)} */}
-                    <ReactJson className="dropdown"
-                        enableClipboard={false}
-                        collapsed={1}
-                        indentWidth={4}
-                        theme="shapeshifter:inverted"
-                        name={false}
-                        iconStyle="triangle"
-                        displayObjectSize={false}
-                        displayDataTypes={false}
-                        src={pascalcaseKeys(res)} />
-                </div>);
+        // const resourceMainData = this.state.resourceDataJson.map((res, index) => {
+        //     // delete res.id;
+        //     return (
+        //         <div key={index}>
+        //             <div className="header">{res.resourceType}</div>
+        //             {/* {this.renderObject(res)} */}
+        //             <ReactJson className="dropdown"
+        //                 enableClipboard={false}
+        //                 collapsed={1}
+        //                 indentWidth={4}
+        //                 theme="shapeshifter:inverted"
+        //                 name={false}
+        //                 iconStyle="triangle"
+        //                 displayObjectSize={false}
+        //                 displayDataTypes={false}
+        //                 src={pascalcaseKeys(res)} />
+        //         </div>);
 
-        });
+        // });
         const documents = this.state.docs.map((res, index) => {
             return (
                 <div key={index}>
                     <div><span>{index + 1}. </span>{res}</div>
                 </div>);
         });
-        const resourceData = this.state.resourceJson.map((res, index) => {
-            // delete res.id;
-            return (
-                <div key={index}>
-                    <div className="header">{res.resourceType}</div>
-                    {/* {this.renderObject(res)} */}
-                    <ReactJson
-                        enableClipboard={false}
-                        collapsed={1}
-                        indentWidth={4}
-                        theme="shapeshifter:inverted"
-                        name={false}
-                        iconStyle="triangle"
-                        displayObjectSize={false}
-                        displayDataTypes={false}
-                        src={pascalcaseKeys(res)} />
-                </div>);
-        });
+        // const resourceData = this.state.resourceJson.map((res, index) => {
+        //     // delete res.id;
+        //     return (
+        //         <div key={index}>
+        //             <div className="header">{res.resourceType}</div>
+        //             {/* {this.renderObject(res)} */}
+        //             <ReactJson
+        //                 enableClipboard={false}
+        //                 collapsed={1}
+        //                 indentWidth={4}
+        //                 theme="shapeshifter:inverted"
+        //                 name={false}
+        //                 iconStyle="triangle"
+        //                 displayObjectSize={false}
+        //                 displayDataTypes={false}
+        //                 src={pascalcaseKeys(res)} />
+        //         </div>);
+        // });
         // console.log(this.state.code,'sss',this.hasAuthToken());
         // console.log('state res:',this.state.show_res,"claim json",this.state.claimResponseJson.length,this.state.claimResponseJson)
         if (!this.hasAuthToken()) {
@@ -910,7 +911,6 @@ export default class Review extends Component {
                                                                 </div>
                                                             )}
                                                         </Dropzone>
-
                                                     </section>
                                                     <div  >{files}</div>
                                                 </div>

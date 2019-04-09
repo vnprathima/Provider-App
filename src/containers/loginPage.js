@@ -5,7 +5,7 @@ import config from '../properties.json';
 import {Input,Button} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import Loader from 'react-loader-spinner';
-var humps = require('humps');
+// var humps = require('humps');
 
 class LoginPage extends React.Component {
   constructor(props){
