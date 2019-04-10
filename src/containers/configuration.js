@@ -122,17 +122,6 @@ export default class Configuration extends Component {
                     <div className="dropdown"><Input className='ui  input' type="text" name="vsac_user"  value={config.cds_service.vsac_user}></Input></div></div>
                     <div className="rightStateInput"><div className='header-child'>VSAC Password</div>
                     <div className="dropdown"><Input className='ui  input' type="text" name="vsac_password"  value={config.cds_service.vsac_password}></Input></div></div> */}
-
-                </div>
-                <div className="right-form">
-                <div className='header'>Provider</div>
-                    <div className='header-child'>Provider FHIR URL</div>
-                    <div className="dropdown"><Input className='ui fluid input' type="text" fluid name="provider_fhir_url" onChange={this.onChangeProviderFhirUrl} value={this.state.providerFhirUrl}></Input></div>
-                    <div className='header-child'>Client Secret</div>
-                    <div className="dropdown"><Input className='ui fluid input' type="text" name="provider_client_secret" onChange={this.onChangeClientSecret} fluid value={this.state.clientSecret}></Input></div>
-                    <div className='header-child'>Client ID</div>
-                    <div className="dropdown"><Input className='ui fluid input' type="text" name="provider_client_id" fluid onChange={this.onChangeClientId} value={this.state.clientId}></Input></div>
-
                     <div className='header'>Authorization Service</div>
                     <div className='header-child'>Authorization Token URL</div>
                     <div className="dropdown"><Input className='ui fluid input' type="text" fluid name="auth_token_url" onChange={this.onChangeAuthTokenUrl} value={this.state.authTokenUrl}></Input></div>
@@ -143,9 +132,16 @@ export default class Configuration extends Component {
                     <div className="rightStateInput"><div className='header-child'>Token Expires In</div>
                     <div className="dropdown"><Input className='ui  input' type="text" name="token_expires_in" onChange={this.onChangeTokenExpiry} value={this.state.tokenExpiresIn}></Input></div></div>
                 </div>
-                <button className="submit-btn btn btn-class button-ready" onClick={this.onSaveConfiguration}>Save
-                    
-                      </button>   
+                <div className="right-form">
+                <div className='header'>Provider</div>
+                    <div className='header-child'>Provider FHIR URL</div>
+                    <div className="dropdown"><Input className='ui fluid input' type="text" fluid name="provider_fhir_url" onChange={this.onChangeProviderFhirUrl} value={this.state.providerFhirUrl}></Input></div>
+                    <div className='header-child'>Client Secret</div>
+                    <div className="dropdown"><Input className='ui fluid input' type="text" name="provider_client_secret" onChange={this.onChangeClientSecret} fluid value={this.state.clientSecret}></Input></div>
+                    <div className='header-child'>Client ID</div>
+                    <div className="dropdown"><Input className='ui fluid input' type="text" name="provider_client_id" fluid onChange={this.onChangeClientId} value={this.state.clientId}></Input></div>
+                    <button className="submit-btn btn btn-class button-ready" onClick={this.onSaveConfiguration}>Save</button>   
+                </div>
             </div>
             </div>
             </React.Fragment>

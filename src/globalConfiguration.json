@@ -1,0 +1,40 @@
+{
+    "user_profiles": [
+        {
+          "username": "john",
+          "name": "John",
+          "npi": "1932102951"
+        },
+        {
+          "username": "mary",
+          "name": "Mary",
+          "npi": "1932102952"
+        }
+      ],
+      "crd":{
+        "crd_url":"http://3.92.187.150:8090",
+        "coverage_decision_path": "http://3.92.187.150:8090/cds-services/coverage_decision",
+        "coverage_requirement_path": "http://3.92.187.150:8090/cds-services/coverage_requirement"
+      },
+      "payer":{
+        "fhir_url": "http://3.92.187.150:8280/payer_fhir/baseDstu3/"
+      },
+      "provider":{
+        "fhir_url": "http://3.92.187.150:8280/fhir/baseDstu3/",
+        "client_secret": "237b167a-c4d0-4861-856d-6decf5426022",
+        "client_id": "app-login"
+
+      },
+      "authorization_service":{
+        "auth_token_url": "https://3.92.187.150:8443/auth/realms/ProviderCredentials/protocol/openid-connect/token",
+        "token_verification_url": "https://3.92.187.150:8443/auth/realms/ClientFhirServer/protocol/openid-connect/token/introspect",
+        "token_type": "Bearer",
+        "token_expires_in": 300
+      },
+      
+      "cds_service":{
+        "vsac_user":"prathyanusha",
+        "vsac_password":"Anusha56"
+      }
+      
+}

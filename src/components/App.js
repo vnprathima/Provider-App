@@ -10,6 +10,7 @@ import ProviderRequest from '../containers/ProviderRequest';
 import LoginPage from '../containers/loginPage';
 import Launch from '../containers/Launch';
 import Main from '../containers/Main';
+import Configuration from '../containers/configuration';
 import { library } from '@fortawesome/fontawesome-svg-core'
 //import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faIgloo,faNotesMedical } from '@fortawesome/free-solid-svg-icons';
@@ -29,6 +30,7 @@ export default class App extends Component {
                     {/* <Route path={"/review"} component={Review} /> */}
                     <Route exact path="/index" component={Main} />
                     <Route path={"/launch"} component={Launch} />
+                    <Route path={"/configuration"} component={Configuration} />
                 </Switch>
             </BrowserRouter>
         );

@@ -80,6 +80,7 @@ class LoginPage extends React.Component {
   render() {
     // const {classes} = this.props;
     return (
+      <div className="main">
         <div className="row login-form" onKeyPress={this.handleKeyPress}tabIndex="1">
           {/* <div className="owl" onClick={this.onClickLogin}>
             <div className="hand"></div>
@@ -93,12 +94,12 @@ class LoginPage extends React.Component {
             {/* <img className="udefyn_logo" src={udefyn_logo} alt="Udefyn Logo" onClick={this.onClickLogin}/> */}
           </div>
           <div className="col-12 signin">
-            <label>Provider Log In</label>
+            Provider Application
           </div>
           <div className="col-12 padding-top-10px">
             <Input
                 // id="full-width"
-                label="User Name"
+                label="USER NAME"
                 type='text'
                 // className = {classes.textField}
                 className='ui fluid   input'
@@ -113,7 +114,7 @@ class LoginPage extends React.Component {
           <div className="col-12 padding-top-10px">
             <Input
                 // id="full-width"
-                label="Password"
+                label="PASSWORD"
                 type="password"
                 className='ui fluid   input'
                 // className = {classes.textField}
@@ -125,12 +126,12 @@ class LoginPage extends React.Component {
                 }}
             />
             </div>         
-            <div className="row col-12 padding-top-10px" style={{'paddingRight': '0px'}}>
+            <div className="col-12 padding-top-10px" style={{'paddingRight': '0px'}}>
               <div className="col-8 errorMsg padding-top-10px">
                 {this.state.login_error_msg}
               </div>
               <div className="col-4" style={{'paddingRight': '0px','textAlign':'right'}}>
-                <Button primary onClick={this.onClickLoginSubmit }>
+                <button className="submit-btn btn btn-class button-ready" onClick={this.onClickLoginSubmit}>
                   <span className="login-text">Login</span>  
                   <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
                       <Loader
@@ -140,12 +141,13 @@ class LoginPage extends React.Component {
                           width="15"
                       />
                   </div>
-                </Button>
+                </button>
                 <div style={{'minHeight': '30px'}}>
                 </div>
               </div>
           </div>
         </div>
+      </div>
   );
   }
 }

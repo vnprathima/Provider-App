@@ -1003,7 +1003,7 @@ export default class Review extends Component {
                             }
                             {this.state.token_error &&
                                 <div className="container token_expired">Your Token has expired !!
-                                        <div><button className="btn button-ready" onClick={this.reLaunch}>Refresh Token</button></div>
+                                        <div className="refresh"><button className="submit-btn btn btn-class button-ready" onClick={this.reLaunch}>Refresh Token</button></div>
                                 </div>}
                             {this.state.claimResponse !== '' &&
                                 <div>

@@ -3,6 +3,9 @@ body {
   padding: 0;
   font-family: sans-serif;
   color:gray;
+  /* background-image: url("bg2.jpg");
+  background-color: #cccccc;
+  background-repeat: round; */
 }
 .left-form { 
   width: 50%;
@@ -99,7 +102,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   /* border-width:1px 5px 3px 1px; */
   /* border-style: solid solid solid solid; */
   /* border-color: black; */
-  background: lightseagreen;
+  background: #3FB1CF;
   color: white;
   font-variant-caps: all-petite-caps;
   font-weight: bold;
@@ -216,7 +219,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   position: fixed;
   top: 0;
   width: 100%;
-  background: lightseagreen;
+  background: #3FB1CF;
   padding: 10px;
   z-index: 99;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!important;
@@ -360,7 +363,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   cursor: not-allowed;
 }
 .active{
- color: lightseagreen;
+ color: #3FB1CF;
 }
 .requirements-icon{
     width: 50%;
@@ -406,12 +409,31 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 .tab button.active {
   background-color: #ccc;
 }
+.ui.labeled.input>.label {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    margin: 0;
+    font-size: 12px;
+    line-height: 19px;
+}
+.ui.label {
+  color: white;
+  background-color: #3FB1CF;
+  font-variant-caps: petite-caps;
+}
 
 .login-form{
-  width: 450px;
-  top: 10%;
-  position: relative;
-  left: 31%;
+      width: 450px;
+    top: 12%;
+    position: relative;
+    left: 55%;
+}
+.main{
+  background-image: url("login-bg.jpg");
+  background-color: #cccccc;
+  background-repeat: round;
+  height: -webkit-fill-available;
 }
 .addAttr {
   height: auto;
@@ -421,9 +443,12 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   box-shadow: 0px 10px 14.1px 0.9px rgba(0, 0, 0, 0.24), 0px 4px 19.6px 0.4px rgba(0, 0, 0, 0.16)
 }
 .signin{
-  text-align: center;
-  font-size: 30px;
-  padding-top: 20px;
+    text-align: center;
+    font-size: 30px;
+    padding-top: 120px;
+    padding-bottom: 30px;
+    color: #3FB1CF;
+    font-variant-caps: petite-caps;
 }
 .padding-left-25{
     padding-left: 25px;
@@ -537,7 +562,7 @@ color: green;
 
 }
 .summary_val {
-  color: lightseagreen;
+  color: #3FB1CF;
   text-align: center;
   font-size: 18px;
 }
@@ -575,10 +600,26 @@ color: green;
     display: block;
     text-align: left;
     padding: 15px;
-    background-color: lightseagreen;
+    background-color: #3FB1CF;
     border-top: 5px solid white;
 }
 
 .menu:hover .menu-content {
   display: block;
+}
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: right;
+    color:#072453;
+    font-size: 12px;
+    padding:12px;
+    font-style: oblique;
+    /* background-color: white; */
+    padding-right: 40px;
+}
+.refresh{
+    width: 25%;
+    margin-left: 38%;
 }

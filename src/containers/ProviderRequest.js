@@ -438,8 +438,8 @@ class ProviderRequest extends Component {
     }
     console.log("Fetching response from " + url + ",types.info")
     try {
-      this.setState({ loadingSteps: "true" });
-      this.setSteps(0);
+      // this.setState({ loadingSteps: "true" });
+      // this.setSteps(0);
       const fhirResponse = await fetch(url, {
         method: config.provider_response_method_post,
         headers: myHeaders,
@@ -448,20 +448,6 @@ class ProviderRequest extends Component {
       const res_json = await fhirResponse.json();
       console.log("res_json");
       console.log(res_json);
-      // res_json = {"cards":[{"source":{"label":"CMS Medicare coverage database",
-      //                               "url":"https://www.cms.gov/medicare-coverage-database/details/ncd-details.aspx?NCDId=70&ncdver=3&bc=AAAAgAAAAAAA&\n",
-      //                                },
-      //                       "suggestions":[],
-      //                       "summary":"Requirements for Home Oxygen Theraphy",
-      //                       "indicator":"info",
-      //                       "detail":"The requested procedure needs more documentation to process further",
-      //                       "links":[{
-      //                         "url":"/index?npi="+this.state.practitionerId,
-      //                         "type":"smart",
-      //                         "label":"SMART App"
-      //                       }]
-
-      //                     }]}
       this.setState({ response: res_json });
 
       if (fhirResponse && fhirResponse.status) {
@@ -474,6 +460,7 @@ class ProviderRequest extends Component {
         this.setState({ response: res_json });
       }
       this.setState({ loading: false });
+      this.setState({ "loadCards": true });
       window.scrollTo(0, 0)
       console.log('after scroll')
     } catch (error) {
