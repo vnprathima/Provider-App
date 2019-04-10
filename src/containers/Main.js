@@ -442,7 +442,7 @@ export default class Review extends Component {
             var data = {};
             
             steps[index]['status'] = "loading";
-            if (steps[index].type === 'FHIR') {
+            if (steps[index].type === 'FHIR' || steps[index].type === 'Supplier') {
                 steps[index]['fhir_resources'] = await Promise.all(steps[index].fhir_data.map(async (dat, i) => {
                     if (i === 0) {
                         var resourceJson = this.state.resourceJson;
@@ -460,10 +460,20 @@ export default class Review extends Component {
                         let searchStr = 'code' + "=" + code + "&patient=" + patientId
                         if ((res_type !== 'SupplyRequest') && (res_type !== 'Encounter') && (res_type !== 'Claim') && (res_type !== 'Bundle') && (res_type !== 'Patient')) {
                             console.log(res_type,'why heteee')
+                            if(res_type == 'DiagnosticReport' || res_type == 'Observation'){
+                                searchStr = 'subject'+ '='+patientId
+                            }
                             let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
                             if (searchResponse.hasOwnProperty('entry')) {
                                 data = searchResponse.entry[0].resource;
-                                // console.log("resource length--",Object.keys(data).length);
+                                console.log("resource length--",Object.keys(data).length);
+                                if (Object.keys(data).length > 0) {
+                                    self.setState({ fhir_resources: fhir_resources + 1 });
+                                } else {
+                                    self.setState({ fhir_errors: fhir_errors + 1 });
+                                }
+                            }
+                            else {
                                 if (Object.keys(data).length > 0) {
                                     self.setState({ fhir_resources: fhir_resources + 1 });
                                 } else {
@@ -486,11 +496,59 @@ export default class Review extends Component {
                             steps[index]['status'] = "done";
                         }
                         if (res_type === 'Bundle') {
-                            data = {};
+                            // let searchStr=''
+                            // let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
+                            // console.log(searchResponse,'ohh ok')
+                            // if(searchResponse.hasOwnProperty('entry')){
+                            //     data = searchResponse.entry[0].resource;
+                            //     if (Object.keys(data).length > 0) {
+                            //         self.setState({ fhir_resources: fhir_resources + 1 });
+                            //     } else {
+                            //         self.setState({ fhir_errors: fhir_errors + 1 });
+                            //     }
+                            // }
                             if (Object.keys(data).length > 0) {
                                 self.setState({ fhir_resources: fhir_resources + 1 });
                             } else {
                                 self.setState({ fhir_errors: fhir_errors + 1 });
+                            }
+                            steps[index]['status'] = "done";
+                        }
+                        if (res_type === 'SupplyRequest') {
+                            let searchStr = ''
+                            let patient_data = await fhirClient.read({ resourceType: "Patient", id: patientId });
+                            console.log(patient_data,'pat')
+                            if('managingOrganization' in patient_data){
+                                var organization_id = patient_data.managingOrganization.reference
+                                searchStr='supplier' + "=" + organization_id 
+                            }
+                            let searchResponse = await fhirClient.search({ resourceType: res_type, searchParams: searchStr })
+                            if(searchResponse != undefined){
+                                if(searchResponse.hasOwnProperty('entry')){
+                                    data = searchResponse.entry[0].resource;
+                                    if (Object.keys(data).length > 0) {
+                                        self.setState({ fhir_resources: fhir_resources + 1 });
+                                    } else {
+                                        self.setState({ fhir_errors: fhir_errors + 1 });
+                                    }
+                                }
+                                else{
+                                    if (Object.keys(data).length > 0) {
+                                        self.setState({ fhir_resources: fhir_resources + 1 });
+                                    } else {
+                                        self.setState({ fhir_errors: fhir_errors + 1 });
+                                    }
+                                }
+                                steps[index]['status'] = "done";
+
+                            }
+                            else{
+                                if (Object.keys(data).length > 0) {
+                                    self.setState({ fhir_resources: fhir_resources + 1 });
+                                } else {
+                                    self.setState({ fhir_errors: fhir_errors + 1 });
+                                }
+                                steps[index]['status'] = "error";
                             }
                             
                         }
@@ -541,9 +599,10 @@ export default class Review extends Component {
                      });   
                      self.setState({required_docs : required_docs});
                   });
-            } else if (steps[index].type === 'Supplier'){
-                steps[index]['status'] = "error";
-            }
+            } 
+            // else if (steps[index].type === 'Supplier'){
+            //     steps[index]['status'] = "error";
+            // }
             // steps[index]['fhir_resources'] = this.state.res_json.map(function(res){
             //     return (
             //             <div className="padding-left-25"><span className="simple-data">{Object.keys(dat)[0]} </span> <ReactJson className="dropdown"
