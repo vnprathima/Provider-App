@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
-import config from '../properties.json';
+import config from '../globalConfiguration.json';
 import Loader from 'react-loader-spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
@@ -296,7 +296,7 @@ export default class Review extends Component {
         console.log(x12_data)
         this.setState({ 'x12_response': x12_data['x12_response'] });
         try {
-            const fhirClient = new Client({ baseUrl: config.payer_fhir });
+            const fhirClient = new Client({ baseUrl: config.payer.fhir_url });
             const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
             console.log('The token is : ', token);
             fhirClient.bearerToken = token;
@@ -656,7 +656,7 @@ export default class Review extends Component {
         try {
             console.log(settings.api_server_uri, 'server uri')
             const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-            if (config.authorized_fhir) {
+            if (config.provider.authorized_fhir) {
                 var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
                 if (settings.api_server_uri.search('3.92.187.150') > 0) {
                     authorizeUrl = { protocol: "https://", host: "3.92.187.150:8443/", pathname: "auth/realms/ProviderCredentials/protocol/openid-connect/auth" }
@@ -688,7 +688,7 @@ export default class Review extends Component {
                 fhirClient.bearerToken = token.access_token;
             }
             this.setState({ fhirClient: fhirClient });
-            const url = config.crd_url + "smart_app";
+            const url = config.crd.crd_url + "smart_app";
             console.log("fetching data from " + url)
             var self = this;
             var patientId = '';
@@ -774,7 +774,7 @@ export default class Review extends Component {
         withRouter(({ history }) => (history.push('/')))
     }
     async getClaimResponse(claim_id) {
-        const fhirClient = new Client({ baseUrl: config.payer_fhir });
+        const fhirClient = new Client({ baseUrl: config.payer.fhir_url });
         const token = await createToken(sessionStorage.getItem('username'), sessionStorage.getItem('password'));
         fhirClient.bearerToken = token;
         this.searchFHIR(fhirClient, 'ClaimResponse', 'request=' + claim_id, 'payer')

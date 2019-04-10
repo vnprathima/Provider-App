@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import queryString from 'query-string';
 import simpleOauthModule from 'simple-oauth2';
 import Client from 'fhir-kit-client';
-import config from '../properties.json';
+import config from '../globalConfiguration.json';
 
 export default class Review extends Component {
   constructor(props){
@@ -51,7 +51,7 @@ export default class Review extends Component {
       this.clearAuthToken();
       console.log(settings.api_server_uri)
       const fhirClient = new Client({ baseUrl: settings.api_server_uri });
-      if (config.authorized_fhir === true){
+      if (config.provider.authorized_fhir === true){
          var { authorizeUrl, tokenUrl } = await fhirClient.smartAuthMetadata();
       
          if(settings.api_server_uri.search('3.92.187.150') > 0){
@@ -91,7 +91,7 @@ export default class Review extends Component {
          console.log(authorizationUri,'authorize')
          window.location = authorizationUri;
 	}
-        if (!config.authorized_fhir){
+        if (!config.provider.authorized_fhir){
         	window.location = `${window.location.protocol}//${window.location.host}/index`;
       	}
   }

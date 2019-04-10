@@ -1,5 +1,5 @@
 //import KJUR, {KEYUTIL} from 'jsrsasign';
-import config from '../properties.json';
+import config from '../globalConfiguration.json';
 
 
 export async function createToken(username,password){
@@ -9,18 +9,18 @@ export async function createToken(username,password){
     debug: "debugClass",
     warning: "warningClass"
   };
-    const tokenUrl = config.provider_token_url;
+    const tokenUrl = config.authorization_service.auth_token_url;
     console.log("Retrieving OAuth token from "+tokenUrl,types.info);
     let params = {
         grant_type:"password",
         username:username,
         password:password,
-        client_id:config.client_id
+        client_id:config.provider.client_id
       };
-    if(config.client_id){
-    console.log("Using client {" + config.client_id + "}",types.info)
+    if(config.provider.client_id){
+    console.log("Using client {" + config.provider.client_id + "}",types.info)
     }else{
-    console.log("No client id provided in properties.json",this.warning);
+    console.log("No client id provided in GlobalConfiguration",this.warning);
     }
 
     // Encodes the params to be compliant with

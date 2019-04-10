@@ -17,7 +17,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
-import config from '../properties.json';
+import config from '../globalConfiguration.json';
 import { KEYUTIL } from 'jsrsasign';
 import { createToken } from '../components/Authentication';
 
@@ -190,7 +190,7 @@ class ProviderRequest extends Component {
     console.log(resourceType, resourceId)
 
     const fhirClient = new Client({ baseUrl: this.state.fhirUrl });
-    if (config.authorized_fhir) {
+    if (config.provider.authorized_fhir) {
       fhirClient.bearerToken = this.state.accessToken;
     }
     let readResponse = await fhirClient.read({ resourceType: resourceType, id: resourceId });
@@ -252,8 +252,8 @@ class ProviderRequest extends Component {
 
   async getResourceData(token, prefectInput) {
     console.log("Prefetch input--", JSON.stringify(prefectInput));
-    const url = config.crd_url + "prefetch";
-    // const url = config.fhir_url;
+    const url = config.crd.crd_url + "prefetch";
+    // const url = config.provider.fhir_url;
     // const url = "http://localhost:8181/hapi-fhir-jpaserver-example/baseDstu3/"+valueset;
     await fetch(url, {
       method: "POST",
@@ -431,17 +431,17 @@ class ProviderRequest extends Component {
     console.log("Req: ", json_request);
     let url = '';
     if (this.state.request === 'coverage-requirement' && this.state.hook !== 'patient-view') {
-      url = config.crd_url + '' + config.provider_coverage_requirement_url;
+      url = config.crd.crd_url + '' + config.crd.coverage_requirement_path;
     }
     if (this.state.hook === 'patient-view') {
-      url = config.crd_url + '' + config.provider_patient_view_url;
+      url = config.crd.crd_url + '' + config.crd.patient_view_path;
     }
     console.log("Fetching response from " + url + ",types.info")
     try {
       // this.setState({ loadingSteps: "true" });
       // this.setSteps(0);
       const fhirResponse = await fetch(url, {
-        method: config.provider_response_method_post,
+        method: "POST",
         headers: myHeaders,
         body: JSON.stringify(json_request)
       })
@@ -939,17 +939,17 @@ class ProviderRequest extends Component {
     console.log(this.state.fhirUrl, 'fhirUrl');
 
     let request = {
-      hookInstance: config.provider_hook_instance,
+      hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
       // fhirServer: sessionStorage.getItem('fhir_url'),
       fhirServer: this.state.fhirUrl,
       hook: this.state.hook,
       payerName: this.state.payer,
       fhirAuthorization: {
         "access_token": this.state.accessToken,
-        "token_type": config.token_type, // json
-        "expires_in": config.expires_in, // json
-        "scope": config.fhir_auth_scope,
-        "subject": config.fhir_auth_subject,
+        "token_type": config.authorization_service.token_type, // json
+        "expires_in": config.authorization_service.expires_in, // json
+        "scope": config.authorization_service.scope,
+        "subject": config.authorization_service.subject,
       },
       userId: this.state.practitionerId,
       patientId: patientId,

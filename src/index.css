@@ -451,7 +451,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
     font-variant-caps: petite-caps;
 }
 .padding-left-25{
-    padding-left: 25px;
+    /* padding-left: 25px; */
     padding-bottom: 35px;
     padding-top: 5px;
 }
@@ -459,10 +459,10 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   padding-top: 10px;
 }
 .simple-data{
-    color: #8a6d3b;
-    width: 30%;
+    display: contents;
+    color: black;
     float: left;
-    font-size: 16px;
+    font-size: 13px;
 }
 .simple-data1{
     color: #8a6d3b;
