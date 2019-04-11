@@ -476,7 +476,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 .errorMsg {
   color: indianred;
-  font-size: 10px;
+  font-size: 12px;
   float:right;
 }
 .logout{
@@ -491,7 +491,6 @@ pre {background: white; padding: 5px; margin: 5px; height: 250px;}
 .number { color: darkorange; }
 .boolean { color: blue; }
 .null { color: magenta; }
-.key { color: red; }
 .note{
   font-size:13px;
   color: gray;

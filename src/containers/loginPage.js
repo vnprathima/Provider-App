@@ -2,9 +2,11 @@ import React from 'react';
 import $ from 'jquery';
 import { createToken } from '../components/Authentication';
 import config from '../globalConfiguration.json';
-import {Input,Button} from 'semantic-ui-react';
+import {Input,Form} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import Loader from 'react-loader-spinner';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 // var humps = require('humps');
 
 class LoginPage extends React.Component {
@@ -69,7 +71,7 @@ class LoginPage extends React.Component {
         sessionStorage.setItem('isLoggedIn', true);
         this.props.history.push('/provider_request');
     }
-    this.setState({loading: false, login_error_msg: "Unable to login! Please try again."});
+    this.setState({loading: false, login_error_msg: "Unable to login !! Please try again."});
   }
   handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -81,7 +83,7 @@ class LoginPage extends React.Component {
     // const {classes} = this.props;
     return (
       <div className="main">
-        <div className="row login-form" onKeyPress={this.handleKeyPress}tabIndex="1">
+        <div className="row login-form" onKeyPress={this.handleKeyPress}>
           {/* <div className="owl" onClick={this.onClickLogin}>
             <div className="hand"></div>
             <div className="hand hand-r"></div>
@@ -98,8 +100,10 @@ class LoginPage extends React.Component {
           </div>
           <div className="col-12 padding-top-10px">
             <Input
+                icon='user' iconPosition='left'
                 // id="full-width"
-                label="USER NAME"
+                placeholder='User'
+                // label={<FontAwesomeIcon icon={faUser} />}
                 type='text'
                 // className = {classes.textField}
                 className='ui fluid   input'
@@ -114,7 +118,9 @@ class LoginPage extends React.Component {
           <div className="col-12 padding-top-10px">
             <Input
                 // id="full-width"
-                label="PASSWORD"
+                placeholder='Password'
+                icon='key' iconPosition='left'
+                // label="PASSWORD"
                 type="password"
                 className='ui fluid   input'
                 // className = {classes.textField}
