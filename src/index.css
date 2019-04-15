@@ -3,14 +3,11 @@ body {
   padding: 0;
   font-family: sans-serif;
   color:gray;
-  /* background-image: url("bg2.jpg");
-  background-color: #cccccc;
-  background-repeat: round; */
+  width: inherit;
 }
 .left-form { 
   width: 50%;
   float: left;
-  /* border-right: 1px solid lightgray; */
   padding: 15px 0px;
 	padding-left: 20px;
 }
@@ -432,8 +429,11 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 .main{
   background-image: url("login-bg.jpg");
   background-color: #cccccc;
-  background-repeat: round;
-  height: -webkit-fill-available;
+    background-repeat: round;
+    height: -webkit-fill-available;
+    background-size: cover;
+    width: inherit;
+    background-blend-mode: luminosity;
 }
 .addAttr {
   height: auto;

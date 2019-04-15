@@ -2,15 +2,12 @@ import React from 'react';
 import $ from 'jquery';
 import { createToken } from '../components/Authentication';
 import config from '../globalConfiguration.json';
-import {Input,Form} from 'semantic-ui-react';
+import { Input, Form } from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import Loader from 'react-loader-spinner';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-// var humps = require('humps');
 
 class LoginPage extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       name: '',
@@ -26,7 +23,7 @@ class LoginPage extends React.Component {
     this.onClickLoginSubmit = this.onClickLoginSubmit.bind(this);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     $('input[type="password"]').on('focus', () => {
       $('*').addClass('password');
     }).on('focusout', () => {
@@ -34,130 +31,110 @@ class LoginPage extends React.Component {
     });
   }
 
-  handleName(event){
-    this.setState({name: event.target.value});
+  handleName(event) {
+    this.setState({ name: event.target.value });
   }
 
-  handlepassword(event){
-    this.setState({password: event.target.value});
+  handlepassword(event) {
+    this.setState({ password: event.target.value });
   }
 
-  handleDataBase(event){
-    this.setState({dataBase: event.target.value});
+  handleDataBase(event) {
+    this.setState({ dataBase: event.target.value });
   }
 
 
-  submit(){
-    if (this.props.isLoggedIn && this.props.sessionID){
+  submit() {
+    if (this.props.isLoggedIn && this.props.sessionID) {
       this.props.getModels(this.props.sessionID);
     }
   }
 
-  async onClickLoginSubmit(){
-    this.setState({loading: true, login_error_msg: ''});
-    console.log('in if and token is---',this.state.name,this.state.password,config.username,config.password)
-    let tokenResponse = await createToken(this.state.name,this.state.password);
-    if(tokenResponse !==null && tokenResponse !==undefined){
-        console.log('in if and token is---',tokenResponse) 
-        
-        sessionStorage.setItem('username', this.state.name);
-        sessionStorage.setItem('password', this.state.password);
-        for(var key in config.user_profiles){
-          if(this.state.name===config.user_profiles[key].username){
-            sessionStorage.setItem('npi',config.user_profiles[key].npi);
-            sessionStorage.setItem('name',config.user_profiles[key].name);
-          }
+  async onClickLoginSubmit() {
+    this.setState({ loading: true, login_error_msg: '' });
+    let tokenResponse = await createToken(this.state.name, this.state.password);
+    if (tokenResponse !== null && tokenResponse !== undefined) {
+      sessionStorage.setItem('username', this.state.name);
+      sessionStorage.setItem('password', this.state.password);
+      for (var key in config.user_profiles) {
+        if (this.state.name === config.user_profiles[key].username) {
+          sessionStorage.setItem('npi', config.user_profiles[key].npi);
+          sessionStorage.setItem('name', config.user_profiles[key].name);
         }
-        sessionStorage.setItem('isLoggedIn', true);
-        this.props.history.push('/provider_request');
+      }
+      sessionStorage.setItem('isLoggedIn', true);
+      this.props.history.push('/provider_request');
     }
-    this.setState({loading: false, login_error_msg: "Unable to login !! Please try again."});
+    this.setState({ loading: false, login_error_msg: "Unable to login !! Please try again." });
   }
   handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-        this.onClickLoginSubmit();
+      this.onClickLoginSubmit();
     }
-};
-
+  };
   render() {
-    // const {classes} = this.props;
     return (
       <div className="main">
         <div className="row login-form" onKeyPress={this.handleKeyPress}>
-          {/* <div className="owl" onClick={this.onClickLogin}>
-            <div className="hand"></div>
-            <div className="hand hand-r"></div>
-            <div className="arms">
-              <div className="arm"></div>
-              <div className="arm arm-r"></div>
-            </div>
-          </div> */}
-          <div className="col-12" style={{'textAlign':'center'}}>
-            {/* <img className="udefyn_logo" src={udefyn_logo} alt="Udefyn Logo" onClick={this.onClickLogin}/> */}
+          <div className="col-12" style={{ 'textAlign': 'center' }}>
           </div>
           <div className="col-12 signin">
             Provider Application
           </div>
           <div className="col-12 padding-top-10px">
             <Input
-                icon='user' iconPosition='left'
-                // id="full-width"
-                placeholder='User'
-                // label={<FontAwesomeIcon icon={faUser} />}
-                type='text'
-                // className = {classes.textField}
-                className='ui fluid   input'
-                onChange={this.handleName.bind(this)}
-                defaultValue={this.state.name}
-                fluid
-                inputProps={{
+              icon='user' iconPosition='left'
+              placeholder='User'
+              // label="User name"
+              type='text'
+              className='ui fluid   input'
+              onChange={this.handleName.bind(this)}
+              defaultValue={this.state.name}
+              fluid
+              inputProps={{
                 maxLength: 50,
-                }}
+              }}
             />
-            </div>
+          </div>
           <div className="col-12 padding-top-10px">
             <Input
-                // id="full-width"
-                placeholder='Password'
-                icon='key' iconPosition='left'
-                // label="PASSWORD"
-                type="password"
-                className='ui fluid   input'
-                // className = {classes.textField}
-                onChange={this.handlepassword.bind(this)}
-                defaultValue={this.state.password}
-                fluid
-                inputProps={{
+              placeholder='Password'
+              icon='key' iconPosition='left'
+              // label="Password"
+              type="password"
+              className='ui fluid   input'
+              onChange={this.handlepassword.bind(this)}
+              defaultValue={this.state.password}
+              fluid
+              inputProps={{
                 maxLength: 50,
-                }}
+              }}
             />
-            </div>         
-            <div className="col-12 padding-top-10px" style={{'paddingRight': '0px'}}>
-              <div className="col-8 errorMsg padding-top-10px">
-                {this.state.login_error_msg}
-              </div>
-              <div className="col-4" style={{'paddingRight': '0px','textAlign':'right'}}>
-                <button className="submit-btn btn btn-class button-ready" onClick={this.onClickLoginSubmit}>
-                  <span className="login-text">Login</span>  
-                  <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
-                      <Loader
-                          type="Oval"
-                          color="#fff"
-                          height="15"
-                          width="15"
-                      />
-                  </div>
-                </button>
-                <div style={{'minHeight': '30px'}}>
+          </div>
+          <div className="col-12 padding-top-10px" style={{ 'paddingRight': '0px' }}>
+            <div className="col-8 errorMsg padding-top-10px">
+              {this.state.login_error_msg}
+            </div>
+            <div className="col-4" style={{ 'paddingRight': '0px', 'textAlign': 'right' }}>
+              <button className="submit-btn btn btn-class button-ready" onClick={this.onClickLoginSubmit}>
+                <span className="login-text">Login</span>
+                <div id="fse" className={"spinner " + (this.state.loading ? "visible" : "invisible")}>
+                  <Loader
+                    type="Oval"
+                    color="#fff"
+                    height="15"
+                    width="15"
+                  />
                 </div>
+              </button>
+              <div style={{ 'minHeight': '30px' }}>
               </div>
+            </div>
           </div>
         </div>
       </div>
-  );
+    );
   }
 }
-
-
 
 export default withRouter(LoginPage);
